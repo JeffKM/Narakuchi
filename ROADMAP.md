@@ -29,7 +29,7 @@
 
 - [x] **T01** Godot 4 프로젝트 생성 + 기존 Next/Phaser 코드 정리 (project.godot · scenes/Main.tscn · scripts/Main.gd)
 - [x] **T02** 뷰포트 270×480 세로 + integer scale + Nearest 필터 (→ ADR 0001, project.godot 적용)
-- [ ] **T03** 마스터 팔레트(~32색) 정의 *(팔레트 앵커는 Main.gd에 임시 정의됨, data/로 이전 필요)* + 갈무리 폰트 임포트(라이선스 확인)
+- [x] **T03** 마스터 팔레트 32색 → `data/palette.gd` · 갈무리 로더/테마 → `scripts/systems/fonts.gd` (OFL 1.1) · ⏳ `assets/fonts/Galmuri11.ttf` 드롭 시 자동 적용 (assets/fonts/README.md)
 - [ ] **T04** HTML5 export + PWA(manifest/서비스워커, 세로 고정) 파이프라인 1회 성공
 - [ ] **T05** 로컬 세이브(localStorage JSON) 골격: load/save/reset
 
