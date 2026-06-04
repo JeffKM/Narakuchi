@@ -25,12 +25,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PALETTE_HEX = os.path.join(ROOT, "assets", "palettes", "narakatchi.hex")
 
 # 프리셋: (폭, 높이, 투명배경?, LCD사각 or None)
-#  LCD = (x, y, w, h) — 셸 내부 게임 화면 구멍 (→ ADR 0001: 좌베젤 95·상단 30, 270×480)
+#  LCD = (x, y, w, h) — 셸 내부 게임 화면 구멍 (→ ADR 0001: 셸 LCD 구멍 333×480)
+#  ⚠️ frame 프리셋은 셸 채택(prep_shell.py 633×875) 이전 절차생성 값이라 더 이상 안 씀 — 셸은 tools/prep_shell.py로 생성.
 PRESETS = {
   "okja":  (128, 288, True,  None),
   "sioni": (48,  48,  True,  None),
-  "bg":    (270, 480, False, None),
-  "frame": (460, 630, True,  (95, 30, 270, 480)),
+  "bg":    (333, 480, False, None),  # 내부 교감화면 = 셸 LCD 구멍 333×480 (→ ADR 0001)
+  "frame": (460, 630, True,  (95, 30, 270, 480)),  # (deprecated: prep_shell.py로 대체)
   "cheki": (120, 180, True,  None),
 }
 

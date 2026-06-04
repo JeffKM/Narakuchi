@@ -362,8 +362,8 @@ PAGE = r"""<!DOCTYPE html>
         <option value="okja">okja — 옥자 스탠딩 128×288</option>
         <option value="sioni">sioni — 시온이 48×48</option>
         <option value="cheki" selected>cheki / frame아트 120×180</option>
-        <option value="bg">bg — 배경 270×480 (불투명)</option>
-        <option value="frame">frame — 셸 460×630 (LCD 구멍)</option>
+        <option value="bg">bg — 배경 333×480 (불투명)</option>
+        <option value="frame">frame — (구버전, 셸은 prep_shell.py 사용)</option>
         <option value="custom">custom — 직접 입력</option>
       </select>
       <div id="customSize" class="row hidden" style="margin-top:8px">
