@@ -41,14 +41,14 @@
 ## Phase 0 — 셋업 (Day 0~1 앞부분)
 
 - [x] **T01** Godot 4 프로젝트 생성 + 기존 Next/Phaser 코드 정리 (project.godot · scenes/Main.tscn · scripts/Main.gd)
-- [x] **T02** 세로 캔버스 + integer scale + Nearest 필터 (project.godot) — 베이스 270×480 → **셸 채택으로 `633×875`로 확장**(내부 교감화면 = LCD 구멍 `333×480`). ⚠️ ADR 0001(베이스 270×480) 표기 보강 필요
+- [x] **T02** 세로 캔버스 + integer scale + Nearest 필터 (project.godot) — 베이스 270×480 → **셸 채택으로 `635×877`로 확장**(내부 교감화면 = LCD 구멍 `333×480`). ⚠️ ADR 0001(베이스 270×480) 표기 보강 필요
 - [x] **T03** 마스터 팔레트 32색 → `data/palette.gd` · 갈무리 로더/테마 → `scripts/systems/fonts.gd` (OFL 1.1) · ✅ `Galmuri11/9.ttf` 설치(공식 v2.40.3, OFL 1.1) — Godot이 픽셀폰트 자동 인식(subpixel off), 한글 타이틀 전환 확인
 - [x] **T04** HTML5 export + PWA 파이프라인 1회 성공 — `export_presets.cfg`(Web 프리셋, PWA on, 세로 고정 portrait, standalone) · `godot --headless --export-release "Web" export/index.html` · manifest/서비스워커/오프라인페이지/아이콘 산출 + 로컬 서빙 200 확인 (아이콘 실물·호스팅은 T24)
 - [x] **T05** 로컬 세이브(JSON) 골격: load/save/reset/wipe + 데모 시드 — `SaveManager` autoload(`scripts/systems/save_manager.gd`) · 밸런스 상수 `data/balance.gd`(PRD §4.5) · 웹은 `user://` → IndexedDB 자동 영속
 
 ## Phase 1 — 옥자 교감 코어 (Day 1~2)
 
-- [x] **T06** **게임기 셸** 배치(도트풍 달걀 바디 · 캔버스 `633×875` / 내부화면 LCD `333×480`) + **3버튼**(SELECT 순환·OK 확인·CANCEL 취소) **키·터치 하이브리드 입력** → `button_pressed(action)` 신호 — `scripts/systems/shell.gd` · `Main.gd`(옥자 4버튼 컨셉 메뉴 데모 동작) · 셸 바깥 투명 배경
+- [x] **T06** **게임기 셸** 배치(도트풍 달걀 바디 · 캔버스 `635×877` / 내부화면 LCD `333×480`) + **3버튼**(SELECT 순환·OK 확인·CANCEL 취소) **키·터치 하이브리드 입력** → `button_pressed(action)` 신호 — `scripts/systems/shell.gd` · `Main.gd`(옥자 4버튼 컨셉 메뉴 데모 동작) · 셸 바깥 투명 배경
 - [x] **T06a** 메인 교감 화면(`scripts/cafe.gd`): 배경+옥자+HUD(`scripts/ui/hud.gd`: 호감도게이지·기분·기력·코인)+4버튼+**한 줄 티커**(`scripts/ui/ticker.gd`). 옥자 보이스 풀 `data/dialogue.gd`(상황×관계단계, {nick} 치환) — 옥자 스탠딩(T07)·미터(T08)와 연결
 - [x] **T06b** 온보딩(`scripts/onboarding.gd`): 닉네임 입력 → 옥자 맞이(존댓말) → 첫 방문 기념 지뢰계 일반체키 증정(`data/events.gd`) · `flags.onboarded`로 1회만 · 셸 OK 하이브리드
 - [x] **T07** 옥자 표정 스왑 스탠딩: **얼굴 + 팔 자세 6장**(다리·구도 고정) 교체 상태머신 + 코드 트윈 — 평소 둥실 흔들/말할 때 톡톡/페이드. **표정 전환은 하드컷 + 짧은 스쿼시 정착 트윈(0.1~0.15s)**(크로스페이드 금지 — 팔 자세가 달라 고스팅·팔레트 밖 중간색이 뜸). **기쁨 "폴짝"은 별도 그림 없이 `okja_smile`(두 손 모아 기뻐함)을 체키 획득·나비 승급 등 리워드 순간에 코드 hop 트윈으로 재사용**. 슬픔은 팔 처짐 시무룩까지(우는 연출 금지). (→ ADR 0001)

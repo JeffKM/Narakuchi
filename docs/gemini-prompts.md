@@ -141,6 +141,45 @@ no narrow tall strip, no corridor framing, no furniture in the center, no shelf 
 
 ---
 
+## 게임기 셸 프레임 (다마고치 바디)
+
+> 화면을 감싸는 **다마고치형 달걀 하드웨어**. 가운데 **큰 세로 LCD 구멍**(여기에 게임이 비침) + 하단 **동글 3버튼**(SELECT·OK·CANCEL). 캐릭터·배경과 같은 다크 앤티크 무드로 통일. (→ ADR 0001)
+> **⚠️ 캐릭터와 누끼 방식이 다르다 — 크로마 그린이 아니라 "흰색 누끼"다.** `tools/prep_shell.py`는 근백색 픽셀을 **전부** 투명화한 뒤 LCD 안쪽을 뚫는다. 따라서:
+>   - **배경 = 순수 흰색 `#ffffff`**, **LCD 화면 안쪽 = 순수 흰색**(빈 화면 — 나중에 게임이 합성됨).
+>   - **셸 바디·버튼·데코엔 흰색/근백색 금지**(누끼되어 구멍 난다). 하이라이트도 골드·크림 톤으로(순백 X).
+> **구도 핵심**: 좌우 대칭, 세로 포트레이트(가로:세로 ≈ 0.72), LCD 구멍은 7:10(≈333:480)으로 상단~중앙을 크게, 3버튼은 하단 한 줄. 화면 둘레 여백은 균일하게 얇게.
+
+```
+Pixel art / dot art of a CUTE handheld virtual-pet toy SHELL (like a Tamagotchi), front view, NO character inside.
+Body: a rounded EGG-shaped handheld console body, with a small NECKLACE LOOP / RING at the very top (keychain hole).
+Screen: ONE big TALL rectangular LCD window in the UPPER-CENTER, aspect ratio about 7:10 (≈333:480);
+        the screen INTERIOR is FLAT SOLID WHITE and completely EMPTY (game art is composited in later),
+        framed by a thin dark bezel.
+Buttons: exactly THREE round Tamagotchi-style capsule buttons in a single row across the LOWER body
+         (SELECT / OK / CANCEL), antique-gold / brass colored.
+Decor: tiny cute gothic emblems engraved on the body (a small bat, a heart, a tiny skull), warm candle-gold rim light.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: dark antique to match the cafe — deep burgundy / blood-red body, antique gold trim, ink-black outlines.
+Framing: the toy fills the frame as a TALL vertical portrait (width:height ≈ 0.72), fully SYMMETRIC and centered,
+         with a small even margin all around.
+Background: FLAT SOLID PURE WHITE (#ffffff), nothing else.
+```
+
+### 네거티브 (셸)
+
+```
+no character, no face, no cat, no person, no eyes on the screen, no text, no numbers, no clock digits,
+no watermark, no signature, no white or near-white anywhere on the body or buttons
+(reserve white ONLY for the background and the empty screen),
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render, no glossy reflections,
+no multiple screens, no extra buttons beyond the three, no clutter, asymmetry.
+```
+
+> 🔧 **새 레퍼런스를 뽑으면 계측값을 다시 맞춰야 한다.** `prep_shell.py`의 `SRC_LCD`(LCD x0,y0,x1,y1)·`SRC_BTN_CX`(3버튼 중심 x)·`SRC_BTN_Y`·`SRC_BTN_W/H`는 **현재 레퍼런스 이미지 기준 하드코딩 계측값**이다. 새 이미지는 구멍·버튼 위치가 달라지므로, 행/열 알파 프로파일로 다시 측정해 이 상수들을 갱신한 뒤 실행한다. 실행하면 `prep_shell.py`가 환산된 `shell.gd` 상수(`CANVAS`/`LCD_OFFSET`/`LCD_SIZE`/`BTN_*`)를 출력하니 그대로 `scripts/systems/shell.gd`에 반영한다.
+> 저장 위치: 받은 PNG는 `assets/sprites/_src/damagochi_frame.png`로 두고 아래 후처리 명령 실행.
+
+---
+
 ## 후처리 연결 (받은 PNG → 규격 에셋)
 
 ```bash
@@ -155,6 +194,11 @@ tools/.venv/bin/python tools/dotify.py sioni_idle_raw.png \
 # 나라카 지옥 배경 (333×480, 크로마키 없음 — 화면 전체를 채우는 불투명 배경)
 tools/.venv/bin/python tools/dotify.py naraka_bg_raw.png \
   --size 333x480 --out assets/sprites/naraka_bg.png
+
+# 게임기 셸 (흰색 누끼 + LCD 구멍 뚫기 → 635×877 프레임 + shell.gd 상수 출력)
+# ※ dotify가 아니라 prep_shell.py. 새 레퍼런스면 먼저 SRC_* 계측값부터 갱신할 것.
+tools/.venv/bin/python tools/prep_shell.py \
+  --in assets/sprites/_src/damagochi_frame.png --out assets/sprites/shell_frame.png
 ```
 
 > ⚠️ `--preset bg`(270×480)는 셸 교체 이전 값이라 현 LCD `333×480`과 안 맞는다 — 배경은 위처럼 `--size 333x480`로 뽑을 것(또는 `tools/dotify.py` PRESETS의 `bg`를 `(333, 480, False, None)`으로 갱신).
