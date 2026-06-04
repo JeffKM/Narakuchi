@@ -132,6 +132,174 @@ no plain flat shoes, no over-sexualized outfit (keep it cute girly-grunge, age-s
 
 ---
 
+## 체키 카드 (양면 — 런타임 합성) → ADR 0003
+
+> **🃏 모델**: 체키는 더 이상 "구운 1장 PNG"가 아니다. **앞면(표지) + 뒷면(사진)을 런타임에 레이어 합성**해 만든다(→ ADR 0003). 닉네임·날짜가 동적이라 한 장으로 못 굽는다. 아래 아트들은 모두 **합성용 공용 조각**이며, 텍스트(닉네임·날짜)는 아트가 아니라 **갈무리 도트 폰트 런타임 렌더**다.
+> **실물 레퍼런스**(나라카 체키): 바깥 표지 = 검정 잉크 **날개/나비 + 나라카 붓글씨** + 손글씨 헌사, 안쪽 = **폴라로이드 사진 + 손편지**. 우린 2면으로 압축 — **앞=표지(로고+닉네임), 뒤=사진**. (QR·손편지는 데모 보류)
+
+### 앞면 표지 — 파치먼트 배경 (`frame_cover_bg`)
+
+> 표지의 **바탕 1장**(공용). 그 위에 등급 엠블럼 + 나라카 워드마크 + 닉네임·날짜(갈무리)가 런타임 합성된다. 카드 `120×180` 꽉, 누끼 불필요(불투명 카드).
+
+```
+Pixel art / dot art of a blank vintage CARD COVER — aged KRAFT / SEPIA PARCHMENT, antique and worn,
+with a ROUGH TORN, slightly CHARRED-BURNT dark edge all around (burnt vignette). NO text, NO emblem, NO character.
+Tall vertical portrait, aspect ratio 120:180 (2:3), the parchment fills the whole card.
+Leave the CENTER fairly EMPTY (an emblem and handwritten name are composited on later).
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: dark antique — aged tan/sepia kraft paper, ink black, charred brown edges, faint candle-warm tint.
+Background: the parchment IS the image edge-to-edge (opaque card, no chroma needed).
+```
+
+### 앞면 표지 — 등급 엠블럼 2종 (`emblem_wing` 일반 · `emblem_butterfly` 나비)
+
+> 등급을 표지에서 가르는 **핵심 변태(metamorphosis) 모티프**(→ ADR 0002·0003). **🔑 실물 나라카 로고 그대로**(레퍼런스 `assets/sprites/_src/naraka_logo_ref.png`): 비대칭 한 쌍 날개 — **왼쪽 깃털 완전날개 + 오른쪽 그을린·구멍난 탄날개(나방/나비)** + 붉은 잉크 스플래터. **일반 = 이 쌍날개 그대로**, **나비 = 그 쌍날개가 온전한 대칭 지옥풍 나비로 변태(탄날개 구멍이 아물어 나비가 됨) + 앤틱 골드**. 중복→나비 승급이 "탄날개가 나비로 부화"하는 그림으로 표지에서 문자 그대로 일어난다. **각각 단색 배경(크로마 그린)으로 받아 누끼** → 표지 위에 합성.
+
+```
+[일반 — emblem_wing] (= 실물 나라카 쌍날개 크레스트, 레퍼런스 첨부 권장)
+Pixel art / dot art of the NARAKA twin-wing crest: a PAIR of ASYMMETRIC black-ink WINGS spread wide,
+hand-painted SUMI-E brush look. The LEFT wing is a FEATHERED angel/bird wing (full, intact — "완전날개");
+the RIGHT wing is a TATTERED MOTH / butterfly wing with BURNT HOLES and ragged charred edges ("탄날개"),
+the two meeting at a thin center. A few sparse BLOOD-RED ink SPLATTER specks around it. NO text, NO body.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color: INK BLACK wings, charred dark brown on the tattered side, sparse blood-red splatter.
+Background: FLAT SOLID chroma green (#00ff00), nothing else.
+
+[나비 — emblem_butterfly] (= 쌍날개가 완전한 나비로 변태)
+Pixel art / dot art of a HELL-THEMED BUTTERFLY, wings spread WIDE and fully OPEN, perfectly SYMMETRIC, front view —
+the twin wings have COMPLETED their metamorphosis (both sides now whole butterfly wings, the burnt holes HEALED).
+INK-BLACK wings with ANTIQUE-GOLD edge tracing and faint EMBER-RED veins, a tiny HEART or small SKULL on the body,
+sparse blood-red splatter. NOT a cute spring butterfly — gothic / underworld.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: dark antique — ink black wings, antique-gold trim, ember-red accents.
+Background: FLAT SOLID chroma green (#00ff00), nothing else.
+```
+
+### 앞면 표지 — 나라카 붓글씨 워드마크 (`wordmark_naraka`)
+
+> 표지 하단의 **핏빛 붓글씨 "나라카" 로고**(공용 1장). 크로마 그린 누끼.
+
+```
+Pixel art / dot art of the word "나라카" in rough BLOOD-RED BRUSH CALLIGRAPHY (Korean), dripping ink feel,
+hand-painted, slightly uneven. NO other text, NO frame.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color: BLOOD RED / deep burgundy ink only.
+Background: FLAT SOLID chroma green (#00ff00), nothing else.
+```
+
+> 💡 **닉네임·날짜는 아트가 아니다** — 표지 중앙~하단에 갈무리 폰트로 `"○○ 님"` + 획득일을 런타임 렌더(손글씨 헌사 느낌). 박슥자가 이름을 적어 넣는 미세 비트(획득 팝업, → ADR 0003).
+> 🦋 **QR은 보류** — 표지에 빈 레이어 자리만 남기고 데모엔 안 그린다(공유는 @나라카 워터마크만).
+
+---
+
+### 뒷면 사진 프레임 — 표준 (`frame_standard`, 일반체키 공용)
+
+> 캐릭터 의상 아트(`okja_*` 등) 위에 얹는 **사진 면 테두리**(공용 1장). **로고·워드마크·QR은 전부 표지로 갔다** — 여기엔 없다. **크라프트 테두리 + 폴라로이드 붉은 드립만** 남겨 의상을 가리지 않는 깨끗한 쇼케이스.
+> **🔑 워크플로우(누끼)**: AI는 투명창을 못 만든다. **가운데 사진 창을 크로마 그린(`#00ff00`) 단색으로** 깔게 하고, `dotify --chroma 00ff00`로 그 창만 뚫어 투명 슬롯을 만든다(여기로 의상 아트가 비친다). 양피지 테두리는 불투명.
+> **🔑 규격(큰 폴라로이드)**: 카드 `120×180`, **얇은 균일 테두리 `~6px`** + 사진 창 **`~108×162`**(카드의 ~90% 차지). **별도 캡션 스트립 없음** — 데이 라벨("○○ 데이")은 **런타임에 사진 창 윗쪽에 오버레이**(실물 체키가 사진 위에 손글씨 적던 자리)라 아트엔 안 굽는다. **사진 창만** 크로마 그린, 테두리만 불투명 양피지.
+
+```
+Pixel art / dot art of an EMPTY vintage POLAROID-style photo (cheki) FRAME, front view, NO character, NO photo, NO logo, NO text.
+This is an OVERLAY border: the inside is a hollow PHOTO WINDOW where the costume artwork is composited later.
+Card: an aged KRAFT / SEPIA PARCHMENT card, antique and worn, with a ROUGH TORN, slightly CHARRED-BURNT dark edge
+      all around the outer rim (burnt vignette). Tall vertical portrait, aspect ratio 120:180 (2:3), card fills the frame.
+Photo window: ONE BIG empty rectangular window filling MOST of the card — a THIN even parchment border (~6px) on ALL
+      four sides, the window occupying roughly 90% (about 108 wide × 162 tall).
+      FLAT SOLID chroma green (#00ff00) and completely EMPTY. NO bottom caption strip.
+      Along the TOP edge of the window, a thin BLOOD-RED paint DRIP / splatter (classic polaroid top edge).
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: dark antique — aged tan/sepia kraft paper, ink black, blood red, charred brown edges.
+Composition: one BIG centered photo window with a thin even border + red drip along its top; the window stays PURE chroma green.
+```
+
+### 네거티브 (사진 프레임 — 공통 네거티브에 더한다)
+
+```
+no character, no person, no face, no cat, no photo or picture inside the window,
+no scenery in the window (the center window MUST stay flat solid chroma green and empty),
+no logo, no wing, no butterfly, no wordmark, no QR code, no clock, no numbers, no readable text,
+no shiny foil, no holographic, no glossy reflections, no clean modern white border,
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render,
+no rounded corners cut off, no off-center window, no asymmetry.
+```
+
+> ⚠️ **검수 포인트**: ① 사진 창이 **순수 크로마 그린 한 덩어리**(카드의 ~90%, ≈`108×162`)인지 ② **하단에 캡션 스트립이 없는지**(균일 ~6px 테두리만 — 데이 라벨은 런타임 오버레이라 아트엔 없음) ③ **로고·워드마크·QR이 안 들어갔는지**(표지로 갔다) ④ 양피지·붉은 드립이 마스터 팔레트(~32색)에 인덱싱되는지. 저장: `assets/sprites/frame_standard.png`.
+> 💡 **이벤트 테마 프레임(나비체키)도 같은 골격** — 이 사진 프레임을 베이스로 **테두리 데코만 그 이벤트 테마로** 갈아끼운다(지뢰계=메탈하트·리본, 유치원=크레용·무지개, 힙합=그래피티·체인, 집사=은쟁반·장미, 크리스마스=눈·리스). 가운데 크로마 그린 창·규격은 **그대로 유지**.
+
+### 뒷면 사진 프레임 — 지뢰계 테마 (`frame_jirai`, 나비체키용)
+
+> 표준 프레임(`frame_standard`)과 **골격·규격·누끼 방식 동일** — 테두리 데코만 갈아끼운 변형. 사진 창은 여전히 **순수 크로마 그린**(배경은 `bg_cheki_jirai`가 별도 레이어로 책임지고, 의상 누끼가 그 위에 합성됨). **배경(시부야풍 네온 밤거리)과 같은 네온 야경 팔레트로 통일** — 양피지/세피아가 아니라 **네이비·블랙 베이스 + 네온 핑크·퍼플 튜브 글로우**. 밤거리 사진 위에 **네온 사인틀**을 두른 느낌이라 의상·배경과 한 세트로 붙는다(지뢰계 디테일=글로우 하트·별·리본·십자가·은 체인).
+> **🔑 규격(표준과 동일)**: 카드 `120×180`, 얇은 균일 테두리 `~6px` + 사진 창 `~108×162`(카드의 ~90%). 사진 창만 크로마 그린, 테두리만 불투명. 캡션 스트립 없음(데이 라벨은 런타임 오버레이). 로고·워드마크·QR 없음(표지로 갔다).
+> **🔑 글로우 도트 주의**: 네온 글로우는 **소프트 블러가 아니라 2~3단 계단형 플랫 픽셀 헤일로**로(→ ADR 0001 Nearest·노 그라데이션). 그라데이션·번짐 금지.
+
+```
+Pixel art / dot art of an EMPTY decorated POLAROID-style photo (cheki) FRAME, front view, NO character, NO photo, NO logo, NO text.
+This is an OVERLAY border in JIRAI-KEI ("landmine girl") style, themed to MATCH a NEON NIGHT-CITY photo inside:
+      the inside is a hollow PHOTO WINDOW where the costume artwork is composited later.
+Card: a dark NAVY-BLACK card whose inner rim is a GLOWING NEON TUBE outline, gothic-cute and girly. Tall vertical portrait, aspect ratio 120:180 (2:3), card fills the frame.
+Photo window: ONE BIG empty rectangular window filling MOST of the card — a THIN even decorated border (~6px) on ALL
+      four sides, the window occupying roughly 90% (about 108 wide × 162 tall).
+      FLAT SOLID chroma green (#00ff00) and completely EMPTY. NO bottom caption strip.
+Border decoration (NEON JIRAI-KEI): the inner rim glows as a hot-pink & electric-purple NEON TUBE; small glowing NEON HEARTS and little STARS,
+      black & pink RIBBON BOWS at the corners, tiny silver CROSS charms, a thin silver CHAIN run along the edges.
+      Along the TOP edge of the window, a thin PINK-RED neon DRIP / splatter (classic polaroid top edge).
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading;
+      neon glow rendered as 2-3 STEPPED flat pixel halos, NOT a soft blur.
+Color mood: neon jirai-kei night — navy/black base, hot pink, magenta, electric purple, a touch of cyan, silver chain, blood-red accents.
+Composition: one BIG centered photo window framed by a glowing neon tube + symmetric corner ribbons; the window stays PURE chroma green.
+```
+
+#### 네거티브 (지뢰계 프레임 — 공통 네거티브에 더한다)
+
+```
+no character, no person, no face, no cat, no photo or picture inside the window,
+no scenery in the window (the center window MUST stay flat solid chroma green and empty),
+no logo, no wing, no butterfly, no wordmark, no QR code, no clock, no numbers, no readable text,
+no kraft/sepia parchment look (this frame is NAVY-BLACK with NEON, not aged paper),
+no soft glow blur (neon glow must be stepped flat pixels), no holographic, no glossy reflections,
+no smooth gradient, no soft anti-aliased edges, no 3D render,
+no rounded corners cut off, no off-center window, no asymmetry.
+```
+
+> ⚠️ **검수 포인트**: ① 사진 창이 **순수 크로마 그린 한 덩어리**(표준과 같은 `~108×162`)인지 ② 테두리가 **네온 야경 톤**(네이비·블랙 + 네온 핑크·퍼플 튜브 글로우 + 글로우 하트·별·리본·십자가·체인)이라 **배경 밤거리와 한 세트**로 붙는지 — 세피아 양피지로 새지 않았는지 ③ 글로우가 **소프트 블러가 아니라 계단형 플랫 도트**인지 ④ 로고·QR·캡션 스트립이 없는지 ⑤ 마스터 팔레트(~32색) 인덱싱. 저장: `assets/sprites/frame_jirai.png`.
+
+### 체키 사진 배경 — 지뢰계 (`bg_cheki_jirai`, 의상 종속 레이어)
+
+> **왜 별도 레이어인가**: 옥자 의상 아트(`okja_jirai`)는 **누끼(투명 배경)** 라 사진 창에 그대로 얹으면 뒤가 빈다. 그래서 사진 면은 `[배경 레이어] + [의상 누끼] + [사진 프레임 테두리]` **3겹 합성**(→ ADR 0003)이고, 이 배경은 **의상(이벤트)에 종속** — 지뢰계 옥자 뒤엔 지뢰계 풍경. 등급이 프레임을 표준↔테마로 스왑해도 배경은 항상 유지된다.
+> **🔑 무드(풍경)**: 평면 패턴 벽이 아니라 **실제 장소감 있는 풍경** — 지뢰계 정체성에 맞는 **시부야풍 네온 밤거리**. 캐릭터가 "그 앞에서 찍은 스냅샷"처럼 보여야 해서, **중앙은 흐릿한 보케/심플**(누끼 옥자 상반신이 그 앞에 서니 가독성 확보)하고 네온사인·간판 디테일은 위·옆으로 민다.
+> **🔑 규격**: **카드 풀사이즈 `120×180` 불투명**(누끼 X, 크로마 X). 프레임 테두리(불투명)가 바깥을 덮으니 실제로 보이는 건 사진 창(`~108×162`) 영역. 네온 글로우로 가장자리를 채우되 중앙 하단(옥자 발치)은 비교적 비운다.
+
+```
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a JIRAI-KEI ("landmine girl") girl's NIGHT CITY street, Shibuya/Harajuku vibe.
+NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
+(a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
+Scene: a neon-lit night street at the top and sides — glowing PINK and PURPLE NEON SIGNS and shop signboards (abstract glyph-like glow, NOT real letters),
+      tall city buildings receding into the dark, a couple of STREET LAMPS, soft round BOKEH light orbs floating in the air;
+      a WET sidewalk / asphalt at the bottom catching pink-purple neon REFLECTIONS.
+Depth: detailed glowing signs along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of city lights so a standing character reads clearly;
+      the LOWER-CENTER (character's feet area) stays calmer, just wet-ground reflection.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh done as clusters of flat pixel dots.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
+Color mood: jirai-kei night — deep navy/black sky, hot pink, magenta, electric purple, a touch of cyan and warm lamp amber.
+```
+
+#### 네거티브 (지뢰계 배경 — 공통 네거티브에 더한다)
+
+```
+no character, no person, no face, no cat, no hands,
+no photo frame, no card border, no polaroid edge (the frame is a separate layer),
+no readable text, no real words, no legible signage, no logo, no QR code, no watermark,
+no chroma green, no transparency, no empty/hollow window (this layer is FULLY OPAQUE),
+no flat repeating pattern wall, no argyle, no polka-dot wallpaper (this is a SCENE, not a pattern),
+no busy/cluttered center, no large object in the middle blocking the character,
+no smooth gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render, no lens blur photo.
+```
+
+> ⚠️ **검수 포인트**: ① **완전 불투명**인지(투명·크로마 그린이 한 픽셀도 없어야 — 누끼 옥자를 받쳐야 함) ② **풍경(장소감)**인지 — 평면 패턴 벽으로 새지 않았는지 ③ **중앙(특히 하단 발치)이 비교적 비어** 캐릭터가 읽히는지 ④ 간판 글자가 **읽히는 실제 글자가 아닌** 추상 네온인지(저작권·가독 방해 회피) ⑤ 네온 핑크/퍼플 야경이 마스터 팔레트(~32색)에 인덱싱되는지. 저장: `assets/sprites/bg_cheki_jirai.png`.
+> 💡 **다른 의상도 같은 풍경 레이어** — 유치원=햇살 놀이터, 힙합=그래피티 골목/도시, 집사=앤틱 저택 홀, 크리스마스=눈 내리는 거리로 **장소만 갈아끼운다**(규격 `120×180` 불투명·중앙 비움·도트 보케 동일).
+
+---
+
 ## 시온이 (펫)
 
 ```
@@ -280,6 +448,33 @@ tools/.venv/bin/python tools/dotify.py okja_smile_raw.png \
 # 옥자 지뢰계 ★히어로 체키 (금발·갸루 포즈 — 체키 카드용 정적 아트)
 tools/.venv/bin/python tools/dotify.py okja_jirai_raw.png \
   --preset okja --chroma 00ff00 --out assets/sprites/okja_jirai.png
+
+# 체키 뒷면 사진 프레임 (120×180, 가운데 크로마 그린 창만 뚫어 투명 슬롯화)
+# ※ preset cheki(120×180) + --chroma 00ff00 → 사진 창이 투명, 양피지 테두리는 불투명 유지
+# ※ 로고·워드마크·QR 없음(표지로 이동) — 테두리+붉은 드립만
+tools/.venv/bin/python tools/dotify.py frame_standard_raw.png \
+  --preset cheki --chroma 00ff00 --out assets/sprites/frame_standard.png
+
+# 지뢰계 테마 프레임 (표준 골격 + 테두리만 지뢰계 데코, 사진 창은 동일하게 크로마 그린)
+tools/.venv/bin/python tools/dotify.py frame_jirai_raw.png \
+  --preset cheki --chroma 00ff00 --out assets/sprites/frame_jirai.png
+
+# 체키 사진 배경 — 지뢰계 (120×180 불투명, 누끼 X — 누끼 옥자 뒤에 깔리는 의상 종속 레이어)
+tools/.venv/bin/python tools/dotify.py bg_cheki_jirai_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_jirai.png
+
+# 체키 앞면 표지 — 파치먼트 배경 (120×180, 불투명 카드, 누끼 없음)
+tools/.venv/bin/python tools/dotify.py frame_cover_bg_raw.png \
+  --size 120x180 --out assets/sprites/frame_cover_bg.png
+
+# 체키 표지 등급 엠블럼 2종 + 나라카 워드마크 (크로마 그린 누끼 → 표지 위 합성)
+# ※ size는 합성 레이어라 자유. 쌍날개·나비는 가로로 넓다. 크로마만 뚫는다.
+tools/.venv/bin/python tools/dotify.py emblem_wing_raw.png \
+  --size 96x56 --chroma 00ff00 --out assets/sprites/emblem_wing.png
+tools/.venv/bin/python tools/dotify.py emblem_butterfly_raw.png \
+  --size 88x64 --chroma 00ff00 --out assets/sprites/emblem_butterfly.png
+tools/.venv/bin/python tools/dotify.py wordmark_naraka_raw.png \
+  --size 96x32 --chroma 00ff00 --out assets/sprites/wordmark_naraka.png
 
 # 시온이 (48×48)
 tools/.venv/bin/python tools/dotify.py sioni_idle_raw.png \

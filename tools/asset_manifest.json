@@ -14,11 +14,16 @@
       ]
     },
     {
-      "id": "A2", "title": "A2 · 지뢰계 + 프레임",
+      "id": "A2", "title": "A2 · 지뢰계 + 체키 카드(양면)",
       "items": [
-        { "id": "okja_jirai",     "label": "옥자 지뢰계(★히어로) 체키", "preset": "okja",  "path": "assets/sprites/okja_jirai.png" },
-        { "id": "frame_standard", "label": "표준 프레임(일반체키)",     "preset": "cheki", "path": "assets/sprites/frame_standard.png" },
-        { "id": "frame_jirai",    "label": "지뢰계 테마 프레임",    "preset": "cheki", "path": "assets/sprites/frame_jirai.png" }
+        { "id": "okja_jirai",       "label": "옥자 지뢰계(★히어로) 체키", "preset": "okja",  "path": "assets/sprites/okja_jirai.png" },
+        { "id": "frame_cover_bg",   "label": "표지 파치먼트 배경",        "size": [120, 180], "transparent": false, "path": "assets/sprites/frame_cover_bg.png" },
+        { "id": "emblem_wing",      "label": "표지 엠블럼 — 일반(비대칭 쌍날개)", "size": [96, 56], "transparent": true, "chroma": "00ff00", "path": "assets/sprites/emblem_wing.png" },
+        { "id": "emblem_butterfly", "label": "표지 엠블럼 — 나비(지옥풍 변태)",  "size": [88, 64], "transparent": true, "chroma": "00ff00", "path": "assets/sprites/emblem_butterfly.png" },
+        { "id": "wordmark_naraka",  "label": "나라카 붓글씨 워드마크",      "size": [96, 32],  "transparent": true, "chroma": "00ff00", "path": "assets/sprites/wordmark_naraka.png" },
+        { "id": "frame_standard",   "label": "뒷면 사진 프레임(표준)",     "preset": "cheki", "chroma": "00ff00", "path": "assets/sprites/frame_standard.png" },
+        { "id": "frame_jirai",      "label": "지뢰계 테마 프레임",        "preset": "cheki", "chroma": "00ff00", "path": "assets/sprites/frame_jirai.png" },
+        { "id": "bg_cheki_jirai",   "label": "체키 사진 배경 — 지뢰계",   "size": [120, 180], "transparent": false, "path": "assets/sprites/bg_cheki_jirai.png" }
       ]
     },
     {

@@ -523,6 +523,10 @@ function selectSlot(id) {
     $('width').value = it.size[0]; $('height').value = it.size[1];
     $('transparent').checked = it.transparent !== false;
   }
+  // 매니페스트에 chroma가 있으면 "단색 배경 제거"를 자동 세팅(누끼 슬롯 턴키)
+  const ch = it.chroma ? ('#' + String(it.chroma).replace(/^#/, '')) : null;
+  $('chroma_on').checked = !!ch;
+  if (ch) { $('chroma').value = ch; $('chroma_hex').value = ch; }
   $('savePath').value = it.path;
   syncUI(); renderChecklist();
   render();
