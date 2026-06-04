@@ -17,6 +17,9 @@ import base64
 import io
 import json
 import os
+import shutil
+import subprocess
+import sys
 import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -136,7 +139,11 @@ def assets_status():
     m = json.load(f)
   for g in m["groups"]:
     for it in g["items"]:
-      if it.get("preset"):
+      if it.get("tool"):
+        # GUI 파이프라인 비대상 — 전용 툴로 생성하는 에셋(예: 셸 = prep_shell.py)
+        w, h = it["size"]
+        it["spec"] = f"{it['tool']} · {w}×{h}"
+      elif it.get("preset"):
         w, h, _, _ = dotify.PRESETS[it["preset"]]
         it["spec"] = f"{it['preset']} · {w}×{h}"
       else:
@@ -183,6 +190,45 @@ def process(params):
     "audit": {"ok": ok, "lines": [ln.strip() for ln in lines]},
     "_image": out,  # /save 재사용용 (HTTP 응답에서는 핸들러가 제거)
   }
+
+
+# GUI에서 직접 실행을 허용하는 전용 생성 툴(화이트리스트) — 임의 명령 실행 차단
+TOOL_SCRIPTS = {
+  "prep_shell.py": os.path.join(HERE, "prep_shell.py"),
+}
+# prep_shell.py 가 변환하는 셸 레퍼런스(원본) — GUI에 올린 이미지를 여기에 채택한다
+SHELL_REF = os.path.join(ROOT, "assets", "sprites", "_src", "damagochi_frame.png")
+
+
+def run_tool(name, image=None):
+  """전용 생성 툴(셸 = prep_shell.py)을 서브프로세스로 돌려 에셋을 만든다.
+
+  dotify 파이프라인으로는 못 만드는 에셋(흰 배경 누끼·LCD 정밀 펀칭)을 GUI에서
+  한 번에 생성하는 통로. `image`(data URL)가 오면 **그 이미지를 셸 레퍼런스(_src)로
+  채택**한 뒤 변환한다 — GUI에 올린 이미지가 그대로 셸 소스가 된다(이전 레퍼런스는
+  `.prev.png`로 백업). 없으면 기존 _src 를 변환. 화이트리스트 밖 이름은 거부.
+
+  ⚠️ prep_shell 계측값은 1760×2432 다마고치 레이아웃 기준 — 같은 구도·치수의
+  레퍼런스를 넣어야 LCD 구멍·버튼이 정합한다.
+  """
+  script = TOOL_SCRIPTS.get(name)
+  if not script:
+    raise ValueError(f"허용되지 않은 툴: {name}")
+  adopted = False
+  if image:
+    img = data_url_to_image(image)
+    os.makedirs(os.path.dirname(SHELL_REF), exist_ok=True)
+    if os.path.exists(SHELL_REF):
+      shutil.copy2(SHELL_REF, SHELL_REF + ".prev.png")  # 직전 레퍼런스 롤링 백업
+    img.save(SHELL_REF)
+    adopted = True
+  proc = subprocess.run(
+    [sys.executable, script], capture_output=True, text=True, cwd=ROOT, timeout=120,
+  )
+  out = (proc.stdout or "") + (proc.stderr or "")
+  if adopted:
+    out = f"[올린 이미지를 셸 레퍼런스(_src)로 채택 · 직전본 .prev.png 백업]\n" + out
+  return {"ok": proc.returncode == 0, "tool": name, "adopted_ref": adopted, "output": out.strip()}
 
 
 def safe_save_path(rel):
@@ -247,6 +293,8 @@ class Handler(BaseHTTPRequestHandler):
       elif self.path == "/save_palette":
         n = save_palette(params.get("palette", []))
         self._json({"ok": True, "count": n})
+      elif self.path == "/run_tool":
+        self._json(run_tool(params.get("tool", ""), params.get("image")))
       else:
         self._json({"error": "not found"}, 404)
     except Exception as e:  # GUI 단일 사용자 — 에러를 그대로 패널에 노출
@@ -361,9 +409,8 @@ PAGE = r"""<!DOCTYPE html>
       <select id="preset">
         <option value="okja">okja — 옥자 스탠딩 128×288</option>
         <option value="sioni">sioni — 시온이 48×48</option>
-        <option value="cheki" selected>cheki / frame아트 120×180</option>
+        <option value="cheki" selected>cheki — 체키/프레임 아트 120×180</option>
         <option value="bg">bg — 배경 333×480 (불투명)</option>
-        <option value="frame">frame — (구버전, 셸은 prep_shell.py 사용)</option>
         <option value="custom">custom — 직접 입력</option>
       </select>
       <div id="customSize" class="row hidden" style="margin-top:8px">
@@ -401,6 +448,7 @@ PAGE = r"""<!DOCTYPE html>
       <label>5. 저장</label>
       <input type="text" id="savePath" placeholder="assets/sprites/okja_idle.png">
       <button id="saveBtn" style="margin-top:8px">assets/ 에 저장</button>
+      <button id="toolBtn" class="hidden" style="margin-top:8px">🛠 <span id="toolName"></span> 실행</button>
       <div id="msg" style="margin-top:6px"></div>
     </div>
 
@@ -478,7 +526,17 @@ function selectSlot(id) {
   $('savePath').value = it.path;
   syncUI(); renderChecklist();
   render();
-  $('msg').innerHTML = `🎯 <b>${it.label}</b> 선택 — 이미지를 올리고 저장하면 이 칸이 채워집니다.`;
+  // 전용 툴 슬롯(예: 셸 = prep_shell.py)은 dotify 변환·저장 대신 툴 실행 버튼을 노출
+  if (it.tool) {
+    $('saveBtn').classList.add('hidden');
+    $('toolBtn').classList.remove('hidden');
+    $('toolName').textContent = it.tool;
+    $('msg').innerHTML = `🛠 <b>${it.label}</b> — 이미지를 올리고 <code>${it.tool}</code> 실행을 누르면 <b>그 이미지를 셸 레퍼런스로 채택</b>해 변환합니다. (이미지 없이 누르면 기존 레퍼런스 변환 · 1760×2432 다마고치 구도 권장)`;
+  } else {
+    $('saveBtn').classList.remove('hidden');
+    $('toolBtn').classList.add('hidden');
+    $('msg').innerHTML = `🎯 <b>${it.label}</b> 선택 — 이미지를 올리고 저장하면 이 칸이 채워집니다.`;
+  }
 }
 
 // 편집 가능한 팔레트 스와치
@@ -586,11 +644,37 @@ $('saveBtn').onclick = async () => {
   loadAssets();  // 방금 채운 슬롯 상태/썸네일 갱신
 };
 
+// 전용 툴(prep_shell.py 등) 실행 — 서버가 서브프로세스로 돌려 에셋을 직접 생성
+$('toolBtn').onclick = async () => {
+  const it = findItem(selectedId);
+  if (!it || !it.tool) return;
+  $('toolBtn').disabled = true;
+  // 올린 원본 이미지가 있으면 셸 레퍼런스로 채택해 변환(없으면 기존 _src 변환)
+  const usingUpload = !!origDataUrl;
+  $('msg').innerHTML = `🛠 <code>${it.tool}</code> 실행 중…` +
+    (usingUpload ? ' (올린 이미지를 레퍼런스로 채택)' : ' (기존 레퍼런스 변환)');
+  try {
+    const res = await fetch('/run_tool', { method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ tool: it.tool, image: origDataUrl || null }) });
+    const d = await res.json();
+    const log = d.output ? `<pre style="white-space:pre-wrap;margin:6px 0 0;font-size:11px;color:var(--muted)">${d.output.replace(/</g,'&lt;')}</pre>` : '';
+    $('msg').innerHTML = (d.error || !d.ok)
+      ? `⚠ ${d.error || d.tool + ' 실패'}` + log
+      : `<span class="ok">✅ ${d.tool} 완료 → ${it.path}</span>` + log;
+    if (d.ok) loadAssets();  // 생성된 슬롯 썸네일·완료 표시 갱신
+  } finally { $('toolBtn').disabled = false; }
+};
+
 // 프리셋별 저장 경로 자동 제안
 const SUGGEST = { okja:'assets/sprites/okja_idle.png', sioni:'assets/sprites/sioni_idle.png',
   cheki:'assets/sprites/cheki_art.png', bg:'assets/sprites/bg_naraka.png',
-  frame:'assets/sprites/shell_frame.png', custom:'assets/sprites/asset.png' };
-$('preset').addEventListener('change', () => { $('savePath').value = SUGGEST[$('preset').value]; });
+  custom:'assets/sprites/asset.png' };
+$('preset').addEventListener('change', () => {
+  $('savePath').value = SUGGEST[$('preset').value];
+  $('saveBtn').classList.remove('hidden');  // 프리셋 수동 변경 = 일반 변환·저장 모드 복귀
+  $('toolBtn').classList.add('hidden');
+});
 $('savePath').value = SUGGEST['cheki'];
 
 syncUI();

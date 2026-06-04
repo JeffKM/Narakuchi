@@ -5,13 +5,14 @@ Gemini/Midjourney가 만든 '도트풍 큰 그림'을 받아 규격을 코드로
   1) 목표 규격으로 비율 맞춰 축소(fit)
   2) 마스터 32색 팔레트로 인덱싱 → 색 폭발 해결
   3) 알파 이진화(반투명 제거) → 도트 규격
-  4) (셸 프리셋) LCD칸을 270×480 비율로 투명 마스킹
+  4) (LCD 사각 지정 시) 해당 칸을 투명 마스킹
   5) 검수 리포트 출력 → 규격 통과 여부 자동 판정
 AI 결과 품질과 무관하게 산출물은 항상 규격에 맞는다.
+(※ 게임기 셸 shell_frame.png는 tools/prep_shell.py 전용 — 이 파이프라인 대상 아님)
 
 사용 예:
-  python tools/dotify.py 원본.png --preset frame --out out.png
   python tools/dotify.py 원본.png --preset okja  --out okja_idle.png
+  python tools/dotify.py 원본.png --preset cheki --out cheki.png
   python tools/dotify.py 원본.png --size 120x180 --transparent --out cheki.png
 """
 import argparse
@@ -25,13 +26,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PALETTE_HEX = os.path.join(ROOT, "assets", "palettes", "narakatchi.hex")
 
 # 프리셋: (폭, 높이, 투명배경?, LCD사각 or None)
-#  LCD = (x, y, w, h) — 셸 내부 게임 화면 구멍 (→ ADR 0001: 셸 LCD 구멍 333×480)
-#  ⚠️ frame 프리셋은 셸 채택(prep_shell.py 633×875) 이전 절차생성 값이라 더 이상 안 씀 — 셸은 tools/prep_shell.py로 생성.
+#  LCD = (x, y, w, h) — 셸 내부 게임 화면 구멍 (→ ADR 0001)
+#  ⚠️ 게임기 셸(shell_frame.png)은 이 파이프라인이 아니라 tools/prep_shell.py로 생성한다.
+#     (흰 배경 누끼 + LCD 정밀 펀칭이 필요해 fit+팔레트 파이프라인으로는 못 만든다)
 PRESETS = {
   "okja":  (128, 288, True,  None),
   "sioni": (48,  48,  True,  None),
   "bg":    (333, 480, False, None),  # 내부 교감화면 = 셸 LCD 구멍 333×480 (→ ADR 0001)
-  "frame": (460, 630, True,  (95, 30, 270, 480)),  # (deprecated: prep_shell.py로 대체)
   "cheki": (120, 180, True,  None),
 }
 

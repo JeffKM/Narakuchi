@@ -61,7 +61,7 @@
     {
       "id": "S", "title": "셸 / UI / 공유",
       "items": [
-        { "id": "shell_frame",    "label": "게임기 셸 프레임",   "preset": "frame", "path": "assets/sprites/shell_frame.png" },
+        { "id": "shell_frame",    "label": "게임기 셸 프레임",   "size": [635, 877], "transparent": true, "tool": "prep_shell.py", "path": "assets/sprites/shell_frame.png" },
         { "id": "icon_currency",  "label": "재화 아이콘",        "size": [16, 16],  "transparent": true,  "path": "assets/sprites/icon_currency.png" },
         { "id": "share_watermark","label": "공유 워터마크(@나라카+QR)", "size": [270, 480], "transparent": true, "path": "assets/sprites/share_watermark.png" },
         { "id": "pwa_icon_192",   "label": "PWA 아이콘 192",     "size": [192, 192], "transparent": false, "path": "assets/sprites/pwa_icon_192.png" },
