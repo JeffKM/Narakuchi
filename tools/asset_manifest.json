@@ -16,8 +16,8 @@
     {
       "id": "A2", "title": "A2 · 지뢰계 + 프레임",
       "items": [
-        { "id": "okja_jirai",     "label": "옥자 지뢰계(★히어로)", "preset": "okja",  "path": "assets/sprites/okja_jirai.png" },
-        { "id": "frame_standard", "label": "표준 프레임(일반체키)", "preset": "cheki", "path": "assets/sprites/frame_standard.png" },
+        { "id": "okja_jirai",     "label": "옥자 지뢰계(★히어로) 체키", "preset": "okja",  "path": "assets/sprites/okja_jirai.png" },
+        { "id": "frame_standard", "label": "표준 프레임(일반체키)",     "preset": "cheki", "path": "assets/sprites/frame_standard.png" },
         { "id": "frame_jirai",    "label": "지뢰계 테마 프레임",    "preset": "cheki", "path": "assets/sprites/frame_jirai.png" }
       ]
     },
@@ -42,9 +42,9 @@
     {
       "id": "A4", "title": "A4 · 의상·프레임 확장",
       "items": [
-        { "id": "okja_kinder",  "label": "옥자 유치원",      "preset": "okja",  "path": "assets/sprites/okja_kinder.png" },
-        { "id": "okja_hiphop",  "label": "옥자 힙합",        "preset": "okja",  "path": "assets/sprites/okja_hiphop.png" },
-        { "id": "okja_butler",  "label": "옥자 집사",        "preset": "okja",  "path": "assets/sprites/okja_butler.png" },
+        { "id": "okja_kinder",  "label": "옥자 유치원 체키",  "preset": "okja",  "path": "assets/sprites/okja_kinder.png" },
+        { "id": "okja_hiphop",  "label": "옥자 힙합 체키",    "preset": "okja",  "path": "assets/sprites/okja_hiphop.png" },
+        { "id": "okja_butler",  "label": "옥자 집사 체키",    "preset": "okja",  "path": "assets/sprites/okja_butler.png" },
         { "id": "frame_kinder", "label": "유치원 테마 프레임", "preset": "cheki", "path": "assets/sprites/frame_kinder.png" },
         { "id": "frame_hiphop", "label": "힙합 테마 프레임",   "preset": "cheki", "path": "assets/sprites/frame_hiphop.png" },
         { "id": "frame_butler", "label": "집사 테마 프레임",   "preset": "cheki", "path": "assets/sprites/frame_butler.png" }
@@ -53,7 +53,7 @@
     {
       "id": "A5", "title": "A5 · 크리스마스 마감",
       "items": [
-        { "id": "okja_xmas",    "label": "옥자 크리스마스",   "preset": "okja",  "path": "assets/sprites/okja_xmas.png" },
+        { "id": "okja_xmas",    "label": "옥자 크리스마스 체키", "preset": "okja",  "path": "assets/sprites/okja_xmas.png" },
         { "id": "sioni_rudolph","label": "시온이 루돌프",     "preset": "sioni", "path": "assets/sprites/sioni_rudolph.png" },
         { "id": "frame_xmas",   "label": "크리스마스 테마 프레임", "preset": "cheki", "path": "assets/sprites/frame_xmas.png" }
       ]

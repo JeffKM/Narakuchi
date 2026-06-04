@@ -83,6 +83,54 @@ no tiny face, no baby-only infantile style (keep her chic witch charm).
 
 ---
 
+## 옥자 지뢰계(★히어로) 의상 (이벤트 의상 1세트)
+
+> 이벤트 데이 "지뢰계" 의상의 옥자. ★히어로 = 데모 5종 중 대표라 가장 공들인다(→ [asset-checklist.md](./asset-checklist.md) A2).
+> **🔑 이건 체키 카드용 정적 아트다 — 표정 스왑 호환 불필요.** 이벤트 의상은 **교감화면에서 갈아입는 스킨이 아니라** 체키(정적 수집물)에만 들어간다(→ PRD §6·§9.1, 라이브 옥자는 마녀룩 고정). 그러니 idle 포즈·와인레드에 묶일 필요 없이 **레퍼런스 사진 그대로 카드답게 멋진 포즈·머리색**으로 뽑는다.
+> **🔑 워크플로우**: 텍스트만으로 새로 뽑으면 옥자 얼굴이 흔들린다. **① 확정된 `okja_idle.png`(SD 도트 — 얼굴·정체성·등신비 락) + ② 지뢰계 레퍼런스 사진(의상·머리색·포즈 락) + ③ 신발 레퍼런스 사진(신발 락)** 세 장을 첨부하고 "1번 캐릭터를 2·3번 코디로 다시 그려라"로 요청한다(멀티 이미지 편집).
+> **지뢰계 레퍼 코디**(첨부 사진): 레오파드 무늬 베레모 · 흰 시스루 시폰 블라우스(앞 리본 레이스업) · 검정 레이스 캐미솔 + 가슴 크로스 장식 · 연청 데님 미니 플리츠 · 십자가 목걸이 · 메탈하트/리본 벨트 체인 · **애쉬/라이트 브라운 트윈테일** · **한 손 얼굴 옆 손가락 펼친 시크 제스처** · **검정 통굽 플랫폼 크리퍼 스니커즈(별 장식 + 은색 체인) + 흰 슬라우치 양말**.
+
+```
+[Attach THREE images — 1: okja_idle.png (confirmed SD dot, identity lock),
+ 2: the jirai-kei outfit reference photo, 3: the shoes reference photo]
+
+Keep image 1's character IDENTITY: same face shape, same eyes, same chic tsundere look,
+same SD chibi proportions (head:body ≈ 1:3~1:4). RESTYLE her as the jirai-kei coordinate,
+matching image 2 for outfit, HAIR and POSE, and image 3 for the shoes:
+- Hair: ASH / LIGHT BROWN long TWIN-TAILS (match image 2's hair color — NOT wine-red here).
+- Pose: standing, ONE hand raised up beside the face / forehead with fingers spread (chic gesture),
+        the other arm relaxed at the side — match image 2 (NOT the clasped-hands idle pose).
+- Headwear: a LEOPARD-PRINT beret / hunting cap.
+- Top: white SHEER chiffon long-sleeve blouse with a front ribbon lace-up,
+       over a BLACK LACE camisole, with a black CROSS ornament on the chest.
+- Bottom: light-wash DENIM pleated mini skirt.
+- Accessories: silver CROSS necklace, a metal-HEART & ribbon belt chain at the waist.
+- Shoes: chunky BLACK PLATFORM creeper sneakers with STAR charms and a silver CHAIN,
+         worn with WHITE SLOUCH socks (match image 3).
+- Expression: calm, cool, mouth closed.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+       Keep her chic tsundere charm; jirai-kei girly-grunge mood but still the SAME Okja.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom,
+         tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+### 네거티브 (지뢰계 — 공통 네거티브에 더한다)
+
+```
+no realistic body proportions, no long thin legs, no adult tall figure, no tiny face,
+no different face, no extra characters, no cropped feet, no hidden shoes,
+no witch hat, no wine-red hair (this cut is brown), no original burgundy witch dress
+(it is fully replaced by the jirai-kei outfit),
+no plain flat shoes, no over-sexualized outfit (keep it cute girly-grunge, age-safe brand).
+```
+
+> ⚠️ **검수 포인트**: 체키 카드 안에 들어갈 정적 아트이므로 idle 앵커 일치는 불필요. **얼굴(옥자 정체성) 일관성 + 신발까지 프레임 안에 다 들어왔는지**를 본다. 레오파드/데님/체인은 색이 튀니 후처리 **마스터 팔레트 인덱싱 필수**. 저장: `assets/sprites/okja_jirai.png`.
+> 💡 신발 사진 첨부가 안 되면(2장만 지원), `Shoes:` 줄의 텍스트 묘사만으로도 충분하다 — 3번 이미지 참조 문구만 지운다.
+> 📌 **나머지 4종 의상(유치원·힙합·집사·크리스마스)도 같은 방식** — 모두 체키 카드용 정적 아트라 포즈·머리색 자유. 이 프롬프트를 베이스로 의상·신발 레퍼런스만 갈아끼우면 된다.
+
+---
+
 ## 시온이 (펫)
 
 ```
@@ -227,6 +275,10 @@ no gore, no horror, no scary spikes, no skulls on the doors, no clutter.
 # 옥자 (128×288, 크로마 그린 배경 제거)
 tools/.venv/bin/python tools/dotify.py okja_smile_raw.png \
   --preset okja --chroma 00ff00 --out assets/sprites/okja_smile.png
+
+# 옥자 지뢰계 ★히어로 체키 (브라운·한 손 포즈 — 체키 카드용 정적 아트)
+tools/.venv/bin/python tools/dotify.py okja_jirai_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/okja_jirai.png
 
 # 시온이 (48×48)
 tools/.venv/bin/python tools/dotify.py sioni_idle_raw.png \
