@@ -30,7 +30,7 @@
 - [x] **T01** Godot 4 프로젝트 생성 + 기존 Next/Phaser 코드 정리 (project.godot · scenes/Main.tscn · scripts/Main.gd)
 - [x] **T02** 뷰포트 270×480 세로 + integer scale + Nearest 필터 (→ ADR 0001, project.godot 적용)
 - [x] **T03** 마스터 팔레트 32색 → `data/palette.gd` · 갈무리 로더/테마 → `scripts/systems/fonts.gd` (OFL 1.1) · ⏳ `assets/fonts/Galmuri11.ttf` 드롭 시 자동 적용 (assets/fonts/README.md)
-- [ ] **T04** HTML5 export + PWA(manifest/서비스워커, 세로 고정) 파이프라인 1회 성공
+- [x] **T04** HTML5 export + PWA 파이프라인 1회 성공 — `export_presets.cfg`(Web 프리셋, PWA on, 세로 고정 portrait, standalone) · `godot --headless --export-release "Web" export/index.html` · manifest/서비스워커/오프라인페이지/아이콘 산출 + 로컬 서빙 200 확인 (아이콘 실물·호스팅은 T24)
 - [x] **T05** 로컬 세이브(JSON) 골격: load/save/reset/wipe + 데모 시드 — `SaveManager` autoload(`scripts/systems/save_manager.gd`) · 밸런스 상수 `data/balance.gd`(PRD §4.5) · 웹은 `user://` → IndexedDB 자동 영속
 
 ## Phase 1 — 옥자 교감 코어 (Day 1~2)
