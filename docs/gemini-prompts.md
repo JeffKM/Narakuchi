@@ -51,6 +51,36 @@ no realistic photo finish, no 3D render.
 
 ---
 
+## 옥자 SD(데포르메) 버전 ★권장 — 라이브 스탠딩용
+
+> **왜 SD인가**: 다마고치 LCD는 작아서 1:7 실사 비율이면 얼굴이 ~35px로 쪼그라들어 **표정 차이가 안 읽힌다.** 코어 메커닉이 "표정 9할 + 표정 스왑 6종"이므로 머리를 키운 SD가 표정 가독성·공유성·제작 일관성에서 유리하다(→ 실사 정교판은 타이틀 키비주얼·★히어로 체키 등 감상용으로 분리).
+> **비율**: 극단 아기치비 말고 **1:3~1:4 "미니"** — 시크·츤데레 매력은 유지하되 얼굴·눈을 또렷하게.
+
+```
+Convert the attached photo into a CUTE CHIBI / SD pixel art sprite, full body, front-facing standing pose.
+Subject: "Okja", the witch-owner of a maid cafe — a hell witch. Chic, tsundere, playful.
+Proportions: super-deformed, head-to-body ratio about 1:3 ~ 1:4 — BIG head, large expressive eyes,
+             short rounded body and short legs. Keep her recognizable witch-maid silhouette.
+Base outfit: witch-maid look (dark antique witch dress with maid accents, witch hat).
+Style: 8-bit pixel sprite / dot art, limited palette, hard pixel edges, NO anti-aliasing, NO gradients.
+Color mood: dark antique — deep burgundy, blood red, antique gold, ink black, candle yellow.
+Framing: full body centered, big head near top, short legs near bottom, tall vertical 4:9 portrait ratio,
+         even margins, consistent crop across all expressions.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+### 네거티브 (SD 추가분 — 공통 네거티브에 더한다)
+
+```
+no realistic body proportions, no long thin legs, no adult tall figure,
+no tiny face, no baby-only infantile style (keep her chic witch charm).
+```
+
+> 표정 6종은 **위 "표정 6종" 표를 그대로** 쓴다(베이스만 이 SD 프롬프트로 교체). 규격도 동일 — `dotify --preset okja`(128×288)로 후처리하면 머리 큰 SD가 캔버스 상단에 또렷하게 안착한다.
+> 팁: SD는 눈이 큰 만큼 **표정 변화(눈 곡선·홍조·입모양)를 과장**해야 다마고치 크기에서 확 읽힌다.
+
+---
+
 ## 시온이 (펫)
 
 ```
