@@ -22,9 +22,9 @@ func _build_placeholder() -> void:
   bg.size = Vector2(VIEW_W, VIEW_H)
   add_child(bg)
 
-  # 타이틀 — 갈무리가 있으면 한글, 없으면 영문 폴백
+  # 타이틀 — 영문 로고 (갈무리가 라틴 글리프도 도트로 렌더)
   var title := Label.new()
-  title.text = "나라카찌" if has_font else "NARAKATCHI"
+  title.text = "NARAKACHI"
   title.position = Vector2(0, 198)
   title.size = Vector2(VIEW_W, 28)
   title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
