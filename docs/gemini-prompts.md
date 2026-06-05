@@ -300,23 +300,105 @@ no smooth gradient, no soft anti-aliased edges, no realistic photo finish, no 3D
 
 ---
 
-## 시온이 (펫)
+## 시온이 (펫 — 교감화면)
+
+> 옥자의 흰 얼룩 고양이. **교감화면 라이브 펫은 항상 기본 흰 고양이**(이벤트 의상은 체키 전용 → 아래 "시온이 체키 의상").
+> **🔑 실물 레퍼런스 첨부 필수**: `assets/sprites/_src/sion_ref.png`(시온이 실물, = IMG_0171)를 첨부해 **img2img(사진 변환)** 으로 뽑는다 — **아주 뚱뚱·동글동글한 공 같은 체형**과 **비대칭 얼굴 얼룩**이 정체성이라 텍스트만으론 매번 흔들린다.
+> **얼룩(고정)**: 바탕 흰색 · **검은색이 메인 얼룩** — 몸·꼬리, 그리고 머리/얼굴은 **가운데 흰 줄로 갈린(가르마) 대칭 검은 두건** · **작은 핑크 코에 갈색 점 하나**(갈색은 코에만 — 얼굴 전체로 번지면 안 됨).
+> **규격**: `48×48`(preset `sioni`). 48px는 AI가 직접 못 그리니 **크게 받아 `dotify --preset sioni`로 축소** — 동글고 단순한 실루엣으로(작아도 읽히게).
 
 ```
-Convert into retro pixel art, a chubby white cat with patches ("Sioni"), Okja's pet.
-Small chibi sprite, front view, simple cute shape, sitting (idle).
-Style: 8-bit pixel sprite, hard edges, NO anti-aliasing, limited palette.
-Background: FLAT SOLID chroma green (#00ff00).
+[Attach: assets/sprites/_src/sion_ref.png — Sioni's real reference photo (= IMG_0171)]
+Convert the attached cat into a CUTE retro pixel art / dot art chibi sprite, front view, sitting. Subject: "Sioni", Okja's pet cat.
+Body: VERY CHUBBY and ROUND — a fat, plump, BALL-SHAPED body with short stubby legs, exaggerated roundness (like the photo).
+      Big round eyes, small pink nose, tiny mouth, cozy and friendly.
+Fur & MARKINGS (keep EXACT): base coat MOSTLY WHITE.
+      - BLACK is the MAIN marking color, on the BODY, TAIL and HEAD/FACE. On the head it looks like a
+        CENTER HAIR-PARTING ("gareuma"): a BLACK CAP over the top of the head and ears, SPLIT down the
+        middle by a WHITE center stripe / blaze, roughly SYMMETRIC. Some black on the back and tail too.
+      - The small PINK NOSE has ONE tiny BROWN mark on it. Brown appears ONLY as this small nose mark —
+        NOT a large face patch, NOT covering the eyes, ears or cheeks.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: white fur, BLACK markings (main, center-parted head + tail), a tiny BROWN nose mark, pink nose, against the cafe's dark antique palette.
+Background: FLAT SOLID chroma green (#00ff00), nothing else.
 ```
 
-### 반응 변형
+### 네거티브 (시온이)
+
+```
+no human, no person, no character besides the cat, no clothes (this is the BASE plain cat),
+no slim / thin / athletic cat (she must look VERY FAT and round), no long legs,
+no large BROWN face patch (brown is ONLY a tiny mark on the pink nose), no brown over the eyes / ears / cheeks,
+no all-white head (keep the BLACK center-parted head cap + tail), no missing nose mark,
+no text, no watermark, no scenery, no chroma green on the cat,
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render.
+```
+
+### 반응 4종 — 베이스에 한 줄만 추가 (얼굴·자세만 변경)
 
 | 파일명 | 추가 문구 |
 |---|---|
-| `sioni_idle`  | `sitting calmly, tail curled.` |
-| `sioni_treat` | `looking up happily at a treat, mouth open.` |
-| `sioni_play`  | `playful pounce pose, paws up.` |
-| `sioni_pet`   | `eyes closed, content, being petted.` |
+| `sioni_idle`  | `Pose: sitting calmly, tail curled around the feet, content.` |
+| `sioni_snack` | `Pose: looking UP happily at a treat, mouth open, eager.` |
+| `sioni_play`  | `Pose: playful pounce, front paws up, ears perked.` |
+| `sioni_pet`   | `Pose: eyes closed, blissful, head tilted as if being petted.` |
+
+> 팁: idle 1장을 확정한 뒤 그 결과를 레퍼런스로 첨부해 나머지 3종을 뽑으면 흰 얼룩 패턴·체형이 일관된다.
+
+---
+
+## 시온이 체키 의상 (쿠로미풍 · 루돌프) → 체키 카드용 정적 아트
+
+> 시온이도 **수집 캐릭터** — 지뢰계·크리스마스 데이 체키가 있다(→ PRD §9.1). 옥자 이벤트 의상과 같은 원리로 **체키(정적 수집물)에만** 들어가고, 교감화면 라이브 시온이는 기본 흰 고양이 고정.
+> **🔑 규격(중요)**: 체키 카드 렌더러(`cheki_card.gd`)는 **모든 의상을 `128×288` 캔버스**(`Okja.SPR_SIZE`)로 읽는다. 그래서 시온이 의상도 **세로 `128×288` 캔버스에, 고양이를 하단 중앙(아래 ~40%)에 두고 위쪽은 비워** 그린다(누끼). 48×48로 저장하면 카드에서 늘어나 깨진다. 파일명은 코드 경로(`cheki_costume_path("sion", event)`)에 맞춰 **`sion_jirai` / `sion_xmas`** (← 펫 반응의 `sioni_*`와 접두어가 다름에 주의).
+> **🔑 워크플로우**: 확정된 `sioni_idle`(정체성 락) + 의상 레퍼런스를 첨부해 "이 고양이에게 이 코디를 입혀라".
+
+### 지뢰계 (`sion_jirai`, 쿠로미풍)
+
+> 산리오 쿠로미를 **직접 베끼지 말고**(IP 회피) 그 *분위기*만 — 검정 후드 망토 + 분홍 해골 + 광대 칼라 + 작은 악마 꼬리의 지뢰계풍 고양이.
+
+```
+[Attach: 1 = sioni_idle.png (confirmed cat, identity lock), 2 = jirai-kei / punk-goth pet outfit reference]
+Keep image 1's CAT identity: the SAME VERY CHUBBY round white cat with her EXACT markings
+(BLACK center-parted cap on the head + black on tail/body; ONE tiny BROWN mark on the small pink nose only — no large brown face patch), same face.
+Dress it in a JIRAI-KEI / punk-goth costume:
+- a BLACK hooded cape / hood with little devil-ear points,
+- a PINK SKULL emblem on the hood, a small jester-style frilled collar,
+- pink & black ribbon accents, a tiny curled DEVIL TAIL.
+Cute gothic, age-safe. Keep it clearly the SAME cat, just costumed.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: black & hot-pink jirai-kei over white fur.
+Framing: the cat sits in the LOWER-CENTER of a TALL vertical canvas (aspect 128:288),
+         occupying the bottom ~40%, the UPPER area EMPTY; even margins.
+Background: FLAT SOLID chroma green (#00ff00) EVERYWHERE (the empty upper area is chroma too).
+```
+
+### 크리스마스 (`sion_xmas`, 루돌프)
+
+```
+[Attach: 1 = sioni_idle.png (identity lock), 2 = reindeer / Rudolph costume reference (optional)]
+Keep image 1's CAT identity: the SAME VERY CHUBBY round white cat with her EXACT markings
+(BLACK center-parted cap on the head + black on tail/body; ONE tiny BROWN mark on the small pink nose only — no large brown face patch).
+Dress it as a cute RUDOLPH reindeer:
+- small brown ANTLERS headband, a glowing RED NOSE, a green/red HOLLY collar with a jingle bell,
+- optional tiny red cape. Cozy Christmas, age-safe. Clearly the SAME cat.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: warm Christmas red & green, brown antlers, over white fur.
+Framing: the cat in the LOWER-CENTER of a TALL vertical canvas (aspect 128:288), bottom ~40%, UPPER area EMPTY; even margins.
+Background: FLAT SOLID chroma green (#00ff00) everywhere.
+```
+
+### 네거티브 (시온이 체키 의상 — 공통)
+
+```
+no human, no person, no second character, no text, no watermark, no logo, no QR code,
+no photo frame, no card border (the frame is a separate layer), no scenery in the background,
+no exact Sanrio Kuromi copy, no trademarked character (style/mood only),
+no chroma green on the cat or costume, no cat filling the whole canvas (keep the UPPER area empty),
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render.
+```
+
+> ⚠️ **검수 포인트**: ① 같은 흰 얼룩 고양이 정체성 유지 ② **세로 `128×288` 캔버스에 고양이가 하단, 위는 크로마 그린으로 비었는지**(카드에서 발치 정렬) ③ 누끼 깨끗 ④ 마스터 팔레트 인덱싱. 저장: `assets/sprites/sion_jirai.png` · `assets/sprites/sion_xmas.png`.
 
 ---
 
@@ -438,6 +520,102 @@ no gore, no horror, no scary spikes, no skulls on the doors, no clutter.
 
 ---
 
+## 체키북 장식 (A6 — 컬렉션북 UI) → [asset-checklist.md](./asset-checklist.md) A6
+
+> 은유 = **실물 포토카드 바인더(앤틱 마녀 다이어리)**. 가죽 테두리(다크 무드) + 크림 속지(카드 팝).
+> **⚠️ 캐릭터와 워크플로우가 다르다** — 이건 사진 변환(img2img)이 아니라 **텍스트 생성(text2img)** UI 장식이다(실존 인물 고증 불필요). 그래도 ① 마스터 팔레트(~32색) 인덱싱 ② 크로마 그린 누끼는 동일.
+> **🔑 작게 뽑지 마라** — 24×24·16×16은 AI가 직접 못 그린다. **크게(예: 512px) 받아 `dotify --size`로 축소**하고, 모양은 **단순·대담**하게(작은 화면에서 읽히게).
+> **🔑 미보유 칸 에셋은 0** — empty/locked 칸은 표지 공용 레이어(`frame_cover_bg`+`emblem_wing`)를 코드가 디밍 재활용한다. 여기 참(✦/봉랍)·장식만 새로 그린다.
+
+### 가죽 바인더 프레임 (`book_frame_leather`)
+
+> 카드가 앉는 페이지를 감싸는 **베젤(테두리만)**. 가운데는 뻥 뚫린 창(코드가 속지·그리드를 깐다). 카드 `333×480` 꽉, 가운데 + 바깥 모서리 크로마 그린.
+
+```
+Pixel art / dot art of an ANTIQUE LEATHER BINDER / witch's diary COVER seen flat from the front, as a thick
+BORDER FRAME ONLY — the entire CENTER is a hollow empty window (cards are placed there later). NO text, NO character.
+Frame: a worn dark BURGUNDY LEATHER border hugging all four edges, with embossed corners, a row of fine GOLD STITCHING
+       running just inside the edge, and small antique-brass corner caps. Tall vertical portrait, aspect ratio 333:480,
+       rounded outer corners.
+Center: ONE big empty rectangular hole filling MOST of the frame — FLAT SOLID chroma green (#00ff00), completely EMPTY.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: dark antique — deep burgundy leather, antique-gold stitch, ink-black shadow, faint candle warmth.
+Background: chroma green (#00ff00) also fills OUTSIDE the rounded corners; ONLY the leather border is opaque.
+```
+
+```
+[네거티브] no text, no character, no scenery in the center (the center MUST stay flat solid chroma green and empty),
+no cards drawn, no shiny modern frame, no full gold frame, no marble, no gradient, no soft anti-aliased edges,
+no 3D render, no glossy reflections.
+```
+
+### 크림 속지 (`book_page_parchment`)
+
+> 카드가 톡 떠 보이게 받쳐주는 **밝은 종이 바닥**(불투명, 누끼 X). 코드가 가죽 창 안쪽에 깐다.
+
+```
+Pixel art / dot art of a blank aged CREAM PARCHMENT page / photo-album insert, seen flat — warm IVORY paper with very
+subtle mottling/speckle and a faint darker vignette at the edges, completely EMPTY (cards go on top later).
+NO text, NO ruled lines, NO emblem, NO character. Tall vertical rectangle, fully OPAQUE, fills the image edge-to-edge.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading; texture as sparse flat-pixel speckle.
+Color mood: warm cream / candle ivory, faint sepia mottling, soft darker edge vignette.
+Background: the parchment IS the whole image (opaque, no chroma).
+```
+
+```
+[네거티브] no text, no ruled notebook lines, no grid lines, no character, no frame border, no holes,
+no chroma green, no transparency, no bright pure white, no gradient, no soft anti-aliased edges, no 3D render.
+```
+
+### 참 · 작은 장식 (공용 베이스)
+
+> 아래 작은 아이콘들은 **공용 베이스 + 한 줄 추가**로 뽑는다(표정 6종 방식). 전부 크로마 그린 누끼, 크게 받아 축소.
+
+```
+[공용 베이스]
+Pixel art / dot art ICON — a SINGLE centered object, on a FLAT SOLID chroma green (#00ff00) background, nothing else.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: dark antique — deep burgundy, blood red, antique gold, ink black, candle yellow.
+Draw it LARGE and BOLD with a simple silhouette (it will be downscaled to a tiny icon — it must read at small size).
+```
+
+```
+[공용 네거티브] no text, no letters, no numbers, no extra objects, no character, no scenery,
+no chroma green on the object itself, no gradient, no soft glow blur, no soft anti-aliased edges,
+no 3D render, no glossy reflections, no realistic finish.
+```
+
+| 파일명 | 추가 문구(object) | 비고 |
+|---|---|---|
+| `seal_wax` | `Object: a round WAX SEAL stamp — a blob of dark BURGUNDY / blood-red sealing wax with a thin antique-GOLD rim and a faint embossed mark in the center (a tiny wing), slightly irregular molten edge.` | locked 참 + locked 탭 겸용 (P0) |
+| `corner_filigree` | `Object: an ornate ANTIQUE-GOLD FILIGREE corner flourish — an L-shaped baroque scroll / vine ornament for a page corner, symmetric along the diagonal.` | 4모서리 회전 재사용 (P1) |
+| `butterfly_deco` | `Object: a small gothic BUTTERFLY, wings spread wide, ink-black wings with antique-gold edge tracing and a hint of violet & pink, tiny body.` | `emblem_butterfly` 축소 재활용도 가능 (P1) |
+| `book_watermark_n` | `Object: ONE large ornate monogram letter "N" (blackletter / serif) as a faint EMBOSSED watermark, thin antique-gold outline, low contrast.` | ⚠️ 여기 "N"은 **의도된 모노그램**(공용 네거티브 no text 예외) (P1) |
+| `sparkle` | `Object: a clean 4-point SPARKLE / twinkle star, antique-gold with a candle-yellow core.` | empty 참. 코드 `_draw`로 충분 — PNG는 선택 (P1) |
+| `candle_deco` | `Object: a small lit CANDLE — ivory candle body, warm candle-yellow teardrop flame, a little melted wax, antique-gold holder base.` | (P2, 여력 시) |
+| `ribbon_bookmark` | `Object: a thin vertical RIBBON BOOKMARK hanging straight down, deep burgundy fabric with a forked / notched bottom end and a thin gold edge.` | (P2, 여력 시) |
+
+### 탭 미니 초상 (`portrait_okja` · `portrait_sion`)
+
+> **권장: 생성하지 말고 크롭.** 확정된 `okja_idle.png` / `sioni_idle.png`에서 **얼굴을 정사각으로 크롭** → `dotify --size 24x24`. 라이브 옥자는 마녀룩이라 idle 얼굴이 탭 정체성과 일치하고, 시온이는 idle을 그대로 축소하면 된다(일관성·작업량 둘 다 이득).
+> 크롭 소스가 마땅치 않을 때만 아래로 생성:
+
+```
+Pixel art / dot art tiny SQUARE PORTRAIT bust (face + shoulders), front view, centered, BIG readable face.
+Subject: [ Okja, the chic tsundere hell witch-maid, dark witch hat | Sioni, a VERY CHUBBY round WHITE cat — a BLACK center-parted cap on the head (parted by a white stripe), a tiny BROWN mark on the small pink nose only (no large brown face patch) ].
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Color mood: dark antique palette. Background: FLAT SOLID chroma green (#00ff00), nothing else.
+```
+
+```
+[네거티브] no full body, no tiny face, no text, no extra characters, no scenery,
+no chroma green on the subject, no gradient, no soft anti-aliased edges, no 3D render.
+```
+
+> ⚠️ **공통 검수**: ① 누끼 대상이 순수 크로마 그린에서 깨끗이 분리되는지 ② **작게 축소해도 모양이 읽히는지**(seal/portrait는 24px, butterfly/sparkle는 16px) ③ 마스터 팔레트(~32색) 인덱싱 ④ 가죽 프레임은 **가운데가 순수 크로마 한 덩어리**(코드가 속지·그리드를 깐다)인지.
+
+---
+
 ## 후처리 연결 (받은 PNG → 규격 에셋)
 
 ```bash
@@ -476,9 +654,21 @@ tools/.venv/bin/python tools/dotify.py emblem_butterfly_raw.png \
 tools/.venv/bin/python tools/dotify.py wordmark_naraka_raw.png \
   --size 96x32 --chroma 00ff00 --out assets/sprites/wordmark_naraka.png
 
-# 시온이 (48×48)
+# 시온이 펫 반응 (48×48, preset sioni — 교감화면 기본 흰 고양이)
 tools/.venv/bin/python tools/dotify.py sioni_idle_raw.png \
   --preset sioni --chroma 00ff00 --out assets/sprites/sioni_idle.png
+tools/.venv/bin/python tools/dotify.py sioni_snack_raw.png \
+  --preset sioni --chroma 00ff00 --out assets/sprites/sioni_snack.png
+tools/.venv/bin/python tools/dotify.py sioni_play_raw.png \
+  --preset sioni --chroma 00ff00 --out assets/sprites/sioni_play.png
+tools/.venv/bin/python tools/dotify.py sioni_pet_raw.png \
+  --preset sioni --chroma 00ff00 --out assets/sprites/sioni_pet.png
+
+# 시온이 체키 의상 (128×288, preset okja — 카드 렌더러 호환, 고양이는 하단 중앙·위 비움)
+tools/.venv/bin/python tools/dotify.py sion_jirai_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/sion_jirai.png
+tools/.venv/bin/python tools/dotify.py sion_xmas_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/sion_xmas.png
 
 # 나라카 지옥 배경 (333×480, 크로마키 없음 — 화면 전체를 채우는 불투명 배경)
 tools/.venv/bin/python tools/dotify.py naraka_bg_raw.png \
@@ -492,6 +682,35 @@ tools/.venv/bin/python tools/prep_shell.py \
 # 지옥문 (333×480, 아치 모서리만 크로마 그린 제거 → 문 본체 불투명 통짜)
 tools/.venv/bin/python tools/dotify.py gate_naraka_raw.png \
   --size 333x480 --chroma 00ff00 --out assets/sprites/gate_naraka.png
+
+# ── 체키북 장식 (A6) ── 크게 받아 dotify로 축소·누끼 (UI 장식: text2img)
+# 가죽 바인더 프레임 (가운데 + 바깥 모서리 크로마 그린 → 베젤만 불투명)
+tools/.venv/bin/python tools/dotify.py book_frame_leather_raw.png \
+  --size 333x480 --chroma 00ff00 --out assets/sprites/book_frame_leather.png
+# 크림 속지 (불투명, 누끼 X)
+tools/.venv/bin/python tools/dotify.py book_page_parchment_raw.png \
+  --size 301x372 --out assets/sprites/book_page_parchment.png
+# 탭 미니 초상 (권장: okja_idle/sioni_idle 얼굴 크롭본을 입력으로)
+tools/.venv/bin/python tools/dotify.py portrait_okja_raw.png \
+  --size 24x24 --chroma 00ff00 --out assets/sprites/portrait_okja.png
+tools/.venv/bin/python tools/dotify.py portrait_sion_raw.png \
+  --size 24x24 --chroma 00ff00 --out assets/sprites/portrait_sion.png
+# 참 (P0 봉랍 / P1 반짝임) + 장식 (P1 코너·나비·워터마크)
+tools/.venv/bin/python tools/dotify.py seal_wax_raw.png \
+  --size 24x24 --chroma 00ff00 --out assets/sprites/seal_wax.png
+tools/.venv/bin/python tools/dotify.py corner_filigree_raw.png \
+  --size 32x32 --chroma 00ff00 --out assets/sprites/corner_filigree.png
+tools/.venv/bin/python tools/dotify.py butterfly_deco_raw.png \
+  --size 16x16 --chroma 00ff00 --out assets/sprites/butterfly_deco.png
+tools/.venv/bin/python tools/dotify.py book_watermark_n_raw.png \
+  --size 120x120 --chroma 00ff00 --out assets/sprites/book_watermark_n.png
+tools/.venv/bin/python tools/dotify.py sparkle_raw.png \
+  --size 16x16 --chroma 00ff00 --out assets/sprites/sparkle.png
+# (P2, 여력 시) 촛불 · 리본 책갈피
+tools/.venv/bin/python tools/dotify.py candle_deco_raw.png \
+  --size 16x24 --chroma 00ff00 --out assets/sprites/candle_deco.png
+tools/.venv/bin/python tools/dotify.py ribbon_bookmark_raw.png \
+  --size 12x40 --chroma 00ff00 --out assets/sprites/ribbon_bookmark.png
 ```
 
 > ⚠️ `--preset bg`(270×480)는 셸 교체 이전 값이라 현 LCD `333×480`과 안 맞는다 — 배경은 위처럼 `--size 333x480`로 뽑을 것(또는 `tools/dotify.py` PRESETS의 `bg`를 `(333, 480, False, None)`으로 갱신).

@@ -2,76 +2,506 @@
   "_comment": "docs/asset-checklist.md를 구조화한 에셋 생산 매니페스트. dot_studio GUI가 이걸 슬롯으로 렌더링한다(빈 칸=미제작, 파일 존재=완료). preset 또는 size+transparent로 규격을 지정하고, path에 저장한다.",
   "groups": [
     {
-      "id": "A1", "title": "A1 · 옥자 코어",
+      "id": "A1",
+      "title": "A1 · 옥자 코어",
       "items": [
-        { "id": "okja_idle",  "label": "옥자 기본(마녀룩)", "preset": "okja", "path": "assets/sprites/okja_idle.png" },
-        { "id": "okja_smile", "label": "옥자 웃음",        "preset": "okja", "path": "assets/sprites/okja_smile.png" },
-        { "id": "okja_shy",   "label": "옥자 부끄",        "preset": "okja", "path": "assets/sprites/okja_shy.png" },
-        { "id": "okja_sad",   "label": "옥자 시무룩",      "preset": "okja", "path": "assets/sprites/okja_sad.png" },
-        { "id": "okja_brew",  "label": "옥자 제조중",      "preset": "okja", "path": "assets/sprites/okja_brew.png" },
-        { "id": "okja_talk",  "label": "옥자 말하기",      "preset": "okja", "path": "assets/sprites/okja_talk.png" },
-        { "id": "bg_naraka",  "label": "나라카 지옥 배경",  "preset": "bg",   "path": "assets/sprites/bg_naraka.png" }
+        {
+          "id": "okja_idle",
+          "label": "옥자 기본(마녀룩)",
+          "preset": "okja",
+          "path": "assets/sprites/okja_idle.png"
+        },
+        {
+          "id": "okja_smile",
+          "label": "옥자 웃음",
+          "preset": "okja",
+          "path": "assets/sprites/okja_smile.png"
+        },
+        {
+          "id": "okja_shy",
+          "label": "옥자 부끄",
+          "preset": "okja",
+          "path": "assets/sprites/okja_shy.png"
+        },
+        {
+          "id": "okja_sad",
+          "label": "옥자 시무룩",
+          "preset": "okja",
+          "path": "assets/sprites/okja_sad.png"
+        },
+        {
+          "id": "okja_brew",
+          "label": "옥자 제조중",
+          "preset": "okja",
+          "path": "assets/sprites/okja_brew.png"
+        },
+        {
+          "id": "okja_talk",
+          "label": "옥자 말하기",
+          "preset": "okja",
+          "path": "assets/sprites/okja_talk.png"
+        },
+        {
+          "id": "bg_naraka",
+          "label": "나라카 지옥 배경",
+          "preset": "bg",
+          "path": "assets/sprites/bg_naraka.png"
+        }
       ]
     },
     {
-      "id": "A2", "title": "A2 · 지뢰계 + 체키 카드(양면)",
+      "id": "A2",
+      "title": "A2 · 지뢰계 + 체키 카드(양면)",
       "items": [
-        { "id": "okja_jirai",       "label": "옥자 지뢰계(★히어로) 체키", "preset": "okja",  "path": "assets/sprites/okja_jirai.png" },
-        { "id": "frame_cover_bg",   "label": "표지 파치먼트 배경",        "size": [120, 180], "transparent": false, "path": "assets/sprites/frame_cover_bg.png" },
-        { "id": "emblem_wing",      "label": "표지 엠블럼 — 일반(비대칭 쌍날개)", "size": [96, 56], "transparent": true, "chroma": "00ff00", "path": "assets/sprites/emblem_wing.png" },
-        { "id": "emblem_butterfly", "label": "표지 엠블럼 — 나비(지옥풍 변태)",  "size": [88, 64], "transparent": true, "chroma": "00ff00", "path": "assets/sprites/emblem_butterfly.png" },
-        { "id": "wordmark_naraka",  "label": "나라카 붓글씨 워드마크",      "size": [96, 32],  "transparent": true, "chroma": "00ff00", "path": "assets/sprites/wordmark_naraka.png" },
-        { "id": "frame_standard",   "label": "뒷면 사진 프레임(표준)",     "preset": "cheki", "chroma": "00ff00", "path": "assets/sprites/frame_standard.png" },
-        { "id": "frame_jirai",      "label": "지뢰계 테마 프레임",        "preset": "cheki", "chroma": "00ff00", "path": "assets/sprites/frame_jirai.png" },
-        { "id": "bg_cheki_jirai",   "label": "체키 사진 배경 — 지뢰계",   "size": [120, 180], "transparent": false, "path": "assets/sprites/bg_cheki_jirai.png" }
+        {
+          "id": "okja_jirai",
+          "label": "옥자 지뢰계(★히어로) 체키",
+          "preset": "okja",
+          "path": "assets/sprites/okja_jirai.png"
+        },
+        {
+          "id": "frame_cover_bg",
+          "label": "표지 파치먼트 배경",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/frame_cover_bg.png"
+        },
+        {
+          "id": "emblem_wing",
+          "label": "표지 엠블럼 — 일반(비대칭 쌍날개)",
+          "size": [
+            96,
+            56
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/emblem_wing.png"
+        },
+        {
+          "id": "emblem_butterfly",
+          "label": "표지 엠블럼 — 나비(지옥풍 변태)",
+          "size": [
+            88,
+            64
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/emblem_butterfly.png"
+        },
+        {
+          "id": "wordmark_naraka",
+          "label": "나라카 붓글씨 워드마크",
+          "size": [
+            96,
+            32
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/wordmark_naraka.png"
+        },
+        {
+          "id": "frame_standard",
+          "label": "뒷면 사진 프레임(표준)",
+          "preset": "cheki",
+          "chroma": "00ff00",
+          "path": "assets/sprites/frame_standard.png"
+        },
+        {
+          "id": "frame_jirai",
+          "label": "지뢰계 테마 프레임",
+          "preset": "cheki",
+          "chroma": "00ff00",
+          "path": "assets/sprites/frame_jirai.png"
+        },
+        {
+          "id": "bg_cheki_jirai",
+          "label": "체키 사진 배경 — 지뢰계",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_jirai.png"
+        }
       ]
     },
     {
-      "id": "A3", "title": "A3 · 시온이 + 아이콘",
+      "id": "A3",
+      "title": "A3 · 시온이 + 아이콘",
       "items": [
-        { "id": "sioni_idle",   "label": "시온이 idle",       "preset": "sioni", "path": "assets/sprites/sioni_idle.png" },
-        { "id": "sioni_snack",  "label": "시온이 반응 — 간식",  "preset": "sioni", "path": "assets/sprites/sioni_snack.png" },
-        { "id": "sioni_play",   "label": "시온이 반응 — 놀기",  "preset": "sioni", "path": "assets/sprites/sioni_play.png" },
-        { "id": "sioni_pet",    "label": "시온이 반응 — 쓰담",  "preset": "sioni", "path": "assets/sprites/sioni_pet.png" },
-        { "id": "sioni_kuromi", "label": "시온이 쿠로미(지뢰계)", "preset": "sioni", "path": "assets/sprites/sioni_kuromi.png" },
-        { "id": "icon_drink_1", "label": "음료 아이콘 1", "size": [24, 24], "transparent": true, "path": "assets/sprites/icon_drink_1.png" },
-        { "id": "icon_drink_2", "label": "음료 아이콘 2", "size": [24, 24], "transparent": true, "path": "assets/sprites/icon_drink_2.png" },
-        { "id": "icon_drink_3", "label": "음료 아이콘 3", "size": [24, 24], "transparent": true, "path": "assets/sprites/icon_drink_3.png" },
-        { "id": "icon_drink_4", "label": "음료 아이콘 4", "size": [24, 24], "transparent": true, "path": "assets/sprites/icon_drink_4.png" },
-        { "id": "icon_gift_1",  "label": "선물 아이콘 1", "size": [24, 24], "transparent": true, "path": "assets/sprites/icon_gift_1.png" },
-        { "id": "icon_gift_2",  "label": "선물 아이콘 2", "size": [24, 24], "transparent": true, "path": "assets/sprites/icon_gift_2.png" },
-        { "id": "icon_gift_3",  "label": "선물 아이콘 3", "size": [24, 24], "transparent": true, "path": "assets/sprites/icon_gift_3.png" },
-        { "id": "icon_gift_4",  "label": "선물 아이콘 4", "size": [24, 24], "transparent": true, "path": "assets/sprites/icon_gift_4.png" }
+        {
+          "id": "sioni_idle",
+          "label": "시온이 idle",
+          "preset": "sioni",
+          "path": "assets/sprites/sioni_idle.png"
+        },
+        {
+          "id": "sioni_snack",
+          "label": "시온이 반응 — 간식",
+          "preset": "sioni",
+          "path": "assets/sprites/sioni_snack.png"
+        },
+        {
+          "id": "sioni_play",
+          "label": "시온이 반응 — 놀기",
+          "preset": "sioni",
+          "path": "assets/sprites/sioni_play.png"
+        },
+        {
+          "id": "sioni_pet",
+          "label": "시온이 반응 — 쓰담",
+          "preset": "sioni",
+          "path": "assets/sprites/sioni_pet.png"
+        },
+        {
+          "id": "sion_jirai",
+          "label": "시온이 지뢰계(쿠로미풍) 체키 의상",
+          "path": "assets/sprites/sion_jirai.png",
+          "preset": "okja"
+        },
+        {
+          "id": "icon_drink_1",
+          "label": "음료 아이콘 1",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "path": "assets/sprites/icon_drink_1.png"
+        },
+        {
+          "id": "icon_drink_2",
+          "label": "음료 아이콘 2",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "path": "assets/sprites/icon_drink_2.png"
+        },
+        {
+          "id": "icon_drink_3",
+          "label": "음료 아이콘 3",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "path": "assets/sprites/icon_drink_3.png"
+        },
+        {
+          "id": "icon_drink_4",
+          "label": "음료 아이콘 4",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "path": "assets/sprites/icon_drink_4.png"
+        },
+        {
+          "id": "icon_gift_1",
+          "label": "선물 아이콘 1",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "path": "assets/sprites/icon_gift_1.png"
+        },
+        {
+          "id": "icon_gift_2",
+          "label": "선물 아이콘 2",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "path": "assets/sprites/icon_gift_2.png"
+        },
+        {
+          "id": "icon_gift_3",
+          "label": "선물 아이콘 3",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "path": "assets/sprites/icon_gift_3.png"
+        },
+        {
+          "id": "icon_gift_4",
+          "label": "선물 아이콘 4",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "path": "assets/sprites/icon_gift_4.png"
+        }
       ]
     },
     {
-      "id": "A4", "title": "A4 · 의상·프레임 확장",
+      "id": "A4",
+      "title": "A4 · 의상·프레임 확장",
       "items": [
-        { "id": "okja_kinder",  "label": "옥자 유치원 체키",  "preset": "okja",  "path": "assets/sprites/okja_kinder.png" },
-        { "id": "okja_hiphop",  "label": "옥자 힙합 체키",    "preset": "okja",  "path": "assets/sprites/okja_hiphop.png" },
-        { "id": "okja_butler",  "label": "옥자 집사 체키",    "preset": "okja",  "path": "assets/sprites/okja_butler.png" },
-        { "id": "frame_kinder", "label": "유치원 테마 프레임", "preset": "cheki", "path": "assets/sprites/frame_kinder.png" },
-        { "id": "frame_hiphop", "label": "힙합 테마 프레임",   "preset": "cheki", "path": "assets/sprites/frame_hiphop.png" },
-        { "id": "frame_butler", "label": "집사 테마 프레임",   "preset": "cheki", "path": "assets/sprites/frame_butler.png" }
+        {
+          "id": "okja_kinder",
+          "label": "옥자 유치원 체키",
+          "preset": "okja",
+          "path": "assets/sprites/okja_kinder.png"
+        },
+        {
+          "id": "okja_hiphop",
+          "label": "옥자 힙합 체키",
+          "preset": "okja",
+          "path": "assets/sprites/okja_hiphop.png"
+        },
+        {
+          "id": "okja_butler",
+          "label": "옥자 집사 체키",
+          "preset": "okja",
+          "path": "assets/sprites/okja_butler.png"
+        },
+        {
+          "id": "frame_kinder",
+          "label": "유치원 테마 프레임",
+          "preset": "cheki",
+          "path": "assets/sprites/frame_kinder.png"
+        },
+        {
+          "id": "frame_hiphop",
+          "label": "힙합 테마 프레임",
+          "preset": "cheki",
+          "path": "assets/sprites/frame_hiphop.png"
+        },
+        {
+          "id": "frame_butler",
+          "label": "집사 테마 프레임",
+          "preset": "cheki",
+          "path": "assets/sprites/frame_butler.png"
+        }
       ]
     },
     {
-      "id": "A5", "title": "A5 · 크리스마스 마감",
+      "id": "A5",
+      "title": "A5 · 크리스마스 마감",
       "items": [
-        { "id": "okja_xmas",    "label": "옥자 크리스마스 체키", "preset": "okja",  "path": "assets/sprites/okja_xmas.png" },
-        { "id": "sioni_rudolph","label": "시온이 루돌프",     "preset": "sioni", "path": "assets/sprites/sioni_rudolph.png" },
-        { "id": "frame_xmas",   "label": "크리스마스 테마 프레임", "preset": "cheki", "path": "assets/sprites/frame_xmas.png" }
+        {
+          "id": "okja_xmas",
+          "label": "옥자 크리스마스 체키",
+          "preset": "okja",
+          "path": "assets/sprites/okja_xmas.png"
+        },
+        {
+          "id": "sion_xmas",
+          "label": "시온이 크리스마스(루돌프) 체키 의상",
+          "path": "assets/sprites/sion_xmas.png",
+          "preset": "okja"
+        },
+        {
+          "id": "frame_xmas",
+          "label": "크리스마스 테마 프레임",
+          "preset": "cheki",
+          "path": "assets/sprites/frame_xmas.png"
+        }
       ]
     },
     {
-      "id": "S", "title": "셸 / UI / 공유",
+      "id": "A6",
+      "title": "A6 · 체키북 장식 (컬렉션북 UI)",
       "items": [
-        { "id": "shell_frame",    "label": "게임기 셸 프레임",   "size": [635, 877], "transparent": true, "tool": "prep_shell.py", "path": "assets/sprites/shell_frame.png" },
-        { "id": "gate_naraka",    "label": "지옥문(타이틀/출석 스플래시)", "size": [333, 480], "transparent": true, "chroma": "00ff00", "path": "assets/sprites/gate_naraka.png" },
-        { "id": "icon_currency",  "label": "재화 아이콘",        "size": [16, 16],  "transparent": true,  "path": "assets/sprites/icon_currency.png" },
-        { "id": "share_watermark","label": "공유 워터마크(@나라카+QR)", "size": [270, 480], "transparent": true, "path": "assets/sprites/share_watermark.png" },
-        { "id": "pwa_icon_192",   "label": "PWA 아이콘 192",     "size": [192, 192], "transparent": false, "path": "assets/sprites/pwa_icon_192.png" },
-        { "id": "pwa_icon_512",   "label": "PWA 아이콘 512",     "size": [512, 512], "transparent": false, "path": "assets/sprites/pwa_icon_512.png" }
+        {
+          "id": "book_frame_leather",
+          "label": "가죽 바인더 프레임(9-slice, 중앙 투명)",
+          "size": [
+            333,
+            480
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/book_frame_leather.png"
+        },
+        {
+          "id": "book_page_parchment",
+          "label": "크림 속지(타일 가능)",
+          "size": [
+            301,
+            372
+          ],
+          "transparent": false,
+          "path": "assets/sprites/book_page_parchment.png"
+        },
+        {
+          "id": "portrait_okja",
+          "label": "탭 미니 초상 — 옥자",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/portrait_okja.png"
+        },
+        {
+          "id": "portrait_sion",
+          "label": "탭 미니 초상 — 시온이",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/portrait_sion.png"
+        },
+        {
+          "id": "seal_wax",
+          "label": "왁스 봉랍(locked 참 + locked 탭 겸용)",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/seal_wax.png"
+        },
+        {
+          "id": "corner_filigree",
+          "label": "코너 오너먼트(골드 필리그리, 4모서리 회전)",
+          "size": [
+            32,
+            32
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/corner_filigree.png"
+        },
+        {
+          "id": "butterfly_deco",
+          "label": "장식 나비(호버 팔랑)",
+          "size": [
+            16,
+            16
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/butterfly_deco.png"
+        },
+        {
+          "id": "book_watermark_n",
+          "label": "N 워터마크(속지 음각, 은은)",
+          "size": [
+            120,
+            120
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/book_watermark_n.png"
+        },
+        {
+          "id": "sparkle",
+          "label": "empty 참 — ✦반짝임(코드 _draw 대체 가능)",
+          "size": [
+            16,
+            16
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sparkle.png"
+        },
+        {
+          "id": "candle_deco",
+          "label": "촛불 장식(P2, 여력 시)",
+          "size": [
+            16,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/candle_deco.png"
+        },
+        {
+          "id": "ribbon_bookmark",
+          "label": "리본 책갈피(P2, 여력 시)",
+          "size": [
+            12,
+            40
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/ribbon_bookmark.png"
+        }
+      ]
+    },
+    {
+      "id": "S",
+      "title": "셸 / UI / 공유",
+      "items": [
+        {
+          "id": "shell_frame",
+          "label": "게임기 셸 프레임",
+          "size": [
+            635,
+            877
+          ],
+          "transparent": true,
+          "tool": "prep_shell.py",
+          "path": "assets/sprites/shell_frame.png"
+        },
+        {
+          "id": "gate_naraka",
+          "label": "지옥문(타이틀/출석 스플래시)",
+          "size": [
+            333,
+            480
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/gate_naraka.png"
+        },
+        {
+          "id": "icon_currency",
+          "label": "재화 아이콘",
+          "size": [
+            16,
+            16
+          ],
+          "transparent": true,
+          "path": "assets/sprites/icon_currency.png"
+        },
+        {
+          "id": "share_watermark",
+          "label": "공유 워터마크(@나라카+QR)",
+          "size": [
+            270,
+            480
+          ],
+          "transparent": true,
+          "path": "assets/sprites/share_watermark.png"
+        },
+        {
+          "id": "pwa_icon_192",
+          "label": "PWA 아이콘 192",
+          "size": [
+            192,
+            192
+          ],
+          "transparent": false,
+          "path": "assets/sprites/pwa_icon_192.png"
+        },
+        {
+          "id": "pwa_icon_512",
+          "label": "PWA 아이콘 512",
+          "size": [
+            512,
+            512
+          ],
+          "transparent": false,
+          "path": "assets/sprites/pwa_icon_512.png"
+        }
       ]
     }
   ]
