@@ -57,6 +57,16 @@ static func cheki_art_ready(event: String) -> bool:
   return bool(ART_READY.get(event, false))
 
 
+## 이 캐릭터가 보유 가능한 이벤트 id 목록(LIST 정의 순서). 컬렉션북(T16) 칸 나열용.
+## (옥자 → 전체 5종, 시온이 → mine·xmas)
+static func events_for(character: String) -> Array:
+  var out: Array = []
+  for ev in LIST:
+    if bool(LIST[ev].get(character, false)):
+      out.append(ev)
+  return out
+
+
 # ── 체키 카드 합성 레이어 에셋 경로 (→ ADR 0003) ─────────────────
 # 사진 면 = [배경 bg_cheki_*] + [의상 누끼 {char}_{slug}] + [테마/표준 프레임]
 
