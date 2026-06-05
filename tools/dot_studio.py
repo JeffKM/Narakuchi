@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""나라카찌 도트 스튜디오 — dotify 파이프라인을 브라우저 GUI로 다루는 로컬 툴.
+"""나라쿠치 도트 스튜디오 — dotify 파이프라인을 브라우저 GUI로 다루는 로컬 툴.
 
 pixelartvillage 스타일의 인터랙티브 워크플로:
   이미지 드롭 → 프리셋/크로마키/임계값 슬라이더 조정 → 실시간 nearest 미리보기
@@ -33,9 +33,9 @@ ROOT = dotify.ROOT  # 프로젝트 루트 (저장 경로 가드용)
 HERE = os.path.dirname(os.path.abspath(__file__))
 MANIFEST = os.path.join(HERE, "asset_manifest.json")  # 체크리스트 → 생산 슬롯 정의
 PAL_DIR = os.path.join(ROOT, "assets", "palettes")
-PALETTE_GPL = os.path.join(PAL_DIR, "narakatchi.gpl")
-PALETTE_STRIP = os.path.join(PAL_DIR, "narakatchi_strip.png")
-PALETTE_GRID = os.path.join(PAL_DIR, "narakatchi_grid.png")
+PALETTE_GPL = os.path.join(PAL_DIR, "narakuchi.gpl")
+PALETTE_STRIP = os.path.join(PAL_DIR, "narakuchi_strip.png")
+PALETTE_GRID = os.path.join(PAL_DIR, "narakuchi_grid.png")
 GRID_COLS, GRID_CELL = 8, 48  # 미리보기 grid: 8열 · 48px 셀(행우선)
 
 
@@ -111,7 +111,7 @@ def save_palette(hexes):
     f.write("\n".join(clean) + "\n")
 
   names = existing_gpl_names()
-  lines = ["GIMP Palette", "Name: Narakatchi Master 32", "Columns: 8", "#"]
+  lines = ["GIMP Palette", "Name: Narakuchi Master 32", "Columns: 8", "#"]
   for i, h in enumerate(clean):
     r, g, b = rgbs[i]
     name = names.get(h) or f"COLOR_{i + 1:02d}"  # 색 동일 시 기존 이름 보존
@@ -305,7 +305,7 @@ class Handler(BaseHTTPRequestHandler):
 PAGE = r"""<!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>나라카찌 도트 스튜디오</title>
+<title>나라쿠치 도트 스튜디오</title>
 <style>
   :root { --bg:#161420; --panel:#221d2e; --line:#3a2f4a; --txt:#f4f2f7; --muted:#9a96a3;
           --accent:#ff6fae; --ok:#3fd47a; --bad:#ff6f6f; }
@@ -386,7 +386,7 @@ PAGE = r"""<!DOCTYPE html>
   .hidden { display:none; }
 </style></head>
 <body>
-<header><h1>🎨 나라카찌 도트 스튜디오</h1>
+<header><h1>🎨 나라쿠치 도트 스튜디오</h1>
   <span>규격은 dotify 파이프라인이 강제 · 결과는 assets/ 에 저장</span></header>
 <div class="wrap">
   <div class="checklist-col">
@@ -688,7 +688,7 @@ loadAssets();
 
 
 def main():
-  ap = argparse.ArgumentParser(description="나라카찌 도트 스튜디오 (로컬 웹 GUI)")
+  ap = argparse.ArgumentParser(description="나라쿠치 도트 스튜디오 (로컬 웹 GUI)")
   ap.add_argument("--port", type=int, default=8765)
   ap.add_argument("--no-browser", action="store_true", help="브라우저 자동 오픈 안 함")
   args = ap.parse_args()

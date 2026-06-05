@@ -1,6 +1,6 @@
 class_name Palette
 extends RefCounted
-## 나라카찌 마스터 팔레트 (~32색) — 다크 앤틱 무드 (→ ADR 0001)
+## 나라쿠치 마스터 팔레트 (~32색) — 다크 앤틱 무드 (→ ADR 0001)
 ## 모든 도트 에셋은 이 팔레트로 인덱싱해 통일감을 강제한다.
 ## 사용 예: Palette.GOLD, Palette.BG
 

@@ -1,6 +1,6 @@
 # 갈무리 폰트 설치 안내
 
-나라카찌는 한글 도트 폰트 **갈무리(Galmuri)**를 사용한다 (→ ../../docs/adr/0001-dot-art-spec.md).
+나라쿠치는 한글 도트 폰트 **갈무리(Galmuri)**를 사용한다 (→ ../../docs/adr/0001-dot-art-spec.md).
 
 ## 1) 내려받기
 
@@ -34,4 +34,4 @@ assets/fonts/Galmuri9.ttf    (작은 글씨, 선택)
 
 ## 적용 확인
 
-폰트를 넣고 `scenes/Main.tscn`을 실행하면 타이틀이 영문 `NARAKATCHI` → 한글 **`나라카찌`**로 바뀐다. (폰트가 없으면 영문 폴백)
+폰트를 넣고 `scenes/Main.tscn`을 실행하면 타이틀이 영문 `NARAKUCHI` → 한글 **`나라쿠치`**로 바뀐다. (폰트가 없으면 영문 폴백)

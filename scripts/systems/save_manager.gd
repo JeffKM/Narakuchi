@@ -4,14 +4,14 @@ extends Node
 ## autoload 싱글톤으로 등록되어 어디서든 `SaveManager.data` 로 접근한다.
 ## (project.godot [autoload] 에 "SaveManager" 로 등록)
 ##
-## 저장 방식: user://narakatchi_save.json (JSON 텍스트)
+## 저장 방식: user://narakuchi_save.json (JSON 텍스트)
 ##   - 데스크톱: 유저 데이터 폴더의 실제 파일
 ##   - 웹(HTML5 export): Godot 이 user:// 를 브라우저 IndexedDB 에 자동 영속화 →
 ##     사실상 localStorage 와 동일한 '브라우저 로컬 저장'. 별도 JS 연동 불필요.
 ##
 ## 서버/계정 없음. 단일 슬롯. 스키마는 default_save() 가 단일 출처(SSOT).
 
-const SAVE_PATH := "user://narakatchi_save.json"
+const SAVE_PATH := "user://narakuchi_save.json"
 const SAVE_VERSION := 1  # 스키마 버전 (마이그레이션 분기용)
 
 ## 현재 게임 상태. 항상 default_save() 스키마를 만족한다고 가정해도 되도록 load 시 보정한다.

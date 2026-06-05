@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://kjet2q60ngk3"
-path="res://.godot/imported/narakatchi_grid.png-a40cb0378a7913f613c69ad0b94557c8.ctex"
+uid="uid://cg18gkra5dima"
+path="res://.godot/imported/narakuchi_strip.png-ef1f9406c5a4f9cc905e2967a63c76c1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/palettes/narakatchi_grid.png"
-dest_files=["res://.godot/imported/narakatchi_grid.png-a40cb0378a7913f613c69ad0b94557c8.ctex"]
+source_file="res://assets/palettes/narakuchi_strip.png"
+dest_files=["res://.godot/imported/narakuchi_strip.png-ef1f9406c5a4f9cc905e2967a63c76c1.ctex"]
 
 [params]
 

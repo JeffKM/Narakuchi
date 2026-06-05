@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""나라카찌 도트화 파이프라인 — AI 생성 이미지를 규격 도트 에셋으로 강제 변환.
+"""나라쿠치 도트화 파이프라인 — AI 생성 이미지를 규격 도트 에셋으로 강제 변환.
 
 Gemini/Midjourney가 만든 '도트풍 큰 그림'을 받아 규격을 코드로 강제한다:
   1) 목표 규격으로 비율 맞춰 축소(fit)
@@ -23,7 +23,7 @@ import numpy as np
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PALETTE_HEX = os.path.join(ROOT, "assets", "palettes", "narakatchi.hex")
+PALETTE_HEX = os.path.join(ROOT, "assets", "palettes", "narakuchi.hex")
 
 # 프리셋: (폭, 높이, 투명배경?, LCD사각 or None)
 #  LCD = (x, y, w, h) — 셸 내부 게임 화면 구멍 (→ ADR 0001)
@@ -137,7 +137,7 @@ def audit(img, target_w, target_h, pal, lcd):
 
 
 def main():
-  ap = argparse.ArgumentParser(description="나라카찌 도트화 파이프라인")
+  ap = argparse.ArgumentParser(description="나라쿠치 도트화 파이프라인")
   ap.add_argument("src", help="원본 이미지(PNG)")
   ap.add_argument("--preset", choices=PRESETS.keys(), help="규격 프리셋")
   ap.add_argument("--size", help="직접 규격 지정 (예: 120x180)")

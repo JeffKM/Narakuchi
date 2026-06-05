@@ -1,6 +1,6 @@
 class_name Balance
 extends RefCounted
-## 나라카찌 밸런스 상수 — PRD §4.5 (v1 시작값, 플레이테스트로 조정)
+## 나라쿠치 밸런스 상수 — PRD §4.5 (v1 시작값, 플레이테스트로 조정)
 ## ⚠️ 게임 수치는 전부 여기 한 곳에서만 관리한다. 다른 스크립트에서 하드코딩 금지.
 ## 사용 예: Balance.STAMINA_MAX, Balance.GAUGE_OKJA
 ##

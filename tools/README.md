@@ -42,7 +42,7 @@ tools/.venv/bin/python tools/dot_studio.py --port 8800 --no-browser
 - **슬롯 추가/변경**: `tools/asset_manifest.json`을 편집한다(그룹·라벨·preset 또는 size·path). 음료/선물 개수 등은 거기서 조정.
 - **실시간 검수**: 치수·색 수·팔레트 외 색·반투명·LCD 투명을 변환 즉시 패널에 표시(✅/❌).
 - **`32색 팔레트 적용` 토글**: 끄면 팔레트 인덱싱 전 원본 색으로 미리보기(전후 비교용).
-- **팔레트 편집**: 스와치를 클릭해 색 변경, `+ 색 추가`/삭제(×)로 구성 변경 → **편집 즉시 미리보기에 반영**. `되돌리기`는 파일 팔레트로 복귀, `팔레트 저장`은 `assets/palettes/`의 **네 파일을 한 번에 갱신**한다 — `narakatchi.hex`(파이프라인 원본) · `narakatchi.gpl`(색이 그대로면 기존 이름 보존, 바뀐/새 색은 `COLOR_NN`) · `narakatchi_strip.png`(색당 1px) · `narakatchi_grid.png`(8열·48px 셀). 색 개수가 바뀌면 strip/grid 크기도 자동 적응(grid는 8열 기준 행 수 증감).
+- **팔레트 편집**: 스와치를 클릭해 색 변경, `+ 색 추가`/삭제(×)로 구성 변경 → **편집 즉시 미리보기에 반영**. `되돌리기`는 파일 팔레트로 복귀, `팔레트 저장`은 `assets/palettes/`의 **네 파일을 한 번에 갱신**한다 — `narakuchi.hex`(파이프라인 원본) · `narakuchi.gpl`(색이 그대로면 기존 이름 보존, 바뀐/새 색은 `COLOR_NN`) · `narakuchi_strip.png`(색당 1px) · `narakuchi_grid.png`(8열·48px 셀). 색 개수가 바뀌면 strip/grid 크기도 자동 적응(grid는 8열 기준 행 수 증감).
 - 추가 의존성 없음 — 표준 라이브러리 `http.server` + 기존 `pillow`/`numpy`. 저장은 **프로젝트 폴더 안 `.png`만** 허용(경로 탈출 차단).
 
 ### 프리셋 (→ ADR 0001 규격)
@@ -59,7 +59,7 @@ tools/.venv/bin/python tools/dot_studio.py --port 8800 --no-browser
 ## 파이프라인 (dotify.py)
 
 1. **비율 맞춰 축소(fit)** — 왜곡 없이 규격 캔버스에 중앙 안착
-2. **마스터 32색 팔레트 인덱싱** — `assets/palettes/narakatchi.hex` 기준 최근접 매핑 → 색 폭발 해결
+2. **마스터 32색 팔레트 인덱싱** — `assets/palettes/narakuchi.hex` 기준 최근접 매핑 → 색 폭발 해결
 3. **알파 이진화** — 반투명 제거(도트는 0/255만)
 4. **LCD 투명 마스킹** — LCD 사각을 지정한 프리셋/규격은 게임 화면칸을 투명으로 뚫음
 5. **검수 리포트** — 치수·색 수·팔레트 외 색·반투명·LCD 투명을 자동 판정(통과 시 exit 0)
