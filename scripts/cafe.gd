@@ -25,14 +25,14 @@ const OKJA_FEET := Vector2(LCD_W / 2.0, 400)  # 발밑 기준 배치 (HUD 아래
 # 디오라마 리프레임(Phase 3.5): 시온이는 우측 바 카운터 위, 바인더는 좌측 캐비닛 상판.
 # (배경 bg_naraka.png v2 받침에 맞춘 좌표 — 우측 벽 선반은 포션으로 차 카운터 위에 앉힘)
 # 발밑 = 스프라이트 불투명 영역의 바닥(아트 여백 보정 후 받침에 안착). bob 떠도 그림자는 고정.
-const SIONI_FEET := Vector2(73, 408)          # 좌측 바닥(받침선 y=400). 좌측 선반(x≈54)에서 떨어짐. 1.4배 하단여백 8px 보정 반영
-const SIONI_PAD_BOTTOM := 8                   # sioni_idle 캔버스 하단 투명 6px × 1.4배 확대
+const SIONI_FEET := Vector2(76, 394)          # 좌측 바닥마루(표면 y≈383). 발바닥=노드-11(96캔버스 발 y85)
+const SIONI_PAD_BOTTOM := 11                  # 노드 원점→발바닥 간격(96px 도트) — 그림자를 발밑에 안착
 const BINDER_FEET := Vector2(54, 305)         # 좌측 캐비닛 상판(바인더 아트 하단여백 17px 보정) — 선반에 안착하도록 올림
 const BINDER_PAD_BOTTOM := 17                 # cheki_binder 56px 캔버스 하단 투명 여백
 
 # 시온이 교감 모드 줌(Phase 3.5 T27) — 디오라마 컨테이너를 정수 2배로 푸시(픽셀 또렷).
 const ZOOM_SION := 2.0
-const SION_FOCUS_LOCAL := Vector2(73, 362)    # 줌 중심(시온이 몸통 중앙 — 좌측 이동·1.4배 확대 반영)
+const SION_FOCUS_LOCAL := Vector2(73, 340)    # 줌 중심(시온이 몸통 중앙 — 발 391·키 96 기준)
 const SION_FOCUS_SCREEN := Vector2(LCD_W / 2.0, LCD_H / 2.0)  # 그 점을 화면 중앙으로(좌측 경계 clamp로 실제 ~146,244)
 
 # 교감 대상 모드 — 옥자(기본) ↔ 시온이. 시온이 탭으로 진입, 옥자 탭/CANCEL 로 복귀. (T15)
@@ -142,7 +142,7 @@ func _build() -> void:
 
   # 2b) 라이브 시온이 (T15) — 옥자 좌하단 바닥. 탭하면 시온이 교감 모드 + 2배 줌.
   #     접지 그림자(바닥 고정) → 시온이 → 옥자보다 앞. bob 떠도 그림자가 바닥에 잡아준다.
-  _add_shadow(Vector2(SIONI_FEET.x, SIONI_FEET.y - SIONI_PAD_BOTTOM), 56, 11)
+  _add_shadow(Vector2(SIONI_FEET.x, SIONI_FEET.y - SIONI_PAD_BOTTOM), 58, 12)  # 96px 발바닥폭 ~58
   _sioni = SioniScript.new()
   _sioni.position = SIONI_FEET
   _stage.add_child(_sioni)
@@ -217,7 +217,7 @@ func _add_okja_touch() -> void:
 
 ## 시온이 위 투명 터치 버튼 (T15) — 발치 기준 84×88 (1.4배 확대 반영).
 func _add_sioni_touch() -> void:
-  var btn := _make_touch(Vector2(SIONI_FEET.x - 42, SIONI_FEET.y - 88), Vector2(84, 88))
+  var btn := _make_touch(Vector2(SIONI_FEET.x - 42, SIONI_FEET.y - 96), Vector2(84, 96))
   btn.pressed.connect(_on_sioni_touch)
   _stage.add_child(btn)
 

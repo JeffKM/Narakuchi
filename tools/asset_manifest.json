@@ -138,10 +138,10 @@
       "items": [
         {
           "id": "sioni_idle",
-          "label": "시온이 idle (60px)",
+          "label": "시온이 idle (96px)",
           "size": [
-            60,
-            60
+            96,
+            96
           ],
           "transparent": true,
           "chroma": "00ff00",
@@ -149,10 +149,10 @@
         },
         {
           "id": "sioni_snack",
-          "label": "시온이 반응 — 간식 (60px)",
+          "label": "시온이 반응 — 간식 (96px)",
           "size": [
-            60,
-            60
+            96,
+            96
           ],
           "transparent": true,
           "chroma": "00ff00",
@@ -160,10 +160,10 @@
         },
         {
           "id": "sioni_play",
-          "label": "시온이 반응 — 놀기 (60px)",
+          "label": "시온이 반응 — 놀기 (96px)",
           "size": [
-            60,
-            60
+            96,
+            96
           ],
           "transparent": true,
           "chroma": "00ff00",
@@ -171,10 +171,10 @@
         },
         {
           "id": "sioni_pet",
-          "label": "시온이 반응 — 쓰담 (60px)",
+          "label": "시온이 반응 — 쓰담 (96px)",
           "size": [
-            60,
-            60
+            96,
+            96
           ],
           "transparent": true,
           "chroma": "00ff00",
