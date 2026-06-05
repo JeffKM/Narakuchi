@@ -21,6 +21,7 @@ const MOOD_LABEL := {
 var _gauge_fill: ColorRect
 var _gauge_text: Label
 var _info: Label  # 기분 · 기력 · 코인 한 줄
+var _focus: String = "okja"  # 현재 게이지 표시 대상 (okja | sion). T15 시온이 모드에서 전환.
 
 
 func _ready() -> void:
@@ -61,16 +62,33 @@ func _ready() -> void:
   add_child(_info)
 
 
+## 게이지 표시 대상을 바꾼다(okja | sion). T15 시온이 모드 전환에서 호출.
+func set_focus(character: String) -> void:
+  _focus = character
+  refresh()
+
+
 ## 세이브에서 현재 수치를 읽어 표시를 갱신한다. (Meters.changed 에 연결)
 func refresh() -> void:
+  var stamina := int(SaveManager.get_value("stamina", 0))
+  var coins := int(SaveManager.get_value("player.coins", 0))
+
+  if _focus == "sion":
+    # 시온이: 게이지만(펫이라 기분·관계 단계 없음)
+    var sg := int(SaveManager.get_value("sion.gauge", 0))
+    var sr := clampf(float(sg) / float(Balance.GAUGE_SION), 0.0, 1.0)
+    _gauge_fill.size.x = round(GAUGE_W * sr)
+    _gauge_text.text = "시온이 호감도 %d/%d" % [sg, Balance.GAUGE_SION]
+    _info.text = "기력 %d/%d   코인 %d" % [stamina, Balance.STAMINA_MAX, coins]
+    return
+
+  # 옥자: 게이지 + 기분
   var gauge := int(SaveManager.get_value("okja.gauge", 0))
   var ratio := clampf(float(gauge) / float(Balance.GAUGE_OKJA), 0.0, 1.0)
   _gauge_fill.size.x = round(GAUGE_W * ratio)
   _gauge_text.text = "옥자 호감도 %d/%d" % [gauge, Balance.GAUGE_OKJA]
 
   var mood := String(SaveManager.get_value("okja.mood", Meters.MOOD_HAPPY))
-  var stamina := int(SaveManager.get_value("stamina", 0))
-  var coins := int(SaveManager.get_value("player.coins", 0))
   _info.text = "%s   기력 %d/%d   코인 %d" % [
     MOOD_LABEL.get(mood, mood), stamina, Balance.STAMINA_MAX, coins]
 
@@ -85,5 +103,5 @@ func _make_label(x: int, y: int, w: int, size: int, color: Color, align: int) ->
   lb.add_theme_font_size_override("font_size", size)
   lb.add_theme_color_override("font_color", color)
   lb.add_theme_color_override("font_outline_color", Palette.INK)
-  lb.add_theme_constant_override("outline_size", 4)
+  lb.add_theme_constant_override("outline_size", 2)
   return lb
