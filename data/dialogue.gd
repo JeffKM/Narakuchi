@@ -8,8 +8,10 @@ extends RefCounted
 ##   - stage "regular"/"close" → 단계2: 반말 + 닉네임
 ## {nick} 토큰은 닉네임으로 치환된다.
 ##
-## ⚠️ 대화 팝업 2지선다 분기·선물 선호표는 T11(Phase 2). 여기선 티커 한 줄 풀만 둔다.
-## 이모지는 폰트 호환을 위해 티커 풀에서는 뺐다(원본 톤은 docs/script-okja.md 참조).
+## 티커 한 줄 풀(OKJA/SION) + 대화 팝업 토막(TALK) + 선물 선호표(GIFTS). (T11)
+## 이모지는 폰트 호환을 위해 풀에서는 뺐다(원본 톤은 docs/script-okja.md 참조).
+## 호감 수치는 여기서 안 박는다 — 선택지의 tier("good"/"match"/"sion"/"plain")만 들고,
+## 실제 호감도 매핑은 Cafe 가 Balance.AFF_* 로 한다(수치 단일 출처 사수).
 
 # 상황별 라인 풀. 각 상황 = { "guest": [존댓말...], "regular": [반말...] }
 const OKJA := {
@@ -71,6 +73,57 @@ const SION := [
   "시온이가 배를 보인다!",
 ]
 
+# ── 대화 팝업 토막 (T11) — `대화` 버튼, 단계별 2~3지선다 ──────────────
+# 토막 = { prompt(옥자 질문), choices:[ {label, reply(옥자 반응), tier, expr} ] }.
+#   tier: "good"(↑↑ 위트·솔직) | "plain"(↑/· 무난). expr: 선택 후 옥자 표정(okja.gd 상태).
+#   단계 키: "guest"(존댓말+님) | "regular"(반말). {nick} 토큰 치환.
+const TALK := {
+  "guest": [
+    {
+      "prompt": "또 오셨네요. 일은 안 하세요?",
+      "choices": [
+        {"label": "쉬러 왔어요",   "reply": "팔자 좋으시네요.",        "tier": "plain", "expr": &"idle"},
+        {"label": "마녀님 보러요", "reply": "후, 입만 살아서는.",      "tier": "good",  "expr": &"shy"},
+        {"label": "그냥요",         "reply": "성의 없으시긴.",          "tier": "plain", "expr": &"talk"},
+      ],
+    },
+    {
+      "prompt": "시온이 예쁘죠. ……제 새끼라.",
+      "choices": [
+        {"label": "마녀님 닮았어요", "reply": "……누가 누굴.",          "tier": "good",  "expr": &"shy"},
+        {"label": "통통해요",        "reply": "먹는 게 일이라.",        "tier": "plain", "expr": &"smile"},
+      ],
+    },
+  ],
+  "regular": [
+    {
+      "prompt": "왔어? ……오늘은 좀 보고 싶었는데.",
+      "choices": [
+        {"label": "나도",          "reply": "흥, 솔직하긴.",          "tier": "good",  "expr": &"shy"},
+        {"label": "방금 뭐랬어?",   "reply": "못 들었으면 말고.",      "tier": "plain", "expr": &"talk"},
+        {"label": "농담이지?",      "reply": "……됐어, 앉아.",         "tier": "plain", "expr": &"idle"},
+      ],
+    },
+    {
+      "prompt": "요즘 시온이가 너만 따라. 뭐 먹였어?",
+      "choices": [
+        {"label": "비밀이야",       "reply": "쳇, 치사해.",            "tier": "good",  "expr": &"shy"},
+        {"label": "간식 줬어",      "reply": "고마워. 걔 잘 챙겨줘서.", "tier": "good",  "expr": &"smile"},
+      ],
+    },
+  ],
+}
+
+# ── 선물 선호표 (T11) — `선물` 버튼, 4종 중 선택 ──────────────
+# 선물 = { label, reply(옥자 반응), tier, expr }.
+#   tier: "match"(좋아함 ↑↑) | "sion"(시온이 간식, 매우 좋아함 ↑↑↑) | "plain"(보통 ↑).
+const GIFTS := [
+  {"label": "다크 초콜릿",  "reply": "……단 거 좋아하는 거, 어떻게 알았죠.", "tier": "match", "expr": &"shy"},
+  {"label": "회중시계",      "reply": "취향이네요. 나쁘지 않아요.",          "tier": "match", "expr": &"smile"},
+  {"label": "시온이 간식",   "reply": "이건… 시온이 거잖아. ……고마워.",      "tier": "sion",  "expr": &"smile"},
+  {"label": "꽃다발",        "reply": "예쁘네요. 꽂아둘게요.",               "tier": "plain", "expr": &"idle"},
+]
+
 
 ## 상황+단계에 맞는 옥자 티커 한 줄을 랜덤으로 골라 {nick} 치환해 반환한다.
 ## stage 는 Balance.relationship_stage() 결과("guest"|"regular"|"close").
@@ -88,3 +141,32 @@ static func okja_line(situation: String, stage: String, nick: String) -> String:
 ## 시온이 티커 한 줄 랜덤.
 static func sion_line() -> String:
   return SION[randi() % SION.size()]
+
+
+## 단계에 맞는 대화 토막 하나를 랜덤으로 골라 {nick} 치환해 반환. (대화 팝업 T11)
+## 반환 { prompt:String, choices:Array[{label, reply, tier, expr}] }. (사본 — 원본 불변)
+static func pick_talk(stage: String, nick: String) -> Dictionary:
+  var key := "regular" if stage != "guest" else "guest"
+  var pool: Array = TALK.get(key, TALK["guest"])
+  var topic: Dictionary = pool[randi() % pool.size()]
+  var choices: Array = []
+  for c in topic["choices"]:
+    var c2: Dictionary = (c as Dictionary).duplicate()
+    c2["reply"] = String(c["reply"]).replace("{nick}", nick)
+    choices.append(c2)
+  return {"prompt": String(topic["prompt"]).replace("{nick}", nick), "choices": choices}
+
+
+## 선물 팝업 오프닝 프롬프트(단계별).
+static func gift_prompt(stage: String) -> String:
+  return "뭐 줄 건데?" if stage != "guest" else "저한테 주실 거예요?"
+
+
+## 선물 선택지 목록(표시명·반응). {nick} 치환한 사본 반환. (선호표 T11)
+static func gift_choices(nick: String) -> Array:
+  var out: Array = []
+  for g in GIFTS:
+    var g2: Dictionary = (g as Dictionary).duplicate()
+    g2["reply"] = String(g["reply"]).replace("{nick}", nick)
+    out.append(g2)
+  return out

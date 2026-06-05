@@ -7,15 +7,17 @@ extends Node
 ##   2 = 데모 시드(반말 전환 직전 · 온보딩 스킵) → 바로 교감 화면 (시연용)
 ##   3 = 현재 씬 리로드(세이브 유지) — 입장 연출/하루치 다시 보기
 ##   4 = "오늘의 체키" 즉시 획득(게이지 풀 → 획득 리빌) — 컬렉션북(T16) 전 카드 확인용
+##   5 = 연속출석 마일스톤(3일) 나비 조각 보상 리빌 — T14 확인용(3일 접속 없이 즉시)
 ##
 ## (숫자열 키 — 노트북 Fn 조합 불필요. F5/Ctrl+R 같은 웹 새로고침과도 충돌 없음.)
-## 셸(shell.gd)은 자기 KEYMAP(TAB/방향/스페이스/ESC 등)만 가로채므로 1~4 는 여기로 온다.
+## 셸(shell.gd)은 자기 KEYMAP(TAB/방향/스페이스/ESC 등)만 가로채므로 1~5 는 여기로 온다.
 
 const KEYS := {
   KEY_1: "wipe",
   KEY_2: "seed",
   KEY_3: "reload",
   KEY_4: "cheki",
+  KEY_5: "milestone",
 }
 
 
@@ -33,6 +35,8 @@ func _unhandled_input(event: InputEvent) -> void:
       _reload()
     "cheki":
       _grant_cheki()
+    "milestone":
+      _grant_milestone()
 
 
 ## 현재 씬을 다시 로드한다. SaveManager 는 autoload 라 유지되고, Main._ready 가 갱신된 세이브를 다시 읽는다.
@@ -46,3 +50,10 @@ func _grant_cheki() -> void:
   var cafe := get_tree().get_first_node_in_group(&"cafe")
   if cafe and cafe.has_method("debug_grant_cheki"):
     cafe.debug_grant_cheki()
+
+
+## 교감 화면(Cafe)을 찾아 출석 마일스톤 보상 리빌을 강제로 띄운다(T14 확인용).
+func _grant_milestone() -> void:
+  var cafe := get_tree().get_first_node_in_group(&"cafe")
+  if cafe and cafe.has_method("debug_milestone"):
+    cafe.debug_milestone()

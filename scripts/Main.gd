@@ -72,7 +72,7 @@ func _on_onboarding_done() -> void:
 ## 디버그 단축키 힌트 — 셸 하단 여백(캔버스 좌표)에 작게 (디버그 빌드만).
 func _make_debug_hint() -> Label:
   var lb := Label.new()
-  lb.text = "[1] 초기화  [2] 데모시드  [3] 리로드  [4] 체키획득"
+  lb.text = "[1] 초기화  [2] 데모시드  [3] 리로드  [4] 체키획득  [5] 출석보상"
   lb.position = Vector2(0, ShellFrame.CANVAS.y - 26)
   lb.size = Vector2(ShellFrame.CANVAS.x, 20)
   lb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

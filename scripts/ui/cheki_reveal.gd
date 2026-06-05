@@ -12,6 +12,7 @@ const LCD := Vector2(333, 480)
 const DISPLAY := 2.0  # 카드 확대 배율 (120×180 → 240×360)
 
 var _result: Dictionary
+var _headline := ""     # 비면 일반 체키 획득, 채워지면 상단 배너(출석 마일스톤 보상 등 T14)
 var _card: ChekiCard
 var _caption: Label
 var _hint: Label
@@ -19,8 +20,10 @@ var _phase := "intro"   # intro → cover → photo → done
 var _auto_tw: Tween
 
 
-func setup(result: Dictionary) -> void:
+## result = Cheki.grant/add_shards 결과. headline 을 주면 상단에 보상 배너를 단다(T14 마일스톤).
+func setup(result: Dictionary, headline: String = "") -> void:
   _result = result
+  _headline = headline
 
 
 func _ready() -> void:
@@ -59,6 +62,13 @@ func _ready() -> void:
 
   _hint = _make_label(Fonts.SIZE_SMALL, Palette.GREY_300, 450)
   add_child(_hint)
+
+  # 상단 보상 배너 (출석 마일스톤 등) — 카드 위쪽 골드 한 줄
+  if _headline != "":
+    var head := _make_label(Fonts.SIZE_TITLE, Palette.GOLD, 24)
+    head.add_theme_constant_override("outline_size", 3)
+    head.text = _headline
+    add_child(head)
 
   # 표지 입장(페이드+살짝 상승) → 끝나면 cover 단계 + 자동 플립 예약
   holder.modulate.a = 0.0

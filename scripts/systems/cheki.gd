@@ -102,6 +102,54 @@ static func grant(character: String, event: String) -> Dictionary:
   SaveManager.set_value("cheki", col)
   SaveManager.save_game()
 
+  return _result_of(character, event, r, was_new, upgraded)
+
+
+## 특정 슬롯에 나비 조각 amount 개를 적립한다(중복 획득 없이 — 출석 마일스톤 보상 T14).
+## 일반(미보유/나비)엔 적립 안 함 — 보유한 일반 칸에만. 승급 판정 포함. 저장까지.
+## 반환: grant 와 같은 결과 dict(연출용). 적립 불가면 빈 dict.
+static func add_shards(character: String, event: String, amount: int) -> Dictionary:
+  var r := record(character, event)
+  # 보유한 일반(나비 미승급) 칸에만 적립. 미보유나 이미 나비면 스킵.
+  if int(r["common"]) <= 0 or bool(r["butterfly"]):
+    return {}
+
+  r["shards"] = int(r["shards"]) + amount
+  var upgraded := false
+  if int(r["shards"]) >= Balance.BUTTERFLY_SHARDS_NEEDED:
+    r["butterfly"] = true
+    r["shards"] = 0
+    upgraded = true
+
+  var col: Dictionary = SaveManager.get_value("cheki", {})
+  col[Events.cheki_key(character, event)] = r
+  SaveManager.set_value("cheki", col)
+  SaveManager.save_game()
+  return _result_of(character, event, r, false, upgraded)
+
+
+## 출석 마일스톤 나비 조각 보상 (T14) — 보유한 일반 칸 중 "승급에 가장 가까운"(조각 최다) 칸에 적립.
+## 컬렉션을 채워가는 보상감을 위해 조각이 많이 쌓인 칸을 우선해 승급으로 이어지게 한다.
+## 적립할 일반 칸이 없으면(전부 나비거나 미보유) 빈 dict 반환(보상 스킵).
+static func grant_milestone_shards(amount: int) -> Dictionary:
+  var best_char := ""
+  var best_event := ""
+  var best_shards := -1
+  for ch in [Events.OKJA, Events.SION]:
+    for ev in Events.events_for(ch):
+      if grade(ch, ev) == GRADE_COMMON:
+        var s := int(record(ch, ev)["shards"])
+        if s > best_shards:
+          best_shards = s
+          best_char = ch
+          best_event = ev
+  if best_char == "":
+    return {}
+  return add_shards(best_char, best_event, amount)
+
+
+## grant/add_shards 공통 결과 dict 빌더 (획득 연출 T13/T18 용).
+static func _result_of(character: String, event: String, r: Dictionary, was_new: bool, upgraded: bool) -> Dictionary:
   var g := GRADE_BUTTERFLY if bool(r["butterfly"]) else GRADE_COMMON
   return {
     "character": character,

@@ -24,6 +24,9 @@ const _MOOD_ORDER := [MOOD_SULKY, MOOD_NORMAL, MOOD_HAPPY]  # 교감 1회마다 
 
 # begin_session() 결과 플래그 — 화면이 입장/복귀 연출을 고르는 데 쓴다.
 var was_neglected := false  # 방치(24h+) 후 복귀로 시무룩해져 있었나
+# 연속출석 마일스톤(3일/7일) 보상이 이번 세션에 발생했나 (T14). Cafe.start() 가 보상 리빌로 소비.
+#   {} = 없음 / { streak:int, reward:Dictionary(Cheki.add_shards 결과) }
+var pending_milestone: Dictionary = {}
 
 
 ## 세션 진입 판정 (읽기전용) — 스플래시/카페가 입장·복귀·출석 연출을 고를 때 쓴다.
@@ -58,6 +61,7 @@ static func evaluate_session() -> Dictionary:
 func begin_session() -> void:
   var eval := evaluate_session()
   was_neglected = bool(eval["was_neglected"])
+  pending_milestone = {}
 
   # 1) 기분: 방치였으면 시무룩
   if was_neglected:
@@ -70,7 +74,8 @@ func begin_session() -> void:
     var last_date := String(SaveManager.get_value("attendance.last_date", ""))
     SaveManager.set_value("stamina", Balance.STAMINA_MAX)
     SaveManager.set_value("session.touch_affinity", 0)
-    _update_attendance(today, last_date, now)
+    var streak := _update_attendance(today, last_date, now)
+    pending_milestone = _check_milestone(streak)  # 3일/7일 → 나비 조각 보상 (T14)
 
   SaveManager.save_game()
   changed.emit()
@@ -79,6 +84,20 @@ func begin_session() -> void:
 ## 관계 단계 문자열 ("guest"|"regular"|"close").
 func stage() -> String:
   return Balance.relationship_stage(int(SaveManager.get_value("okja.affinity_total", 0)))
+
+
+## 출석 진행 상태(표시용, 읽기전용) — 컬렉션북/HUD 의 "출석 N일 · 다음 보상까지 D일" 표기에 쓴다. (T14)
+## next = 아직 안 받은 다음 마일스톤 일수(3→7→없으면 0=다 받음). remaining = 거기까지 남은 일.
+## streak 은 begin_session 이 그날 커밋한 값이라, 세션 중에는 '오늘 포함' 연속일을 반영한다.
+static func attendance_status() -> Dictionary:
+  var streak := int(SaveManager.get_value("attendance.streak", 0))
+  var next := 0
+  if streak < Balance.ATTENDANCE_MILESTONE_3:
+    next = Balance.ATTENDANCE_MILESTONE_3
+  elif streak < Balance.ATTENDANCE_MILESTONE_7:
+    next = Balance.ATTENDANCE_MILESTONE_7
+  var remaining := (next - streak) if next > 0 else 0
+  return {"streak": streak, "next": next, "remaining": remaining}
 
 
 # ── 스태미나 (세션 길이 게이트) ─────────────────────────────
@@ -186,9 +205,9 @@ func _recover_mood() -> void:
     SaveManager.set_value("okja.mood", _MOOD_ORDER[idx + 1])
 
 
-## 출석/연속출석 갱신 (데모용 간략판 — 마일스톤 보상은 T14).
-## 어제 방문이면 streak+1, 아니면 1로 리셋(벌점 없음). 그날 코인 +1.
-func _update_attendance(today: String, last_date: String, now: int) -> void:
+## 출석/연속출석 갱신. 어제 방문이면 streak+1, 아니면 1로 리셋(벌점 없음). 그날 코인 +1.
+## 갱신된 연속출석 일수(streak)를 반환한다 — 마일스톤 판정(T14)에 쓴다.
+func _update_attendance(today: String, last_date: String, now: int) -> int:
   var streak := 1
   if last_date != "":
     var yesterday := Time.get_datetime_string_from_unix_time(now - 86400).split("T")[0]
@@ -199,3 +218,21 @@ func _update_attendance(today: String, last_date: String, now: int) -> void:
   # 출석 코인 (PRD §4.5 — 매일 +코인)
   var coins := int(SaveManager.get_value("player.coins", 0)) + 1
   SaveManager.set_value("player.coins", coins)
+  return streak
+
+
+## 연속출석 마일스톤(3일/7일) 보상 판정 (T14) — 정확히 그 일수에 도달한 날에만 나비 조각 적립.
+## 보유한 일반 칸 중 승급에 가까운 칸에 조각을 넣는다(Cheki.grant_milestone_shards).
+## 반환: { streak, reward } / 마일스톤 아님·적립 불가면 {}.
+func _check_milestone(streak: int) -> Dictionary:
+  var amount := 0
+  if streak == Balance.ATTENDANCE_MILESTONE_7:
+    amount = Balance.ATTENDANCE_REWARD_SHARDS_7
+  elif streak == Balance.ATTENDANCE_MILESTONE_3:
+    amount = Balance.ATTENDANCE_REWARD_SHARDS_3
+  if amount == 0:
+    return {}
+  var reward := Cheki.grant_milestone_shards(amount)
+  if reward.is_empty():
+    return {}
+  return {"streak": streak, "reward": reward}

@@ -21,6 +21,7 @@ const MOOD_LABEL := {
 var _gauge_fill: ColorRect
 var _gauge_text: Label
 var _info: Label  # 기분 · 기력 · 코인 한 줄
+var _attend: Label  # 출석 진행 한 줄 (T14 — 캐릭터 무관, 항상 표시)
 var _focus: String = "okja"  # 현재 게이지 표시 대상 (okja | sion). T15 시온이 모드에서 전환.
 
 
@@ -61,6 +62,11 @@ func _ready() -> void:
     Palette.GREY_200, HORIZONTAL_ALIGNMENT_CENTER)
   add_child(_info)
 
+  # ── 출석 진행 한 줄 (T14) — 정보 라인 아래, 캔들색으로 살짝 구분 ──
+  _attend = _make_label(8, GAUGE_Y + GAUGE_H + 3 + 15, LCD_W - 16, Fonts.SIZE_SMALL,
+    Palette.CANDLE, HORIZONTAL_ALIGNMENT_CENTER)
+  add_child(_attend)
+
 
 ## 게이지 표시 대상을 바꾼다(okja | sion). T15 시온이 모드 전환에서 호출.
 func set_focus(character: String) -> void:
@@ -72,6 +78,9 @@ func set_focus(character: String) -> void:
 func refresh() -> void:
   var stamina := int(SaveManager.get_value("stamina", 0))
   var coins := int(SaveManager.get_value("player.coins", 0))
+
+  # 출석 진행 — 캐릭터 무관, 옥자/시온이 모드 공통. (컬렉션북 푸터와 같은 Meters 헬퍼)
+  _refresh_attendance()
 
   if _focus == "sion":
     # 시온이: 게이지만(펫이라 기분·관계 단계 없음)
@@ -91,6 +100,19 @@ func refresh() -> void:
   var mood := String(SaveManager.get_value("okja.mood", Meters.MOOD_HAPPY))
   _info.text = "%s   기력 %d/%d   코인 %d" % [
     MOOD_LABEL.get(mood, mood), stamina, Balance.STAMINA_MAX, coins]
+
+
+## 출석 진행 한 줄 갱신 (T14) — "출석 N일 · 다음 보상까지 D일" / 다 받았으면 "보상 다 모음".
+## 컬렉션북 푸터와 동일한 Meters.attendance_status() 단일 출처.
+func _refresh_attendance() -> void:
+  if _attend == null:
+    return
+  var st := Meters.attendance_status()
+  var streak := int(st["streak"])
+  if int(st["next"]) > 0:
+    _attend.text = "출석 %d일 · 다음 보상까지 %d일" % [streak, int(st["remaining"])]
+  else:
+    _attend.text = "출석 %d일 · 출석 보상 다 모음" % streak
 
 
 ## 외곽선 두른 라벨 헬퍼 (어두운 배경 가독성).

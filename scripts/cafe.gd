@@ -7,10 +7,10 @@ extends Node2D
 ## 4버튼 교감(T09) · 옥자 터치(T10) → Meters(T08) 로 호감도/스태미나/기분 처리.
 ## 보이스는 data/dialogue.gd 풀에서 골라 티커(T06a)에 띄운다.
 ##
-## 미연시 핵심 연출은 후속:
+## 핵심 연출:
 ##   - 게이지 풀 → 오늘의 체키 자동 획득(T13): 그랜트 + 리빌 오버레이(ChekiReveal) + 게이지 소진. ✅
-##   - 대화 2지선다 분기 · 선물 선호표: T11 (지금은 간이 +호감도)
-##   - 반말 전환 컷인: T11 (지금은 단계 상승 티커만)
+##   - 대화 2지선다 분기 · 선물 선호표(T11): `대화`/`선물` → ChoicePopup(선택 시점에 소모/적용). ✅
+##   - 반말 전환 컷인(T11): 관계 단계 guest→regular 시 StageCutin(오버레이 닫힌 뒤 예약 발화). ✅
 
 const LCD_W := 333
 const LCD_H := 480
@@ -54,6 +54,9 @@ var _revert: Tween  # 옥자 표정 자동 복귀 트윈 (중복 시 이전 것 
 var _revert_sion: Tween  # 시온이 반응 자동 복귀 트윈
 var _reveal: ChekiReveal  # 체키 획득 리빌 오버레이 (열려 있으면 셸 입력을 여기로)
 var _book: CollectionBook  # 컬렉션북 오버레이 (T16, 열려 있으면 셸 입력을 여기로)
+var _popup: ChoicePopup   # 대화/선물 2지선다 팝업 (T11, 열려 있으면 셸 입력을 여기로)
+var _cutin: StageCutin    # 반말 전환 컷인 (T11, 열려 있으면 셸 입력을 여기로)
+var _pending_cutin := false  # guest→regular 도달 — 떠 있는 오버레이가 다 닫히면 컷인 발화
 
 
 func _ready() -> void:
@@ -69,13 +72,35 @@ func start() -> void:
   if meters.was_neglected:
     _okja.set_expression(&"sad")
   _ticker.show_line(Dialogue.okja_line(sit, meters.stage(), _nick()))
+  # 연속출석 마일스톤(3일/7일) 보상 — 있으면 나비 조각 리빌(T14). 셸 입력은 리빌로 위임.
+  if not meters.pending_milestone.is_empty():
+    _show_milestone_reward(meters.pending_milestone)
+
+
+## 출석 마일스톤 나비 조각 보상 리빌 (T14) — 보상 카드(승급이면 나비)를 상단 배너와 함께 보여준다.
+func _show_milestone_reward(ms: Dictionary) -> void:
+  if _reveal != null:
+    return
+  var streak := int(ms.get("streak", 0))
+  var reward: Dictionary = ms.get("reward", {})
+  _reveal = ChekiReveal.new()
+  _reveal.setup(reward, "✦ %d일 연속 출석! ✦" % streak)
+  _reveal.closed.connect(_on_reveal_closed)
+  add_child(_reveal)  # 맨 위(HUD·액션바 덮음)
 
 
 ## 셸 3버튼 중계 (Main → Cafe). 오버레이(리빌 → 컬렉션북)가 떠 있으면 그쪽이 먼저 먹는다.
 ## SELECT/OK 는 현재 모드의 액션 바로, CANCEL 은 "뒤로"(시온이 모드 → 옥자 복귀 / 옥자 모드 → 책).
 func handle_shell_action(action: StringName) -> void:
+  # 오버레이 우선순위: 리빌 > 컷인 > 팝업 > 컬렉션북 > 액션 바.
   if _reveal != null:
     _reveal.handle_shell_action(action)
+    return
+  if _cutin != null:
+    _cutin.handle_shell_action(action)
+    return
+  if _popup != null:
+    _popup.handle_shell_action(action)
     return
   if _book != null:
     _book.handle_shell_action(action)
@@ -238,20 +263,23 @@ func _on_action(id: String) -> void:
     _ticker.show_line(Dialogue.okja_line("no_stamina", meters.stage(), _nick()))
     return
 
+  # 대화·선물은 2지선다 팝업으로 분기(T11) — 선택 시점에 스태미나 소모/호감도 적용(취소 시 무변경).
+  match id:
+    "talk":
+      _open_talk()
+      return
+    "gift":
+      _open_gift()
+      return
+
   meters.spend_stamina()
   match id:
     "cheki":
       meters.add_affinity_okja(Balance.AFF_CHEKI)
       _react(&"talk")
     "drink":
-      meters.add_affinity_okja(Balance.AFF_DRINK)  # 선호 음료 보너스는 T11
+      meters.add_affinity_okja(Balance.AFF_DRINK)  # 선호 음료 보너스는 후속
       _brew()
-    "talk":
-      meters.add_affinity_okja(Balance.AFF_TALK_PLAIN)  # 분기 팝업은 T11
-      _react(&"talk")
-    "gift":
-      meters.add_affinity_okja(Balance.AFF_GIFT_PLAIN)  # 선호표는 T11
-      _react(&"shy")
   _ticker.show_line(Dialogue.okja_line(id, meters.stage(), _nick()))
 
 
@@ -276,6 +304,85 @@ func _on_sion_action(id: String, can: bool) -> void:
 func _brew() -> void:
   _okja.set_expression(&"brew")
   _schedule_idle(1.1)
+
+
+# ── 대화 / 선물 팝업 (T11) ─────────────────────────────────
+
+## `대화` → 단계별 잡담 토막 2지선다 팝업. 고르면 _on_talk_chosen 에서 소모·적용.
+func _open_talk() -> void:
+  if _popup != null:
+    return
+  var topic := Dialogue.pick_talk(meters.stage(), _nick())
+  _popup = ChoicePopup.new()
+  _popup.setup(String(topic["prompt"]), topic["choices"])
+  _popup.chosen.connect(_on_talk_chosen)
+  _popup.closed.connect(_on_popup_closed)
+  add_child(_popup)  # 맨 위(HUD·액션바 덮음)
+
+
+## `선물` → 선물 4종 선호표 팝업. 고르면 _on_gift_chosen 에서 소모·적용.
+func _open_gift() -> void:
+  if _popup != null:
+    return
+  _popup = ChoicePopup.new()
+  _popup.setup(Dialogue.gift_prompt(meters.stage()), Dialogue.gift_choices(_nick()))
+  _popup.chosen.connect(_on_gift_chosen)
+  _popup.closed.connect(_on_popup_closed)
+  add_child(_popup)
+
+
+## 대화 선택 확정 — 스태미나 1회 소모 + tier 별 호감도 + 옥자 표정 반응.
+func _on_talk_chosen(choice: Dictionary) -> void:
+  meters.spend_stamina()
+  meters.add_affinity_okja(_talk_affinity(String(choice.get("tier", "plain"))))
+  _react(choice.get("expr", &"talk"))
+
+
+## 선물 선택 확정 — 스태미나 1회 소모 + 선호도(tier) 별 호감도 + 옥자 표정 반응.
+func _on_gift_chosen(choice: Dictionary) -> void:
+  meters.spend_stamina()
+  meters.add_affinity_okja(_gift_affinity(String(choice.get("tier", "plain"))))
+  _react(choice.get("expr", &"shy"))
+
+
+func _on_popup_closed() -> void:
+  _popup = null
+  _maybe_cutin()  # 선택으로 단계가 올랐으면 팝업 닫힌 뒤 컷인
+
+
+## 대화 tier → 호감도 (수치는 Balance 단일 출처).
+func _talk_affinity(tier: String) -> int:
+  return Balance.AFF_TALK_GOOD if tier == "good" else Balance.AFF_TALK_PLAIN
+
+
+## 선물 tier → 호감도. sion(시온이 간식) > match(좋아함) > plain(보통).
+func _gift_affinity(tier: String) -> int:
+  match tier:
+    "sion": return Balance.AFF_GIFT_SION_TO_OKJA
+    "match": return Balance.AFF_GIFT_MATCH
+    _: return Balance.AFF_GIFT_PLAIN
+
+
+# ── 반말 전환 컷인 (T11) ───────────────────────────────────
+
+## 예약된 컷인을 띄운다 — 단, 떠 있는 오버레이가 하나도 없을 때만(순차 보장).
+## 리빌/팝업/책이 닫힐 때마다 호출돼, 모두 정리된 순간 한 번 발화한다.
+func _maybe_cutin() -> void:
+  if not _pending_cutin:
+    return
+  if _reveal != null or _popup != null or _book != null or _cutin != null:
+    return
+  _pending_cutin = false
+  _cutin = StageCutin.new()
+  _cutin.setup(_nick())
+  _cutin.closed.connect(_on_cutin_closed)
+  add_child(_cutin)  # 맨 위(HUD·액션바 덮음)
+
+
+func _on_cutin_closed() -> void:
+  _cutin = null
+  _to_idle()
+  _ticker.show_line(Dialogue.okja_line("idle", meters.stage(), _nick()))
 
 
 # ── 터치 리액션 / 모드 전환 (T10 / T15) ───────────────────
@@ -389,13 +496,14 @@ func _on_reveal_closed() -> void:
   _hud.refresh()
   _to_idle()
   _sion_to_idle()
+  _maybe_cutin()  # 리빌과 단계 상승이 겹쳤으면 닫힌 뒤 컷인
 
 
 # ── 컬렉션북 (T16) ────────────────────────────────────────
 
 ## 컬렉션북 오버레이 열기 — 리빌·중복 진입 가드. 열린 동안 셸 입력은 책으로 위임.
 func _open_book() -> void:
-  if _reveal != null or _book != null:
+  if _reveal != null or _book != null or _popup != null or _cutin != null:
     return
   _book = CollectionBook.new()
   _book.closed.connect(_on_book_closed)
@@ -415,9 +523,26 @@ func debug_grant_cheki() -> void:
   _on_gauge_full(Events.OKJA)  # 정규 획득 경로 그대로 — 그랜트 + 소진 + 리빌
 
 
-## 관계 단계 상승 — 반말 전환 컷인은 T11. 지금은 티커 한 줄로 암시.
+## 디버그 — 연속출석 마일스톤(3일) 나비 조각 보상 리빌을 강제로 띄운다(T14 확인용, DebugTools 키 5).
+## 실제로는 3일 연속 접속해야 발화하므로, 시연/검수 편의로 보상 경로만 즉시 태운다.
+func debug_milestone() -> void:
+  if _reveal != null:
+    return
+  var reward := Cheki.grant_milestone_shards(Balance.ATTENDANCE_REWARD_SHARDS_3)
+  if reward.is_empty():
+    return
+  _hud.refresh()
+  _show_milestone_reward({"streak": Balance.ATTENDANCE_MILESTONE_3, "reward": reward})
+
+
+## 관계 단계 상승 (T11). guest→regular(단골 = 반말 해금)는 전용 컷인, 그 외는 티커 한 줄.
+## 컷인은 떠 있는 오버레이(리빌·팝업·책)가 다 닫힌 뒤에 터지도록 예약한다.
 func _on_stage_changed(stage: String) -> void:
-  _ticker.show_line(Dialogue.okja_line("stage_up", stage, _nick()))
+  if stage == "regular":
+    _pending_cutin = true
+    _maybe_cutin()
+  else:
+    _ticker.show_line(Dialogue.okja_line("stage_up", stage, _nick()))
 
 
 # ── 헬퍼 ─────────────────────────────────────────────────

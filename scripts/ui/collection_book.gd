@@ -79,6 +79,7 @@ func _ready() -> void:
   _build_header()
   _build_tabs()
   _build_grid_container()
+  _build_attendance()
   _build_hint()
   _build_butterflies()
 
@@ -247,9 +248,67 @@ func _style_scrollbar() -> void:
 func _build_hint() -> void:
   _hint = _make_label(Fonts.SIZE_SMALL, Palette.GREY_300, HORIZONTAL_ALIGNMENT_CENTER)
   _hint.text = "SELECT ▶ 이동 · OK ▶ 보기 · CANCEL ▶ 닫기"
-  _hint.position = Vector2(0, 452)
-  _hint.size = Vector2(LCD.x, 16)
+  _hint.position = Vector2(0, 463)
+  _hint.size = Vector2(LCD.x, 14)
   add_child(_hint)
+
+
+## 출석 진행 스트립 (T14) — 하단 가죽 푸터(어두워 가독성↑)에 "출석 N일" + 다음 마일스톤 핍 + 남은 일.
+## 마일스톤(나비 조각)이 컬렉션을 채우는 보상이라 체키북에 둔다. 표시값은 Meters.attendance_status().
+func _build_attendance() -> void:
+  var st := Meters.attendance_status()
+  var streak := int(st["streak"])
+  var next := int(st["next"])
+  var remaining := int(st["remaining"])
+
+  var holder := Control.new()
+  holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  add_child(holder)
+
+  var x := 0.0
+  var head := _make_label(Fonts.SIZE_SMALL, Palette.CANDLE, HORIZONTAL_ALIGNMENT_LEFT)
+  head.text = "출석 %d일" % streak
+  head.position = Vector2(x, -1)
+  head.size = Vector2(52, 13)
+  holder.add_child(head)
+  x += 52.0
+
+  if next > 0:
+    # 다음 마일스톤까지 핍 (next 개, 채움=min(streak, next) → 진행 막대)
+    for i in range(next):
+      var pip := Panel.new()
+      pip.size = PIP
+      pip.position = Vector2(x, 1)
+      pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+      var sb := StyleBoxFlat.new()
+      sb.set_corner_radius_all(2)
+      if i < streak:
+        sb.bg_color = Palette.GOLD                # 채운 날
+      else:
+        sb.bg_color = Color(0, 0, 0, 0)           # 남은 날 = 빈 핍
+        sb.set_border_width_all(1)
+        sb.border_color = Palette.GOLD_DARK
+      pip.add_theme_stylebox_override("panel", sb)
+      holder.add_child(pip)
+      x += PIP_GAP
+    var tail := _make_label(Fonts.SIZE_SMALL, Palette.CREAM, HORIZONTAL_ALIGNMENT_LEFT)
+    tail.text = "  보상까지 %d일" % remaining
+    tail.position = Vector2(x + 2.0, -1)
+    tail.size = Vector2(90, 13)
+    holder.add_child(tail)
+    x += 92.0
+  else:
+    # 데모 마일스톤(3·7일) 다 받음
+    var done := _make_label(Fonts.SIZE_SMALL, Palette.GOLD, HORIZONTAL_ALIGNMENT_LEFT)
+    done.text = "  출석 보상 다 모음!"
+    done.position = Vector2(x + 2.0, -1)
+    done.size = Vector2(120, 13)
+    holder.add_child(done)
+    x += 122.0
+
+  # 가로 가운데 정렬, 가죽 푸터 위쪽 줄(힌트 위)
+  holder.position = Vector2((LCD.x - x) / 2.0, 448)
+  holder.size = Vector2(x, 14)
 
 
 ## 장식 나비 — 페이지 가장자리(카드 안 가림), 입력 무시.

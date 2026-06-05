@@ -33,13 +33,16 @@ const REL_GUEST := 0             # 손님: 존댓말 + "{닉}님"
 const REL_REGULAR := 600         # 단골: 반말 + 닉네임 (~2주)
 const REL_CLOSE := 2000          # 마음 연 사이: 속내·애칭·특별 대화 (~6주)
 
-# 데모 시연 세이브 시드값 — 첫 세션에 '반말 전환 컷인'이 터지도록 누적 ~560으로 미리 채움
-const DEMO_SEED_AFFINITY := 560
+# 데모 시연 세이브 시드값 — 첫 세션 한 번의 교감으로 '반말 전환 컷인'(600)이 터지도록 직전까지 채움
+# (가장 작은 액션 AFF_TALK_PLAIN=8 만으로도 600 을 넘기게 595)
+const DEMO_SEED_AFFINITY := 595
 
 # ── 나비 / 출석 / 코인 / 기분 ───────────────────
 const BUTTERFLY_SHARDS_NEEDED := 3   # 나비 승급에 필요한 조각 (같은 의상 중복 1 = 조각 +1)
 const ATTENDANCE_MILESTONE_3 := 3    # 연속출석 3일 마일스톤
 const ATTENDANCE_MILESTONE_7 := 7    # 연속출석 7일 마일스톤 (+ 나비 조각)
+const ATTENDANCE_REWARD_SHARDS_3 := 1  # 3일 마일스톤 보상 = 나비 조각 1
+const ATTENDANCE_REWARD_SHARDS_7 := 2  # 7일 마일스톤 보상 = 나비 조각 2 (승급 가속)
 const COIN_GIFT_MIN := 10            # 선물 구매 최소가
 const COIN_GIFT_MAX := 20            # 선물 구매 최대가
 const MOOD_PENALTY_HOURS := 24       # 미접속 N시간+ → 시무룩
