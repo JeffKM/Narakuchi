@@ -19,8 +19,8 @@ const PANEL_W := 301
 const PANEL_BOTTOM := 432  # 패널 하단 고정선(액션바 위) — 선택지 수만큼 위로 자란다
 const PAD := 14            # 패널 안쪽 여백
 const PROMPT_H := 36       # 질문 영역(최대 2줄 + 여백)
-const BTN_H := 38
-const BTN_GAP := 7
+const BTN_H := 46
+const BTN_GAP := 9
 
 var _prompt_text := ""
 var _choices: Array = []

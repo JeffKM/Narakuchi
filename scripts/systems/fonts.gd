@@ -10,7 +10,7 @@ const GALMURI9 := "res://assets/fonts/Galmuri9.ttf"
 
 const SIZE_TITLE := 22  # 11 ×2
 const SIZE_LEAD := 14   # 한 줄 강조용 — 대화·선물 질문, 티커 보이스(11보다 키움)
-const SIZE_CHOICE := 13 # 선택지 버튼 라벨
+const SIZE_CHOICE := 15 # 선택지 버튼 라벨
 const SIZE_BODY := 11
 const SIZE_SMALL := 9
 
