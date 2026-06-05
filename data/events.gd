@@ -69,6 +69,15 @@ static func events_for(character: String) -> Array:
 
 # ── 체키 카드 합성 레이어 에셋 경로 (→ ADR 0003) ─────────────────
 # 사진 면 = [배경 bg_cheki_*] + [의상 누끼 {char}_{slug}] + [테마/표준 프레임]
+# 단, photo_{char}_{slug} 베이크 컷이 있으면 배경+의상을 그 한 장으로 대체한다(아래 참조).
+
+## 사진 면을 단일 "베이크 컷"(배경+의상이 한 장에 그려진 풀신 사진)으로 쓸 경우의 경로.
+## 이 파일이 있으면 ChekiCard 는 3겹 합성(배경+누끼+프레임) 대신 이 한 장을 창에 깔고 프레임만 덧댄다.
+## 누끼 분리가 어렵거나 배경과 함께 연출한 전신 컷에 쓴다 — 캐릭터별·이벤트별.
+## 규격: 카드 배경과 동일한 120×180(2:3). 창(108×162)과 비율이 같아 균일 축소만 되고 크롭·왜곡 없음.
+static func cheki_photo_path(character: String, event: String) -> String:
+  return "res://assets/sprites/photo_%s_%s.png" % [character, event_slug(event)]
+
 
 ## 의상 누끼 스탠딩 경로. okja → okja_{slug}, sion → sion_{slug}.
 static func cheki_costume_path(character: String, event: String) -> String:

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dghj737bb4je7"
-path="res://.godot/imported/sion_jirai.png-4b83da948142eadf542d4e733fdb4696.ctex"
+uid="uid://bhf8nefnvolll"
+path="res://.godot/imported/photo_sion_jirai.png-7417982c9d443262781a9e92c66ecfc5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/sion_jirai.png"
-dest_files=["res://.godot/imported/sion_jirai.png-4b83da948142eadf542d4e733fdb4696.ctex"]
+source_file="res://assets/sprites/photo_sion_jirai.png"
+dest_files=["res://.godot/imported/photo_sion_jirai.png-7417982c9d443262781a9e92c66ecfc5.ctex"]
 
 [params]
 

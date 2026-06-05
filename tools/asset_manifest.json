@@ -181,10 +181,14 @@
           "path": "assets/sprites/sioni_pet.png"
         },
         {
-          "id": "sion_jirai",
-          "label": "시온이 지뢰계(쿠로미풍) 체키 의상",
-          "path": "assets/sprites/sion_jirai.png",
-          "preset": "okja"
+          "id": "photo_sion_jirai",
+          "label": "시온이 지뢰계 체키 사진(배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_sion_jirai.png"
         },
         {
           "id": "icon_drink_1",

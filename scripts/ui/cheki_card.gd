@@ -59,9 +59,19 @@ func setup(character: String, event: String, butterfly: bool, nickname: String, 
   _nick_label.text = _resolve_nick(nickname)
   _date_label.text = _format_date(acquired_at)
 
-  # ── 사진(뒤) ── 3겹 합성: 배경 + 의상 누끼 + 프레임 (데이명은 앞면 리본으로 이사 → 사진 깨끗)
-  _bg.texture = _tex(Events.cheki_bg_path(event))
-  _costume.texture = _tex(Events.cheki_costume_path(character, event))
+  # ── 사진(뒤) ── (데이명은 앞면 리본으로 이사 → 사진 깨끗)
+  # 베이크 컷(배경+의상 한 장)이 있으면 그걸 창에 꽉 깔고 누끼는 끈다.
+  #   → 창(108×162)과 컷(120×180)이 같은 2:3 라 균일 축소만 되고 추가 크롭·왜곡이 없어 전신이 안 잘린다.
+  # 없으면 기존 3겹 합성: 배경 + 의상 누끼 + 프레임.
+  var baked := Events.cheki_photo_path(character, event)
+  if ResourceLoader.exists(baked):
+    _bg.texture = _tex(baked)
+    _costume.texture = null
+    _costume.visible = false
+  else:
+    _bg.texture = _tex(Events.cheki_bg_path(event))
+    _costume.visible = true
+    _costume.texture = _tex(Events.cheki_costume_path(character, event))
   _frame.texture = _tex(Events.cheki_frame_path(event, butterfly))
 
 
