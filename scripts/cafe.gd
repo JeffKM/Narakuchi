@@ -27,7 +27,7 @@ const OKJA_FEET := Vector2(LCD_W / 2.0, 400)  # 발밑 기준 배치 (HUD 아래
 # 발밑 = 스프라이트 불투명 영역의 바닥(아트 여백 보정 후 받침에 안착). bob 떠도 그림자는 고정.
 const SIONI_FEET := Vector2(73, 408)          # 좌측 바닥(받침선 y=400). 좌측 선반(x≈54)에서 떨어짐. 1.4배 하단여백 8px 보정 반영
 const SIONI_PAD_BOTTOM := 8                   # sioni_idle 캔버스 하단 투명 6px × 1.4배 확대
-const BINDER_FEET := Vector2(54, 320)         # 좌측 캐비닛 상판(바인더 아트 하단여백 17px 보정)
+const BINDER_FEET := Vector2(54, 305)         # 좌측 캐비닛 상판(바인더 아트 하단여백 17px 보정) — 선반에 안착하도록 올림
 const BINDER_PAD_BOTTOM := 17                 # cheki_binder 56px 캔버스 하단 투명 여백
 
 # 시온이 교감 모드 줌(Phase 3.5 T27) — 디오라마 컨테이너를 정수 2배로 푸시(픽셀 또렷).
