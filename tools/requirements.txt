@@ -1,2 +1,3 @@
 pillow>=10
 numpy>=1.24
+qrcode>=7  # T24 빌드타임 QR(공유 카드 배포 링크). Pillow 의존(이미 포함).

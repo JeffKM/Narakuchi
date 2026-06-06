@@ -1,11 +1,11 @@
 class_name ShareCard
 extends Control
-## 공유 이미지 내보내기 (T19) — 체키 한 장을 워터마크 `@나라카` + QR 자리와 합성해 저장/공유. (→ PRD §5.4 / ADR 0003)
+## 공유 이미지 내보내기 (T19 + T24 QR) — 체키 한 장을 워터마크 `@나라카` + 배포 링크 QR 과 합성해 저장/공유. (→ PRD §5.4 / ADR 0003)
 ##
 ## 흐름(PRD §142): 카드 확대/획득 화면 → "공유" → 이 오버레이가 **공유용 이미지를 합성**해 미리보기 →
 ##   "저장" → 웹은 브라우저 다운로드(JavaScriptBridge), 데스크톱은 user://shares/ 에 PNG.
-## 합성 = SubViewport 에 [크림 액자 + 체키 사진면(2배) + 푸터(@나라카 워드마크 · QR 자리)]를 그려
-##   한 프레임 렌더 → get_image(). 도트 유지(전부 NEAREST, 카드는 정수 2배).
+## 합성 = SubViewport 에 [크림 액자 + 체키 사진면(2배) + 푸터(@나라카 워드마크 · 배포 링크 QR)]를 그려
+##   한 프레임 렌더 → get_image(). 도트 유지(전부 NEAREST, 카드는 정수 2배). QR 은 스캔 위해 네이티브 1:1.
 ## 셸 3버튼: OK=저장 · CANCEL=닫기. 터치는 버튼/딤(바깥 탭=닫기).
 ## LCD(333×480) 전체를 덮는 오버레이. 닫히면 closed 신호.
 
@@ -17,12 +17,18 @@ const LCD := Vector2(333, 480)
 const PAD := 12.0
 const CARD_SCALE := 2.0
 const FOOTER_GAP := 8.0
-const FOOTER_H := 40.0
-var SHARE_SIZE := Vector2(
-  PAD + ChekiCard.CARD.x * CARD_SCALE + PAD,                       # 12+240+12 = 264
-  PAD + ChekiCard.CARD.y * CARD_SCALE + FOOTER_GAP + FOOTER_H + PAD)  # 12+360+8+40+12 = 432
+const FOOTER_PAD := 8.0     # 푸터 상하 여백
+const QR_FALLBACK := 96.0   # qr_naraka.png 없을 때 QrPlaceholder 크기
 
 const HANDLE := "@나라카"
+# T24 실제 QR(배포 링크) — 있으면 네이티브 크기로 깨짐 없이 박고, 없으면 QrPlaceholder 폴백.
+const QR_TEX := "res://assets/sprites/qr_naraka.png"
+
+# 푸터 높이·QR 표시 크기는 QR 에셋에 맞춰 _init_qr_and_size() 가 런타임에 정한다(스캔 위해 정수 1:1).
+var SHARE_SIZE := Vector2.ZERO
+var _qr_tex: Texture2D
+var _qr_side := QR_FALLBACK
+var _footer_h := QR_FALLBACK + FOOTER_PAD * 2.0
 
 var _character: String
 var _event: String
@@ -49,6 +55,8 @@ func setup(character: String, event: String, butterfly: bool, nickname: String, 
 func _ready() -> void:
   size = LCD
   mouse_filter = Control.MOUSE_FILTER_STOP  # 뒤 입력 차단
+
+  _init_qr_and_size()  # QR 에셋 로드 + 푸터/합성 캔버스 크기 확정(SHARE_SIZE)
 
   var dim := ColorRect.new()
   dim.color = Color(Palette.INK.r, Palette.INK.g, Palette.INK.b, 0.0)
@@ -96,6 +104,22 @@ func _on_dim_input(event: InputEvent) -> void:
   if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
     _close()
     accept_event()
+
+
+# ── 크기 산정 ─────────────────────────────────────────────
+
+## QR 에셋을 로드하고 그에 맞춰 푸터 높이·합성 캔버스(SHARE_SIZE)를 정한다.
+## QR 은 스캔 위해 네이티브 1:1 로 박는다(다운스케일 시 모듈 합쳐져 스캔 불가) → 푸터가 QR 에 맞춤.
+func _init_qr_and_size() -> void:
+  if ResourceLoader.exists(QR_TEX):
+    _qr_tex = load(QR_TEX) as Texture2D
+    _qr_side = float(_qr_tex.get_height())
+  else:
+    _qr_side = QR_FALLBACK
+  _footer_h = _qr_side + FOOTER_PAD * 2.0
+  SHARE_SIZE = Vector2(
+    PAD + ChekiCard.CARD.x * CARD_SCALE + PAD,
+    PAD + ChekiCard.CARD.y * CARD_SCALE + FOOTER_GAP + _footer_h + PAD)
 
 
 # ── 합성 (SubViewport → 이미지) ───────────────────────────
@@ -174,7 +198,7 @@ func _compose() -> Control:
   date.size = Vector2(strip.size.x - 6, 14)
   root.add_child(date)
 
-  # 3) 푸터 — 구분선 + 붓글씨 로고 + @나라카 핸들 + QR 자리
+  # 3) 푸터 — 구분선 + (좌)붓글씨 로고·@나라카 핸들 스택 + (우)QR(스캔용 크게)
   var fy := PAD + ChekiCard.CARD.y * CARD_SCALE + FOOTER_GAP
   var sep := ColorRect.new()
   sep.color = Palette.GOLD_DARK
@@ -182,33 +206,51 @@ func _compose() -> Control:
   sep.size = Vector2(ChekiCard.CARD.x * CARD_SCALE, 1)
   root.add_child(sep)
 
-  # 붓글씨 로고 + @나라카 핸들 — 좌측(카드 표지와 브랜드 일관)
-  var lx := PAD + 6.0
+  # QR — 우측, 네이티브 1:1(스캔 가능). 에셋 없으면 QrPlaceholder 폴백.
+  var qr_x := SHARE_SIZE.x - PAD - _qr_side
+  var qr_y := fy + (_footer_h - _qr_side) / 2.0
+  if _qr_tex != null:
+    var qr_img := TextureRect.new()
+    qr_img.texture = _qr_tex
+    qr_img.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    qr_img.position = Vector2(qr_x, qr_y)
+    qr_img.size = Vector2(_qr_side, _qr_side)
+    qr_img.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(qr_img)
+  else:
+    var qr := QrPlaceholder.new()
+    qr.setup(_qr_side)
+    qr.position = Vector2(qr_x, qr_y)
+    root.add_child(qr)
+
+  # 붓글씨 로고 + @나라카 핸들 — 좌측 세로 스택, 푸터 가운데 정렬(QR 왼쪽 공간).
+  var logo_h := 0.0
+  var logo_tex: Texture2D = null
   if ResourceLoader.exists(ChekiCard.WORDMARK):
+    logo_tex = load(ChekiCard.WORDMARK) as Texture2D
+  if logo_tex != null:
+    logo_h = float(logo_tex.get_height())
+  var stack_h := logo_h + (6.0 if logo_h > 0 else 0.0) + 18.0
+  var sy := fy + (_footer_h - stack_h) / 2.0
+  var lx := PAD + 8.0
+  if logo_tex != null:
     var logo := TextureRect.new()
-    logo.texture = load(ChekiCard.WORDMARK) as Texture2D
+    logo.texture = logo_tex
     logo.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-    logo.position = Vector2(lx, fy + (FOOTER_H - logo.texture.get_height()) / 2.0)
-    logo.size = logo.texture.get_size()
+    logo.position = Vector2(lx, sy)
+    logo.size = logo_tex.get_size()
     logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
     root.add_child(logo)
-    lx += logo.texture.get_width() + 8.0  # 핸들을 로고 오른쪽에
+    sy += logo_h + 6.0
 
   var handle := _make_label(Fonts.SIZE_LEAD, Palette.BURGUNDY, 0)
   handle.add_theme_color_override("font_outline_color", Palette.CANDLE)
   handle.add_theme_constant_override("outline_size", 1)
   handle.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
   handle.text = HANDLE
-  handle.position = Vector2(lx, fy + (FOOTER_H - 18.0) / 2.0)
-  handle.size = Vector2(110, 18)
+  handle.position = Vector2(lx, sy)
+  handle.size = Vector2(qr_x - lx - 6.0, 18)
   root.add_child(handle)
-
-  # QR 자리 — 우측
-  var qr := QrPlaceholder.new()
-  qr.setup(33.0)
-  var qside := qr.side_px()
-  qr.position = Vector2(SHARE_SIZE.x - PAD - qside, fy + (FOOTER_H - qside) / 2.0)
-  root.add_child(qr)
 
   return root
 

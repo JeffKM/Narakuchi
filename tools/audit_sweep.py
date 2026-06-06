@@ -26,12 +26,10 @@ import dotify  # noqa: E402
 
 MANIFEST = os.path.join(ROOT, "tools", "asset_manifest.json")
 
-# S그룹 등 아직 만들지 않는 게 정상인 미래 에셋(T19/T24에서 생산) — 누락이어도 실패로 안 본다.
+# S그룹 등 아직 만들지 않는 게 정상인 미래 에셋 — 누락이어도 실패로 안 본다.
 FUTURE_OK = {
   "icon_currency",      # 무과금: 화폐 아이콘 미사용
   "share_watermark",    # 공유는 런타임 합성(T19) — 정적 워터마크 불필요
-  "pwa_icon_192",       # T24 tools/make_pwa_icons.py 생산
-  "pwa_icon_512",
 }
 
 # 도트 파이프라인 산출물이 아니라 채택한 레퍼런스를 가공만 한 "부드러운" 에셋 —
@@ -39,6 +37,8 @@ FUTURE_OK = {
 # prep_shell.py는 투명화·리샘플만 수행). 치수는 검사하되 팔레트/반투명은 면제.
 SOFT_EXEMPT = {
   "shell_frame",        # 다마고치형 달걀 바디 베젤 — 둥근 음영이 매력 포인트
+  # PWA 앱 아이콘 = 옥자 얼굴 풀컬러 합성(make_pwa_icons.py) — 인게임 도트가 아닌 앱 아이콘. 치수만 검사.
+  "pwa_icon_144", "pwa_icon_180", "pwa_icon_192", "pwa_icon_512",
 }
 
 

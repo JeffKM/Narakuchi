@@ -554,6 +554,26 @@
           "path": "assets/sprites/share_watermark.png"
         },
         {
+          "id": "pwa_icon_144",
+          "label": "PWA 아이콘 144",
+          "size": [
+            144,
+            144
+          ],
+          "transparent": false,
+          "path": "assets/sprites/pwa_icon_144.png"
+        },
+        {
+          "id": "pwa_icon_180",
+          "label": "PWA 아이콘 180(apple-touch)",
+          "size": [
+            180,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/pwa_icon_180.png"
+        },
+        {
           "id": "pwa_icon_192",
           "label": "PWA 아이콘 192",
           "size": [
@@ -572,6 +592,16 @@
           ],
           "transparent": false,
           "path": "assets/sprites/pwa_icon_512.png"
+        },
+        {
+          "id": "qr_naraka",
+          "label": "배포 링크 QR(2색 · tools/gen_qr.py)",
+          "size": [
+            111,
+            111
+          ],
+          "transparent": false,
+          "path": "assets/sprites/qr_naraka.png"
         }
       ]
     }
