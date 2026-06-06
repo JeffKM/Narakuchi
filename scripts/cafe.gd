@@ -361,7 +361,7 @@ func _open_gift() -> void:
   if _popup != null:
     return
   _popup = ChoicePopup.new()
-  _popup.setup(Dialogue.gift_prompt(meters.stage()), Dialogue.gift_choices(_nick()))
+  _popup.setup(Dialogue.gift_prompt(meters.stage()), Dialogue.gift_choices(meters.stage(), _nick()))
   _popup.chosen.connect(_on_gift_chosen)
   _popup.closed.connect(_on_popup_closed)
   add_child(_popup)

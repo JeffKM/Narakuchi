@@ -1,34 +1,50 @@
 {
   "_doc": "선물 선호표 — `선물` 버튼. content_studio 로 편집.",
-  "_gift_doc": "gift = { label, reply(옥자 반응), tier, expr }. tier: match(좋아함 ↑↑) | sion(시온이 간식, 매우 좋아함 ↑↑↑) | plain(보통 ↑). {nick} 토큰 치환.",
+  "_gift_doc": "gift = { label, reply, tier, expr, icon }. reply = {guest(존댓말), regular(반말)} — 관계 단계로 분기(대화와 동일). tier: match(좋아함 ↑↑) | sion(시온이 간식, 매우 좋아함 ↑↑↑) | plain(보통 ↑). icon: 선물 팝업 버튼 좌측 24×24 도트 아이콘 슬롯 id(asset_manifest A3 의 icon_gift_*) — 빈 문자열/생략 시 텍스트만(대화 선택지와 동일 fallback). {nick} 토큰 치환.",
   "prompt": {
     "guest": "저한테 주실 거예요?",
     "regular": "뭐 줄 건데?"
   },
   "gifts": [
     {
-      "label": "다크 초콜릿",
-      "reply": "……단 거 좋아하는 거, 어떻게 알았죠.",
-      "tier": "match",
-      "expr": "shy"
+      "label": "딸기 생크림 조각 케이크",
+      "reply": {
+        "guest": "……비주얼이 엄청나네요. 아까워서 어떻게 먹죠?",
+        "regular": "와, 대박…! 나 이거 진짜 먹고 싶었던 케이크인데!"
+      },
+      "tier": "plain",
+      "expr": "smile",
+      "icon": "icon_gift_1"
     },
     {
-      "label": "회중시계",
-      "reply": "취향이네요. 나쁘지 않아요.",
+      "label": "폭신한 동물 인형",
+      "reply": {
+        "guest": "앗… 귀엽네요. 저기 창가 자리에 두면 좋을거 같아요.",
+        "regular": "헉, 이 인형 뭐야? 되게 말랑말랑하다! 맨날 안고 있어야지."
+      },
       "tier": "match",
-      "expr": "smile"
+      "expr": "shy",
+      "icon": "icon_gift_2"
     },
     {
-      "label": "시온이 간식",
-      "reply": "이건… 시온이 거잖아. ……고마워.",
+      "label": "고양이 츄르",
+      "reply": {
+        "guest": "이건… 시온이 거잖아요. ……고마워요.",
+        "regular": "이건… 시온이 거잖아. ……고마워."
+      },
       "tier": "sion",
-      "expr": "smile"
+      "expr": "smile",
+      "icon": "icon_gift_3"
     },
     {
       "label": "꽃다발",
-      "reply": "예쁘네요. 꽂아둘게요.",
+      "reply": {
+        "guest": "예쁘네요. 꽂아둘게요.",
+        "regular": "예쁘네. 꽂아둘게."
+      },
       "tier": "plain",
-      "expr": "idle"
+      "expr": "shy",
+      "icon": "icon_gift_4"
     }
   ]
 }

@@ -21,6 +21,7 @@ const PAD := 14            # 패널 안쪽 여백
 const PROMPT_H := 36       # 질문 영역(최대 2줄 + 여백)
 const BTN_H := 46
 const BTN_GAP := 9
+const ICON_SIZE := 24  # 선물 아이콘 규격(asset_manifest A3 icon_gift_* — 도트 24×24)
 
 var _prompt_text := ""
 var _choices: Array = []
@@ -34,7 +35,8 @@ var _picked: Dictionary
 var _panel_rect: Rect2
 
 
-## prompt(옥자 질문) + choices(Array[{label, reply, tier, expr}]) 주입(트리 진입 전).
+## prompt(옥자 질문) + choices(Array[{label, reply, tier, expr, icon?}]) 주입(트리 진입 전).
+## icon(선택, 선물 전용): assets/sprites 의 슬롯 id. 있으면 버튼 좌측 24×24, 없으면 텍스트만.
 func setup(prompt: String, choices: Array) -> void:
   _prompt_text = prompt
   _choices = choices
@@ -92,6 +94,7 @@ func _ready() -> void:
     btn.size = Vector2(bw, BTN_H)
     UiTheme.style_button(btn)
     btn.add_theme_font_size_override("font_size", Fonts.SIZE_CHOICE)  # 버튼 라벨 키움
+    _maybe_set_icon(btn, String(_choices[i].get("icon", "")))  # 선물 아이콘(있으면) — 대화는 없음
     btn.pressed.connect(_choose.bind(i))
     add_child(btn)
     _buttons.append(btn)
@@ -174,6 +177,19 @@ func _close() -> void:
 
 
 # ── 헬퍼 ─────────────────────────────────────────────────
+
+## 선택지 아이콘(선물 전용) — 슬롯 id 가 있고 스프라이트가 존재하면 버튼 좌측에 24×24 도트.
+## Button.icon 은 아이콘+라벨을 한 묶음으로 중앙 배치 → 긴 라벨도 안 겹친다. 대화 선택지(icon="")는 무시.
+func _maybe_set_icon(btn: Button, icon_name: String) -> void:
+  if icon_name == "":
+    return
+  var path := "res://assets/sprites/%s.png" % icon_name
+  if not ResourceLoader.exists(path):
+    return  # 미제작 슬롯(dot_studio 로 채우기 전) — 텍스트만 fallback
+  btn.icon = load(path)
+  btn.expand_icon = false  # 24×24 원본 유지(Nearest 는 style_button 의 texture_filter 가 적용)
+  btn.add_theme_constant_override("h_separation", 8)  # 아이콘↔라벨 간격
+
 
 func _make_label(color: Color, font_size: int) -> Label:
   var lb := Label.new()

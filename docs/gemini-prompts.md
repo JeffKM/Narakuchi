@@ -887,6 +887,39 @@ no chroma green on the subject, no gradient, no soft anti-aliased edges, no 3D r
 
 ---
 
+## 선물 아이콘 (A3 — `선물` 팝업 버튼)
+
+> `선물` 버튼 팝업의 **선택지 버튼 좌측 24×24 도트 아이콘**(→ asset_manifest A3 `icon_gift_*`, `data/gifts.json`의 `gift.icon`이 슬롯 id로 가리킴). `ChoicePopup`이 버튼에 얹으며, 슬롯이 없으면 텍스트만 뜨는 graceful fallback이라 **나중에 채워도 안 깨진다**.
+> **🔑 규격**: **24×24 투명 누끼**(크로마 그린 → `dotify --chroma 00ff00 --size 24x24`). 위 "참·작은 장식"과 같은 공용 베이스를 쓰되, **버튼 배경이 어두운 버건디+골드 패널**이라 아이콘이 묻히지 않게 **얇은 밝은 외곽선/림**을 둘러 또렷하게 받는다.
+> **🔑 색**: 선물은 본래 알록달록(딸기 핑크 등)하므로 dark-antique에 가두지 말고 **아이템 고유색**을 살리되 **마스터 팔레트(~32색) 인덱싱**으로 통일. 매핑은 `data/gifts.json` 순서(1=케이크·2=인형·3=츄르·4=꽃다발).
+
+```
+[선물 아이콘 공용 베이스]
+Pixel art / dot art ICON — a SINGLE centered object, on a FLAT SOLID chroma green (#00ff00) background, nothing else.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+Draw it LARGE and BOLD with a simple, instantly readable silhouette (it will be downscaled to a tiny 24×24 icon).
+Give the object a thin clean OUTLINE / light rim so it pops against a DARK burgundy button background.
+Use the object's natural cute colors, but keep a small limited palette (it will be indexed to a ~32-color master palette).
+```
+
+```
+[선물 아이콘 공용 네거티브] no text, no letters, no numbers, no brand logo, no extra objects, no character, no hands, no scenery,
+no chroma green on the object itself, no gradient, no soft glow blur, no soft anti-aliased edges,
+no 3D render, no glossy reflections, no realistic photo finish.
+```
+
+| 파일명 | 선물 | 추가 문구(object) | 비고 |
+|---|---|---|---|
+| `icon_gift_1` | 딸기 생크림 조각 케이크 | `Object: a slice of STRAWBERRY SHORTCAKE — a triangular wedge with white whipped-cream layers and a glossy RED STRAWBERRY on top, a thin sponge layer, sitting on a tiny plate.` | tier plain |
+| `icon_gift_2` | 폭신한 동물 인형 | `Object: a FLUFFY round PLUSH animal doll (teddy/bunny), sitting, big round head, stubby limbs, soft pastel fur, a tiny bow — adorable and huggable.` | tier match |
+| `icon_gift_3` | 고양이 츄르 | `Object: a creamy CAT-TREAT squeeze TUBE (churu stick) lying slightly diagonal, a small dab of cream at the open tip, with a tiny PAW-PRINT mark on the wrapper (signals it is for the cat).` | tier sion(시온이용) · 🐾 발바닥 마크 |
+| `icon_gift_4` | 꽃다발 | `Object: a small wrapped BOUQUET of flowers — a few rounded blossoms (rose/tulip-like) with green leaves, gathered in a paper wrap tied with a ribbon.` | tier plain |
+
+> ⚠️ **검수 포인트**: ① 순수 크로마 그린에서 깨끗이 누끼되는지 ② **24px로 줄여도 무엇인지 즉시 읽히는지**(버튼에서 라벨 옆 작게 뜬다) ③ **어두운 버건디 버튼 위에서 묻히지 않게 외곽선/림이 있는지** ④ 츄르는 **발바닥 마크로 시온이용임이 드러나는지** ⑤ 마스터 팔레트(~32색) 인덱싱. 저장: `assets/sprites/icon_gift_{1..4}.png`.
+> 💡 **음료 아이콘(`icon_drink_1~4`)도 같은 골격** — 이 공용 베이스·규격(24×24)·네거티브 그대로, object만 음료(커피·라떼·딸기우유·허브티 등)로 갈아끼운다(현재 게임 미배선, 후속 트랙).
+
+---
+
 ## Phase 3.5 — 메인 디오라마 리프레임 에셋 (ROADMAP A7·A8)
 
 > 2026-06-05 grill-me 합의(→ 메모리 `main-screen-diorama-reframe`). 메인 교감화면을 **카페 디오라마**로 재구성: 중앙 옥자 전신 + **좌우 대칭 엔틱 가구**가 시온이/체키북을 얹는 **받침**이 된다. 우=포션·술병 선반(어깨 높이에 시온이), 좌=엔틱 서랍장/책장(위에 체키북 바인더). 버튼은 나인패치 귀여운 틀로 전면 통일.

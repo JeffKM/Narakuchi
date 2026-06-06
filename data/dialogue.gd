@@ -11,7 +11,8 @@ extends RefCounted
 ##
 ## ⚠️ 이 클래스는 더 이상 대사를 const 로 들고 있지 않다 — content_studio(GUI)가 편집하는
 ##    data/ticker.json · talk.json · gifts.json 을 GameData 통해 읽는다(게임/툴 단일 출처).
-##    정적 API(okja_line/sion_line/pick_talk/gift_prompt/gift_choices) 시그니처는 그대로다.
+##    정적 API(okja_line/sion_line/pick_talk/gift_prompt/gift_choices) 패턴은 그대로다(데이터만 JSON).
+##    gift_choices 는 reply 단계 분기를 위해 stage 인자를 받는다(대화 pick_talk 과 동일 패턴).
 ## 호감 수치는 여기서 안 박는다 — 선택지의 tier("good"/"match"/"sion"/"plain")만 들고,
 ## 실제 tier→수치 매핑은 Balance.aff_talk()/aff_gift() (data/balance.json, content_studio '밸런스' 탭 편집).
 
@@ -83,8 +84,27 @@ static func gift_prompt(stage: String) -> String:
 
 
 ## 선물 선택지 목록(표시명·반응). {nick} 치환한 사본 반환. (선호표)
-static func gift_choices(nick: String) -> Array:
-  return _copy_choices(GameData.gifts().get("gifts", []), nick)
+## 선물 선택지 — reply 는 단계별(존댓말/반말), label/tier/expr 은 공통. {nick} 치환.
+## stage 는 Balance.relationship_stage() 결과("guest"|"regular"|"comfy"|"close").
+static func gift_choices(stage: String, nick: String) -> Array:
+  var key := "regular" if Balance.is_casual(stage) else "guest"
+  var out: Array = []
+  for g in GameData.gifts().get("gifts", []):
+    out.append({
+      "label": String(g.get("label", "")),
+      "reply": _stage_reply(g.get("reply", ""), key).replace("{nick}", nick),
+      "tier": String(g.get("tier", "plain")),
+      "expr": StringName(g.get("expr", "shy")),
+      "icon": String(g.get("icon", "")),  # 선물 팝업 버튼 좌측 아이콘 슬롯 id(없으면 텍스트만)
+    })
+  return out
+
+
+## 선물 reply 단계 선택 — {guest,regular} 객체면 단계 키로, 단일 문자열이면 그대로(구버전 호환).
+static func _stage_reply(reply: Variant, key: String) -> String:
+  if reply is Dictionary:
+    return String(reply.get(key, reply.get("guest", "")))
+  return String(reply)
 
 
 ## 선택지 배열을 사본으로 복제 + {nick} 치환 + expr 을 StringName 으로 정규화.

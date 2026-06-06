@@ -56,7 +56,7 @@
       },
       {
         "id": "pet",
-        "label": "선물",
+        "label": "쓰담",
         "emotion": "pet",
         "ticker": "pet",
         "affinity": "sion"

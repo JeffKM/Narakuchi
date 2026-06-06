@@ -45,6 +45,26 @@ GIFT_TIERS = ["match", "sion", "plain"]
 MAX_CHOICES = 4
 
 
+def _load_gift_icons():
+    """선물 아이콘 슬롯 id 목록 — asset_manifest.json A3 의 icon_gift_* 에서 읽는다(생산 슬롯과 단일 출처).
+
+    실패 시 기본 4종으로 폴백. gifts.json 의 gift.icon 은 이 중 하나(또는 빈 문자열=텍스트만).
+    """
+    try:
+        with open(os.path.join(HERE, "asset_manifest.json"), encoding="utf-8") as f:
+            mani = json.load(f)
+        ids = [it["id"] for grp in mani.get("groups", []) for it in grp.get("items", [])
+               if str(it.get("id", "")).startswith("icon_gift_")]
+        if ids:
+            return ids
+    except Exception:
+        pass
+    return ["icon_gift_1", "icon_gift_2", "icon_gift_3", "icon_gift_4"]
+
+
+GIFT_ICONS = _load_gift_icons()
+
+
 # ── 데이터 입출력 ────────────────────────────────────────────
 
 def load_all():
@@ -126,6 +146,16 @@ def validate(db):
             errs.append(f"선물#{gi+1} tier 값 오류({g.get('tier')})")
         if g.get("expr") not in OKJA_EXPR:
             errs.append(f"선물#{gi+1} 감정 값 오류({g.get('expr')})")
+        icon = g.get("icon", "")  # 아이콘 슬롯 id(선택) — 빈 문자열은 텍스트만, 허용
+        if icon and icon not in GIFT_ICONS:
+            errs.append(f"선물#{gi+1} 아이콘 '{icon}' 은 허용 슬롯이 아님(asset_manifest icon_gift_*)")
+        rep = g.get("reply")  # reply = {guest, regular} 단계별 반응
+        if isinstance(rep, dict):
+            for st in ("guest", "regular"):
+                if not isinstance(rep.get(st), str):
+                    errs.append(f"선물#{gi+1} 반응 '{st}' 는 문자열이어야 함")
+        elif not isinstance(rep, str):
+            errs.append(f"선물#{gi+1} 반응 형식 오류(문자열 또는 {{guest,regular}})")
 
     # buttons.okja.emotion
     em = db.get("buttons", {}).get("okja", {}).get("emotion", {})
@@ -196,6 +226,7 @@ class Handler(BaseHTTPRequestHandler):
                     "sioniExpr": SIONI_EXPR,
                     "talkTiers": TALK_TIERS,
                     "giftTiers": GIFT_TIERS,
+                    "giftIcons": GIFT_ICONS,
                     "maxChoices": MAX_CHOICES,
                 },
             }
@@ -410,6 +441,27 @@ function emotionMulti(charType, arr) {
   return wrap;
 }
 
+// 선물 아이콘 썸네일 선택기(단일) — 슬롯 id(META.giftIcons) + "없음"(빈 문자열=텍스트만).
+function iconPicker(value, onChange) {
+  const wrap = el("div", {class:"emo"});
+  const opts = ["", ...(META.giftIcons||[])];
+  for (const id of opts) {
+    const sel = (id === (value||"")) ? " sel" : "";
+    const kids = id
+      ? [el("img", {src:`/sprite/${id}`, alt:id}), el("span", {}, id.replace("icon_gift_","#"))]
+      : [el("span", {}, "없음")];
+    const chip = el("div", {class:"emo-chip"+sel, title:id||"없음"}, kids);
+    chip.addEventListener("click", () => {
+      value = id;
+      wrap.querySelectorAll(".emo-chip").forEach(c => c.classList.remove("sel"));
+      chip.classList.add("sel");
+      onChange(id);
+    });
+    wrap.append(chip);
+  }
+  return wrap;
+}
+
 // 라인 한 줄(텍스트 + {nick} 미리보기 + 삭제). arr 에서 idx 제거 가능.
 function lineRow(arr, idx, rerender) {
   const val = arr[idx];
@@ -543,29 +595,54 @@ function renderSion() {
 }
 
 // ── 선택지/선물 항목 편집 ──
-function choiceBlock(choice, tiers, onRemove) {
+// opts.replyStages=true 면 reply 를 {guest,regular} 단계별 두 칸으로(선물). 기본은 단일 reply(대화).
+function choiceBlock(choice, tiers, onRemove, opts={}) {
   const labelI = el("input", {type:"text", value:choice.label||""});
   labelI.addEventListener("input", ()=>{ choice.label=labelI.value; markDirty(); });
-  const replyI = el("input", {type:"text", value:choice.reply||""});
-  const replyPrev = el("div", {class:"preview"});
-  function up(){ replyPrev.innerHTML = "▸ 옥자: <b>"+esc(sub(choice.reply))+"</b>"; }
-  replyI.addEventListener("input", ()=>{ choice.reply=replyI.value; markDirty(); up(); });
-  up();
+
+  // 옥자 반응 — 단계별(선물) 또는 단일(대화)
+  let replyEls;
+  if (opts.replyStages) {
+    // 구버전 단일 문자열 → {guest:기존, regular:""} 로 1회 승격
+    if (typeof choice.reply !== "object" || choice.reply === null)
+      choice.reply = { guest: choice.reply||"", regular: "" };
+    replyEls = ["guest","regular"].map(st => {
+      const ri = el("input", {type:"text", value:choice.reply[st]||""});
+      const rp = el("div", {class:"preview"});
+      const up = ()=>{ rp.innerHTML = "▸ 옥자: <b>"+esc(sub(choice.reply[st]))+"</b>"; };
+      ri.addEventListener("input", ()=>{ choice.reply[st]=ri.value; markDirty(); up(); });
+      up();
+      return el("div", {}, [el("div",{class:"field-label"}, "옥자 반응 — "+(STAGE_LABEL[st]||st)), ri, rp]);
+    });
+  } else {
+    const replyI = el("input", {type:"text", value:choice.reply||""});
+    const replyPrev = el("div", {class:"preview"});
+    const up = ()=>{ replyPrev.innerHTML = "▸ 옥자: <b>"+esc(sub(choice.reply))+"</b>"; };
+    replyI.addEventListener("input", ()=>{ choice.reply=replyI.value; markDirty(); up(); });
+    up();
+    replyEls = [el("div", {class:"field-label"}, "옥자 반응(하단 티커)"), replyI, replyPrev];
+  }
+
   const tierS = el("select", {});
   for (const t of tiers) tierS.append(el("option", {value:t, ...(t===choice.tier?{selected:"selected"}:{})}, t));
   tierS.addEventListener("change", ()=>{ choice.tier=tierS.value; markDirty(); });
+  // 선물 전용 아이콘 피커(opts.iconPicker) — 대화 선택지엔 없음.
+  const iconEls = opts.iconPicker ? [
+    el("div", {class:"field-label", style:"margin-top:8px"}, "선물 아이콘 (버튼 좌측 24×24 · '없음' 가능)"),
+    iconPicker(choice.icon, v=>{ choice.icon=v; markDirty(); }),
+  ] : [];
   return el("div", {class:"choice"}, [
     el("div", {class:"row"}, [
       el("div", {style:"flex:1"}, [el("div",{class:"field-label"},"선택지 라벨(버튼)"), labelI]),
       el("button", {class:"x", onclick:onRemove}, "✕"),
     ]),
-    el("div", {class:"field-label"}, "옥자 반응(하단 티커)"),
-    replyI, replyPrev,
+    ...replyEls,
     el("div", {class:"grid"}, [
       el("div", {}, [el("div",{class:"field-label"},"tier (호감도)"), tierS]),
       el("div", {}, [el("div",{class:"field-label"},"선택 후 옥자 표정"),
         emotionPicker("okja", choice.expr, v=>{ choice.expr=v; markDirty(); })]),
     ]),
+    ...iconEls,
   ]);
 }
 
@@ -636,9 +713,9 @@ function renderGifts() {
   function render() {
     box.innerHTML = "";
     g.gifts.forEach((gift, gi) => box.append(
-      choiceBlock(gift, META.giftTiers, ()=>{ g.gifts.splice(gi,1); markDirty(); render(); })));
+      choiceBlock(gift, META.giftTiers, ()=>{ g.gifts.splice(gi,1); markDirty(); render(); }, {replyStages:true, iconPicker:true})));
     box.append(el("button", {class:"add", onclick:()=>{
-      g.gifts.push({label:"",reply:"",tier:"plain",expr:"idle"}); markDirty(); render();
+      g.gifts.push({label:"",reply:{guest:"",regular:""},tier:"plain",expr:"idle",icon:""}); markDirty(); render();
     }}, "+ 선물 추가"));
   }
   render();

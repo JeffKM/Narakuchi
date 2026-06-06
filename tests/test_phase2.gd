@@ -108,7 +108,7 @@ func _talk_prompts(stage: String) -> Array:
 # ── 선물 선호표 (T11) ─────────────────────────────────────
 
 func _test_dialogue_gift() -> void:
-  var choices := Dialogue.gift_choices("지은")
+  var choices := Dialogue.gift_choices("guest", "지은")
   _check(choices.size() == 4, "선물 4종 (got %d)" % choices.size())
   var tiers := {}
   for c in choices:
@@ -117,12 +117,24 @@ func _test_dialogue_gift() -> void:
   _check(tiers.has("match") and tiers.has("sion") and tiers.has("plain"),
     "선호 tier 3종(match/sion/plain) 존재")
 
+  # icon 키가 팝업까지 전달돼야 함(없으면 텍스트만 fallback이지만, 현재 4종은 모두 슬롯 지정).
+  for c in choices:
+    _check((c as Dictionary).has("icon"), "선물 선택지에 icon 키 전달")
+  _check(String((choices[0] as Dictionary)["icon"]) == "icon_gift_1", "첫 선물 아이콘 슬롯 = icon_gift_1")
+
   # 존댓말(손님·단골) vs 반말(편해진 사이~) 프롬프트가 달라야 함. 단골은 존댓말이라 손님과 동일.
   var pg := Dialogue.gift_prompt("guest")
   var p_regular := Dialogue.gift_prompt("regular")
   var p_comfy := Dialogue.gift_prompt("comfy")
   _check(pg == p_regular, "선물 프롬프트: 단골(regular)은 존댓말이라 손님과 동일")
   _check(pg != p_comfy, "선물 프롬프트 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
+
+  # reply 도 단계별 분기 — 존댓말(guest) ≠ 반말(comfy). 첫 선물 기준.
+  var r_guest := String((Dialogue.gift_choices("guest", "지은")[0] as Dictionary)["reply"])
+  var r_regular := String((Dialogue.gift_choices("regular", "지은")[0] as Dictionary)["reply"])
+  var r_comfy := String((Dialogue.gift_choices("comfy", "지은")[0] as Dictionary)["reply"])
+  _check(r_guest == r_regular, "선물 반응: 단골(regular)은 존댓말이라 손님과 동일")
+  _check(r_guest != r_comfy, "선물 반응 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
 
 
 # ── tier → 호감도 매핑 (Balance 게이트웨이 검증) ─────────────
