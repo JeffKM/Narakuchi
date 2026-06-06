@@ -1,0 +1,34 @@
+{
+  "_doc": "선물 선호표 — `선물` 버튼. content_studio 로 편집.",
+  "_gift_doc": "gift = { label, reply(옥자 반응), tier, expr }. tier: match(좋아함 ↑↑) | sion(시온이 간식, 매우 좋아함 ↑↑↑) | plain(보통 ↑). {nick} 토큰 치환.",
+  "prompt": {
+    "guest": "저한테 주실 거예요?",
+    "regular": "뭐 줄 건데?"
+  },
+  "gifts": [
+    {
+      "label": "다크 초콜릿",
+      "reply": "……단 거 좋아하는 거, 어떻게 알았죠.",
+      "tier": "match",
+      "expr": "shy"
+    },
+    {
+      "label": "회중시계",
+      "reply": "취향이네요. 나쁘지 않아요.",
+      "tier": "match",
+      "expr": "smile"
+    },
+    {
+      "label": "시온이 간식",
+      "reply": "이건… 시온이 거잖아. ……고마워.",
+      "tier": "sion",
+      "expr": "smile"
+    },
+    {
+      "label": "꽃다발",
+      "reply": "예쁘네요. 꽂아둘게요.",
+      "tier": "plain",
+      "expr": "idle"
+    }
+  ]
+}

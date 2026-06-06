@@ -81,7 +81,7 @@ func begin_session() -> void:
   changed.emit()
 
 
-## 관계 단계 문자열 ("guest"|"regular"|"close").
+## 관계 단계 문자열 ("guest"|"regular"|"comfy"|"close").
 func stage() -> String:
   return Balance.relationship_stage(int(SaveManager.get_value("okja.affinity_total", 0)))
 

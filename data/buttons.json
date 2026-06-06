@@ -1,0 +1,66 @@
+{
+  "_doc": "4버튼 세트 + 버튼/터치 감정 매핑. content_studio 로 편집. action_bar(라벨)·cafe(감정·호감도) 가 GameData 통해 로드.",
+  "okja": {
+    "_doc": "옥자 버튼 라벨·순서는 잠금(코드 흐름 talk/gift 팝업 분기와 연동). emotion 만 편집 대상. expr ∈ idle/smile/shy/sad/brew/talk.",
+    "actions": [
+      {
+        "id": "cheki",
+        "label": "체키"
+      },
+      {
+        "id": "drink",
+        "label": "음료"
+      },
+      {
+        "id": "talk",
+        "label": "대화"
+      },
+      {
+        "id": "gift",
+        "label": "선물"
+      }
+    ],
+    "emotion": {
+      "_doc": "cheki/drink = 버튼 누른 직후 표정. touch = 터치 시 무작위 풀(둘 중 하나). touch_cap = 터치 상한 도달 표정.",
+      "cheki": "smile",
+      "drink": "brew",
+      "touch": [
+        "shy"
+      ],
+      "touch_cap": "shy"
+    }
+  },
+  "sion": {
+    "_doc": "시온이 4버튼. label·emotion·ticker(ticker.json sion 풀 키) 편집 대상. id·affinity(호감도 종류) 잠금. emotion ∈ idle/snack/play/pet. affinity: cheki(AFF_CHEKI) | sion(AFF_SION).",
+    "actions": [
+      {
+        "id": "cheki",
+        "label": "체키",
+        "emotion": "play",
+        "ticker": "cheki",
+        "affinity": "cheki"
+      },
+      {
+        "id": "snack",
+        "label": "간식",
+        "emotion": "snack",
+        "ticker": "snack",
+        "affinity": "sion"
+      },
+      {
+        "id": "play",
+        "label": "놀기",
+        "emotion": "play",
+        "ticker": "play",
+        "affinity": "sion"
+      },
+      {
+        "id": "pet",
+        "label": "선물",
+        "emotion": "pet",
+        "ticker": "pet",
+        "affinity": "sion"
+      }
+    ]
+  }
+}

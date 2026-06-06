@@ -8,6 +8,9 @@ extends Node2D
 ##   - 셸 3버튼: SELECT 로 커서 순환, OK 로 포커스된 버튼 확인. (Cafe 가 셸 신호를 중계)
 ## 선택되면 action_chosen(id) 신호를 방출한다(호감도 처리는 Cafe).
 ## configure(actions) 를 add_child 전에 호출하면 버튼 세트를 바꾼다(미호출 = 옥자 기본).
+##
+## ⚠️ 버튼 세트(라벨·순서)는 data/buttons.json (GameData 로드) — content_studio(GUI)가 편집.
+##    okja_actions()/sion_actions() 정적 접근자로 읽는다(const 하드코딩 제거).
 
 signal action_chosen(id: String)
 
@@ -17,21 +20,17 @@ const GAP := 6
 const BAR_Y := 410
 const BTN_H := 42
 
-# 4버튼 세트 (순서 = 커서 순환 순서)
-const OKJA_ACTIONS := [
-  {"id": "cheki", "label": "체키"},
-  {"id": "drink", "label": "음료"},
-  {"id": "talk",  "label": "대화"},
-  {"id": "gift",  "label": "선물"},
-]
-const SION_ACTIONS := [
-  {"id": "cheki", "label": "체키"},
-  {"id": "snack", "label": "간식"},
-  {"id": "play",  "label": "놀기"},
-  {"id": "pet",   "label": "쓰담"},
-]
+var actions: Array = []  # 비면 _ready 에서 옥자 기본 로드. configure()로 교체.
 
-var actions: Array = OKJA_ACTIONS  # 기본 = 옥자. configure()로 교체.
+
+## 옥자 4버튼 세트 [{id,label}...] — buttons.json okja.actions.
+static func okja_actions() -> Array:
+  return GameData.buttons().get("okja", {}).get("actions", [])
+
+
+## 시온이 4버튼 세트 [{id,label,emotion,ticker,affinity}...] — buttons.json sion.actions.
+static func sion_actions() -> Array:
+  return GameData.buttons().get("sion", {}).get("actions", [])
 
 var _buttons: Array[Button] = []
 var _cursor := 0
@@ -45,6 +44,8 @@ func configure(action_set: Array) -> void:
 
 
 func _ready() -> void:
+  if actions.is_empty():
+    actions = okja_actions()  # configure() 미호출 = 옥자 기본
   var n := actions.size()
   _bw = float(LCD_W - 2 * MARGIN - (n - 1) * GAP) / float(n)
   for i in range(n):

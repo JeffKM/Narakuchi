@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b3cutinflow01"]
+
+[ext_resource type="Script" path="res://tests/test_cutin.gd" id="1_cutin"]
+
+[node name="TestCutin" type="Node"]
+script = ExtResource("1_cutin")

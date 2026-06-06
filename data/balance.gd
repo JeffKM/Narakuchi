@@ -30,11 +30,12 @@ const GAUGE_SION := 200          # 시온이 게이지 풀 = 체키 1장
 
 # ── 관계 단계 (누적 옥자 호감도) ────────────────
 const REL_GUEST := 0             # 손님: 존댓말 + "{닉}님"
-const REL_REGULAR := 600         # 단골: 반말 + 닉네임 (~2주)
-const REL_CLOSE := 2000          # 마음 연 사이: 속내·애칭·특별 대화 (~6주)
+const REL_REGULAR := 200         # 단골: 아직 존댓말, 살가운 인사("자주 오시네요") (1차 상승)
+const REL_COMFY := 600           # 편해진 사이: 반말 전환(존댓말 해제 컷인) (2차 상승)
+const REL_CLOSE := 2000          # 마음 연 사이: 속내·애칭·특별 대화 (3차 상승, ~6주)
 
 # 데모 시연 세이브 시드값 — 첫 세션 한 번의 교감으로 '반말 전환 컷인'(600)이 터지도록 직전까지 채움
-# (가장 작은 액션 AFF_TALK_PLAIN=8 만으로도 600 을 넘기게 595)
+# (가장 작은 액션 AFF_TALK_PLAIN=8 만으로도 600 을 넘기게 595). 단골(200)은 시드가 이미 넘긴 상태.
 const DEMO_SEED_AFFINITY := 595
 
 # ── 나비 / 출석 / 코인 / 기분 ───────────────────
@@ -49,10 +50,19 @@ const MOOD_PENALTY_HOURS := 24       # 미접속 N시간+ → 시무룩
 const MOOD_PENALTY_RATE := 0.2       # 시무룩 시 호감도 획득 −20%
 
 
-## 누적 옥자 호감도로 관계 단계 문자열을 반환한다. ("guest" | "regular" | "close")
+## 누적 옥자 호감도로 관계 단계 문자열을 반환한다. ("guest" | "regular" | "comfy" | "close")
+## 존댓말 = 손님(guest)·단골(regular) / 반말 = 편해진 사이(comfy)·마음 연 사이(close).
 static func relationship_stage(affinity_total: int) -> String:
   if affinity_total >= REL_CLOSE:
     return "close"
+  if affinity_total >= REL_COMFY:
+    return "comfy"
   if affinity_total >= REL_REGULAR:
     return "regular"
   return "guest"
+
+
+## 단계가 '반말' 단계인지 — 편해진 사이(comfy) 이상에서 반말 해금.
+## 대화/티커 풀의 존댓말("guest")·반말("regular") 분기 단일 출처. (반말 전환 컷인도 comfy 도달 시)
+static func is_casual(stage: String) -> bool:
+  return stage == "comfy" or stage == "close"

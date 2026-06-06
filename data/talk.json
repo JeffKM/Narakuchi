@@ -1,0 +1,88 @@
+{
+  "_doc": "대화 팝업 토막 — `대화` 버튼. 단계별(guest/regular) 토막 리스트. content_studio 로 편집.",
+  "_choice_doc": "choice = { label(버튼), reply(옥자 반응 — 하단 티커로), tier, expr(선택 후 옥자 표정) }. tier: good(↑↑) | plain(↑). {nick} 토큰 치환. 선택지는 토막당 2~4개.",
+  "guest": [
+    {
+      "prompt": "또 오셨네요. 일은 안 하세요?",
+      "choices": [
+        {
+          "label": "쉬러 왔어요",
+          "reply": "팔자 좋으시네요.",
+          "tier": "plain",
+          "expr": "idle"
+        },
+        {
+          "label": "마녀님 보러요",
+          "reply": "후, 입만 살아서는.",
+          "tier": "good",
+          "expr": "shy"
+        },
+        {
+          "label": "그냥요",
+          "reply": "성의 없으시긴.",
+          "tier": "plain",
+          "expr": "talk"
+        }
+      ]
+    },
+    {
+      "prompt": "시온이 예쁘죠. ……제 새끼라.",
+      "choices": [
+        {
+          "label": "마녀님 닮았어요",
+          "reply": "……누가 누굴.",
+          "tier": "good",
+          "expr": "shy"
+        },
+        {
+          "label": "통통해요",
+          "reply": "먹는 게 일이라.",
+          "tier": "plain",
+          "expr": "smile"
+        }
+      ]
+    }
+  ],
+  "regular": [
+    {
+      "prompt": "왔어? ……오늘은 좀 보고 싶었는데.",
+      "choices": [
+        {
+          "label": "나도",
+          "reply": "흥, 솔직하긴.",
+          "tier": "good",
+          "expr": "shy"
+        },
+        {
+          "label": "방금 뭐랬어?",
+          "reply": "못 들었으면 말고.",
+          "tier": "plain",
+          "expr": "talk"
+        },
+        {
+          "label": "농담이지?",
+          "reply": "……됐어, 앉아.",
+          "tier": "plain",
+          "expr": "idle"
+        }
+      ]
+    },
+    {
+      "prompt": "요즘 시온이가 너만 따라. 뭐 먹였어?",
+      "choices": [
+        {
+          "label": "비밀이야",
+          "reply": "쳇, 치사해.",
+          "tier": "good",
+          "expr": "shy"
+        },
+        {
+          "label": "간식 줬어",
+          "reply": "고마워. 걔 잘 챙겨줘서.",
+          "tier": "good",
+          "expr": "smile"
+        }
+      ]
+    }
+  ]
+}

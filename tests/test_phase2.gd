@@ -85,10 +85,12 @@ func _test_dialogue_talk() -> void:
   _check(c0.has("label") and c0.has("reply") and c0.has("tier") and c0.has("expr"),
     "선택지 필드 {label,reply,tier,expr}")
 
-  # regular 단계는 반말 풀에서 골라진다(guest 풀과 prompt 교집합이 없어야 함)
+  # 단골(regular)은 아직 존댓말 풀, 편해진 사이(comfy)부터 반말 풀(guest 풀과 교집합 없어야 함)
   var guest_prompts := _talk_prompts("guest")
   var reg := Dialogue.pick_talk("regular", "지은")
-  _check(not guest_prompts.has(String(reg["prompt"])), "regular 단계 = 반말 풀에서 선택")
+  _check(guest_prompts.has(String(reg["prompt"])), "단골(regular) = 아직 존댓말 풀에서 선택")
+  var comfy := Dialogue.pick_talk("comfy", "지은")
+  _check(not guest_prompts.has(String(comfy["prompt"])), "편해진 사이(comfy) = 반말 풀에서 선택")
 
   # {nick} 치환 확인 — 토큰이 남아있으면 안 됨
   for _i in range(10):
@@ -98,8 +100,8 @@ func _test_dialogue_talk() -> void:
 
 func _talk_prompts(stage: String) -> Array:
   var out: Array = []
-  for topic in Dialogue.TALK[stage]:
-    out.append(String(topic["prompt"]))
+  for topic in GameData.talk().get(stage, []):
+    out.append(String((topic as Dictionary)["prompt"]))
   return out
 
 
@@ -115,9 +117,12 @@ func _test_dialogue_gift() -> void:
   _check(tiers.has("match") and tiers.has("sion") and tiers.has("plain"),
     "선호 tier 3종(match/sion/plain) 존재")
 
+  # 존댓말(손님·단골) vs 반말(편해진 사이~) 프롬프트가 달라야 함. 단골은 존댓말이라 손님과 동일.
   var pg := Dialogue.gift_prompt("guest")
-  var pr := Dialogue.gift_prompt("regular")
-  _check(pg != pr, "선물 프롬프트 단계별 차등(존댓말/반말)")
+  var p_regular := Dialogue.gift_prompt("regular")
+  var p_comfy := Dialogue.gift_prompt("comfy")
+  _check(pg == p_regular, "선물 프롬프트: 단골(regular)은 존댓말이라 손님과 동일")
+  _check(pg != p_comfy, "선물 프롬프트 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
 
 
 # ── tier → 호감도 매핑 (cafe 로직 재현 검증) ─────────────────
@@ -127,10 +132,12 @@ func _test_tier_affinity() -> void:
   _check(Balance.AFF_TALK_GOOD > Balance.AFF_TALK_PLAIN, "대화 good > plain 호감")
   _check(Balance.AFF_GIFT_SION_TO_OKJA > Balance.AFF_GIFT_MATCH, "선물 sion > match 호감")
   _check(Balance.AFF_GIFT_MATCH > Balance.AFF_GIFT_PLAIN, "선물 match > plain 호감")
-  # 반말 전환 시드가 단골(600) 직전인지 — 첫 교감 한 번으로 넘어가야 함
-  var gap := Balance.REL_REGULAR - Balance.DEMO_SEED_AFFINITY
+  # 데모 시드가 '반말 전환(편해진 사이, 600)' 직전인지 — 첫 교감 한 번으로 넘어가야 함
+  var gap := Balance.REL_COMFY - Balance.DEMO_SEED_AFFINITY
   _check(gap > 0 and gap <= Balance.AFF_TALK_PLAIN,
-    "데모 시드가 가장 작은 액션으로도 단골 도달(gap=%d ≤ %d)" % [gap, Balance.AFF_TALK_PLAIN])
+    "데모 시드가 가장 작은 액션으로도 반말 전환(편해진 사이) 도달(gap=%d ≤ %d)" % [gap, Balance.AFF_TALK_PLAIN])
+  # 단골(200)은 시드(595)가 이미 넘긴 상태여야 함
+  _check(Balance.DEMO_SEED_AFFINITY >= Balance.REL_REGULAR, "데모 시드는 단골(200) 이상에서 시작")
 
 
 # ── 미터 출석 마일스톤 (T14) ──────────────────────────────

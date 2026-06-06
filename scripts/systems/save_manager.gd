@@ -62,7 +62,9 @@ func default_save() -> Dictionary:
       "touch_affinity": 0,
     },
     # 임의 플래그 (온보딩 완료, 튜토리얼 등)
-    "flags": {},
+    #   announced_stage = 마지막으로 '입장 연출'한 관계 단계. 단계 상승은 그 자리서 안 터지고
+    #   다음 입장(Cafe.start)에 1회만 발화 — 이 값으로 재발화를 막는다. (guest/regular/comfy/close)
+    "flags": {"announced_stage": "guest"},
     "last_saved_unix": 0,    # 마지막 저장 시각 (epoch sec) — 기분 경과시간 계산용
   }
 
@@ -156,13 +158,16 @@ func set_value(path: String, value: Variant) -> void:
 
 # ── 내부 ─────────────────────────────────────────────────────
 
-## 데모 시연 시드: 누적 옥자 호감도를 반말 전환(600) 직전인 ~560으로 채운다.
-## 첫 세션 한 번의 교감으로 '반말 전환 컷인'이 터지게 하는 연출 장치 (PRD §4.5).
-## 온보딩은 끝난 단골 직전 상태이므로 onboarded=true 로 둬 바로 교감 화면으로 진입한다.
+## 데모 시연 시드: 누적 옥자 호감도를 '반말 전환(편해진 사이 600)' 직전인 595로 채운다.
+## 단계 상승 연출은 '다음 입장'에 1회 발화하므로(Cafe.start): 첫 세션엔 컷인이 안 뜨고,
+## 한 번 교감해 600 을 넘긴 뒤 다시 들어오면 반말 전환 컷인이 입장 인사로 터진다 (PRD §4.5).
+## announced_stage="regular": 시드가 이미 단골(595)이라 단골 인사는 안 띄우고, comfy(600)만 남긴다.
+## 온보딩은 끝난 상태이므로 onboarded=true 로 둬 바로 교감 화면으로 진입한다.
 func _apply_demo_seed() -> void:
   data["okja"]["affinity_total"] = Balance.DEMO_SEED_AFFINITY
   data["player"]["nickname"] = "지은"  # 시연용 샘플 닉(체키 표지·반말 전환에 이름이 보이게)
   data["flags"]["onboarded"] = true
+  data["flags"]["announced_stage"] = "regular"  # 시드 595 = 단골 도달 → 단골 연출은 건너뜀
 
 
 ## 구버전 세이브를 최신 스키마로 끌어올린다 (골격 — 버전 오를 때 분기 추가).
