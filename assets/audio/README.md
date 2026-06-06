@@ -1,8 +1,11 @@
-# 효과음 자리 (T18 "사운드 자리" → S3에서 채움)
+# 효과음 8종 (T18)
 
-`Sfx` 오토로드(`scripts/systems/sfx.gd`)가 아래 파일명을 찾는다. **파일이 없으면 무음**(no-op)이라
-지금은 비어 있어도 게임이 돈다. S3(8비트 효과음)에서 아래 이름 그대로 `.wav`/`.ogg`를 떨궈 넣으면
-코드 수정 없이 자동으로 울린다.
+`Sfx` 오토로드(`scripts/systems/sfx.gd`)가 아래 파일명을 찾는다. **파일이 없으면 무음**(no-op).
+
+> ✅ **현재 채워져 있음** — `tools/gen_sfx.py`(표준 라이브러리 칩튠 합성)로 생성한 `sfx_*.wav` 8종.
+> 재생성: `python3 tools/gen_sfx.py` · 음색이 별로면 해당 큐만 **ChipTone/jsfxr/Suno** 결과물로
+> 같은 파일명에 덮어쓰면 됨(프롬프트·레시피 = [`docs/audio-sfx-prompts.md`](../../docs/audio-sfx-prompts.md)).
+> macOS 미리듣기: `afplay assets/audio/sfx_cheki_get.wav`
 
 | 큐 키 | 파일 | 트리거 |
 |---|---|---|
@@ -17,3 +20,4 @@
 
 - 규격 권장: 8비트/칩튠 톤, 모노, 짧게(≤1s), 피크 −6dB 여유. 도트 룩과 결 맞춤.
 - 음량은 `SFX` 버스(런타임 생성)에서 일괄 조절 가능.
+- **만드는 법**: [`docs/audio-sfx-prompts.md`](../../docs/audio-sfx-prompts.md) — 8종 Suno 프롬프트 + 후처리 가이드.

@@ -150,7 +150,31 @@ func _compose() -> Control:
   _compose_card = ChekiCard.new()
   holder.add_child(_compose_card)
 
-  # 3) 푸터 — 구분선 + @나라카 워드마크 + QR 자리
+  # 2b) 개인화 캡션(공유 전용) — 사진 발치에 반투명 잉크 띠 + {닉} · 날짜.
+  #     닉/날짜는 카드 '앞면(표지)'에만 있어 사진면 공유엔 '내 이름'이 안 보인다 → 여기서 새긴다.
+  #     루트에 1x 로 얹어 글자를 크리스프하게(홀더 2배 안에 넣으면 흐려짐). 발치라 얼굴 안 가림.
+  var cap_y := PAD + ChekiCard.CARD.y * CARD_SCALE - 30.0
+  var strip := ColorRect.new()
+  strip.color = Color(Palette.INK.r, Palette.INK.g, Palette.INK.b, 0.42)
+  strip.position = Vector2(PAD + 12, cap_y)
+  strip.size = Vector2(ChekiCard.CARD.x * CARD_SCALE - 24, 22)
+  root.add_child(strip)
+
+  var nick := _make_label(Fonts.SIZE_BODY, Palette.CANDLE, 0)
+  nick.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+  nick.text = _resolve_nick()
+  nick.position = Vector2(PAD + 18, cap_y + 2)
+  nick.size = Vector2(150, 18)
+  root.add_child(nick)
+
+  var date := _make_label(Fonts.SIZE_SMALL, Palette.CREAM, 0)
+  date.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+  date.text = _date_dot()
+  date.position = Vector2(strip.position.x, cap_y + 4)
+  date.size = Vector2(strip.size.x - 6, 14)
+  root.add_child(date)
+
+  # 3) 푸터 — 구분선 + 붓글씨 로고 + @나라카 핸들 + QR 자리
   var fy := PAD + ChekiCard.CARD.y * CARD_SCALE + FOOTER_GAP
   var sep := ColorRect.new()
   sep.color = Palette.GOLD_DARK
@@ -158,23 +182,26 @@ func _compose() -> Control:
   sep.size = Vector2(ChekiCard.CARD.x * CARD_SCALE, 1)
   root.add_child(sep)
 
-  # @나라카(핸들) + 보조 한 줄 — 좌측
+  # 붓글씨 로고 + @나라카 핸들 — 좌측(카드 표지와 브랜드 일관)
+  var lx := PAD + 6.0
+  if ResourceLoader.exists(ChekiCard.WORDMARK):
+    var logo := TextureRect.new()
+    logo.texture = load(ChekiCard.WORDMARK) as Texture2D
+    logo.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    logo.position = Vector2(lx, fy + (FOOTER_H - logo.texture.get_height()) / 2.0)
+    logo.size = logo.texture.get_size()
+    logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    root.add_child(logo)
+    lx += logo.texture.get_width() + 8.0  # 핸들을 로고 오른쪽에
+
   var handle := _make_label(Fonts.SIZE_LEAD, Palette.BURGUNDY, 0)
   handle.add_theme_color_override("font_outline_color", Palette.CANDLE)
   handle.add_theme_constant_override("outline_size", 1)
   handle.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
   handle.text = HANDLE
-  handle.position = Vector2(PAD + 4, fy + 6)
-  handle.size = Vector2(140, 16)
+  handle.position = Vector2(lx, fy + (FOOTER_H - 18.0) / 2.0)
+  handle.size = Vector2(110, 18)
   root.add_child(handle)
-
-  var sub := _make_label(Fonts.SIZE_SMALL, Palette.GOLD_DARK, 0)
-  sub.add_theme_color_override("font_outline_color", Palette.CREAM)
-  sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-  sub.text = "나라쿠치 체키"
-  sub.position = Vector2(PAD + 4, fy + 22)
-  sub.size = Vector2(140, 12)
-  root.add_child(sub)
 
   # QR 자리 — 우측
   var qr := QrPlaceholder.new()
@@ -207,8 +234,8 @@ func _save() -> void:
   var fname := "narakuchi_cheki_%s_%s.png" % [Events.event_slug(_event), _date_stamp()]
 
   if OS.has_feature("web"):
-    _web_download(buf, fname)
-    _flash("이미지를 저장했어요  (워터마크 %s)" % HANDLE)
+    _web_share_or_download(buf, fname)
+    _flash("공유/저장했어요  (워터마크 %s)" % HANDLE)
   else:
     var dir := "user://shares"
     DirAccess.make_dir_recursive_absolute(dir)
@@ -220,14 +247,20 @@ func _save() -> void:
       _flash("저장 실패 (err %d)" % err)
 
 
-## 웹 — base64 data URL 을 임시 <a download> 로 받아 내려받기.
-func _web_download(buf: PackedByteArray, fname: String) -> void:
+## 웹 — 모바일이면 네이티브 공유 시트(Web Share API, 파일)를 띄우고, 미지원/실패 시 다운로드로 폴백.
+## 데스크톱 브라우저는 보통 canShare(files)=false → 바로 다운로드. (HTTPS + 사용자 제스처 필요 — 버튼 클릭이 충족)
+func _web_share_or_download(buf: PackedByteArray, fname: String) -> void:
   if not OS.has_feature("web"):
     return
   var b64 := Marshalls.raw_to_base64(buf)
-  var js := "(function(d,n){var a=document.createElement('a');" \
-    + "a.href='data:image/png;base64,'+d;a.download=n;" \
-    + "document.body.appendChild(a);a.click();a.remove();})('%s','%s');"
+  var js := "(function(d,n){" \
+    + "function dl(){var a=document.createElement('a');a.href='data:image/png;base64,'+d;a.download=n;document.body.appendChild(a);a.click();a.remove();}" \
+    + "try{var bin=atob(d),arr=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);" \
+    + "var f=new File([arr],n,{type:'image/png'});" \
+    + "if(navigator.canShare&&navigator.canShare({files:[f]})){" \
+    + "navigator.share({files:[f],title:'나라쿠치 체키',text:'나라쿠치에서 모은 체키 ✦ @나라카'}).catch(dl);return;}" \
+    + "}catch(e){}dl();" \
+    + "})('%s','%s');"
   JavaScriptBridge.eval(js % [b64, fname], true)
 
 
@@ -283,6 +316,24 @@ func _flash(msg: String) -> void:
   t.tween_callback(func() -> void:
     if is_instance_valid(_hint) and not _closing:
       _hint.text = "OK ▶ 저장  ·  바깥 탭 ▶ 닫기")
+
+
+## 공유 캡션 닉네임 — 스냅샷 우선 → 현재 플레이어 닉 → "손님". (ChekiCard._resolve_nick 과 동일 규칙)
+func _resolve_nick() -> String:
+  var nick := _nickname.strip_edges()
+  if nick.is_empty():
+    nick = String(SaveManager.get_value("player.nickname", "")).strip_edges()
+  return nick if not nick.is_empty() else "손님"
+
+
+## epoch(초) → "YYYY.MM.DD"(캡션용 점 표기). 0 이면 오늘.
+func _date_dot() -> String:
+  var d: Dictionary
+  if _acquired_at > 0:
+    d = Time.get_datetime_dict_from_unix_time(_acquired_at)
+  else:
+    d = Time.get_datetime_dict_from_system()
+  return "%04d.%02d.%02d" % [d["year"], d["month"], d["day"]]
 
 
 ## epoch(초) → "YYYYMMDD". 0 이면 오늘.

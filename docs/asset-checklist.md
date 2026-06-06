@@ -94,8 +94,12 @@
   - 뒤(드러나는 무대)는 기존 `bg_naraka` + 옥자 스탠딩 **재활용**(첫/재방문/방치 표정 스왑) — 새 캐릭터 에셋 없음.
   - 누끼: 아치형 상단 모서리 바깥만 크로마 그린(`#00ff00`), 문 본체는 불투명. `dotify --size 333x480 --chroma 00ff00`.
 - [ ] 재화 아이콘 · `16×16` · 필요 시
-- [ ] 공유 워터마크 (@나라카 + QR 자리) · T19
+- [x] 공유 워터마크 (@나라카 + QR 자리) · T19 — **코드 합성**(`share_card.gd`): 붓글씨 로고 `wordmark_naraka`(재사용) + 갈무리 `@나라카` 핸들 + QR 자리(`qr_placeholder.gd` 코드 `_draw`) + 사진면 개인화 캡션(닉·날짜). 별도 워터마크 이미지 에셋 불필요. ※ 실제 QR은 호스팅 확정 후 T24.
 - [ ] PWA 아이콘 / 스플래시 (192·512 등) · T24
+
+## 🔊 오디오 (T18 사운드 자리 / S3)
+
+- [x] **효과음 8종** `assets/audio/sfx_*.wav` — `order·cheki_get·butterfly·flip·tap·gauge_full·book·shutter`. **`tools/gen_sfx.py`(칩튠 합성)로 생성**(루프 off, 모노 16-bit, 피크 균형). 음색 교체 시 같은 파일명에 ChipTone/jsfxr/Suno 결과물 덮어쓰기(레시피 = [`docs/audio-sfx-prompts.md`](./audio-sfx-prompts.md)). ※ 헤드리스라 귀 검수 미실시 — 인게임/`afplay`로 청취 후 튜닝 권장.
 
 ## 🎨 A6 — 체키북 장식 (컬렉션북 UI) (T16 후속) ✅
 
