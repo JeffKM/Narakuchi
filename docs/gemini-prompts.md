@@ -300,6 +300,269 @@ no smooth gradient, no soft anti-aliased edges, no realistic photo finish, no 3D
 
 ---
 
+## A4·A5 — 의상·프레임·배경 확장 (유치원·힙합·집사·크리스마스) → ROADMAP 아트트랙
+
+> 지뢰계(★히어로)에서 확립한 3종 레이어(**의상 누끼 + 테마 프레임 + 사진 배경**)를 **나머지 4개 이벤트로 복제**한다. 골격·규격·워크플로우는 위 지뢰계 섹션과 **완전히 동일** — 아래는 "무엇만 갈아끼우는지"만 적는다. 파일명 접미사는 `data/events.gd`의 **slug**(유치원=`kinder` · 힙합=`hiphop` · 집사=`butler` · 크리스마스=`xmas`)를 따른다.
+> **🔑 공통 규칙(재확인)**: ① 의상은 모두 **체키 카드용 정적 아트** — idle 앵커 일치 불필요, 포즈·머리색 자유(라이브 옥자는 마녀룩 고정). ② 의상 캔버스는 **`128×288`(preset okja)**, 머리 위는 비우고 발끝까지 프레임 안. ③ 프레임은 표준/지뢰계 골격 그대로, **가운데 사진 창은 순수 크로마 그린 `~108×162`** 유지(테두리 데코만 교체). ④ 배경은 **`120×180` 완전 불투명**(누끼 X·크로마 X), 중앙·하단 발치 비움. ⑤ 전부 마스터 팔레트(~32색) 인덱싱.
+> **⚠️ 크리스마스만 크로마키 예외**: 산타 의상·홀리에 **초록이 들어가므로 크로마 그린 대신 마젠타 `#ff00ff`** 로 받는다(→ 핵심 원칙 #2). 프레임·배경도 초록 데코가 있으면 마젠타로.
+
+### A4-의상 ① 유치원 (`okja_kinder`)
+
+> 레퍼 코디: 노란 **버킷햇** · **하늘색 카라 셔츠**(가슴 빨강 **명찰**) · 흰 **주름 스커트** · 흰 무릎양말 + 흰 신발 · **펭귄(핑구) 인형 백팩** · 보라 곱창밴드 트윈테일 · 빨강 손목밴드. 천진난만·해맑게.
+
+```
+[Attach TWO images — 1: okja_idle.png (confirmed SD dot, identity lock), 2: a kindergarten / preschool uniform reference photo]
+Keep image 1's character IDENTITY: same face shape, same eyes, same chic tsundere look,
+same SD chibi proportions (head:body ≈ 1:3~1:4). RESTYLE her as a cute KINDERGARTEN pupil coordinate (image 2):
+- Hair: low TWIN-TAILS tied with PURPLE scrunchies, bright and youthful — NOT the witch look.
+- Pose: innocent and childlike — one fist rubbing an eye (sleepy / about-to-cry cute gesture), or both hands held happily.
+- Headwear: a YELLOW bucket hat.
+- Top: a LIGHT-BLUE (sky blue) collared smock shirt, with a small round RED NAME TAG / badge on the chest.
+- Bottom: a short WHITE PLEATED skirt.
+- Accessory: a cute PENGUIN (Pingu-style) plush BACKPACK on her back with orange straps; a RED WRISTBAND.
+- Shoes: WHITE knee socks and small WHITE sneakers.
+- Expression: bright innocent face, slightly pouty / teary-cute.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+       Keep her recognizable as the SAME Okja, just dressed as a sweet kindergartener.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom, tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+네거티브(공통 + 추가): `no witch hat, no witch dress (fully replaced), no yellow suspender shorts (top is light-blue shirt, bottom is white skirt), no over-mature outfit (keep it childlike & age-safe), no different face, no cropped feet.`
+
+### A4-의상 ② 힙합 (`okja_hiphop`)
+
+> 레퍼 코디: 오버핏 **흑+실버 컬러블록 풋볼 저지**(올드잉글리시 블랙레터 레터링) + 안에 검정 티 레이어드 · 차콜 **니트 비니**(고딕 자수) · **실버 체인** · 빨강 손목시계 · 손가락 힙합 제스처. 고스 스트릿 무드.
+
+```
+[Attach TWO images — 1: okja_idle.png (identity lock), 2: a streetwear / hip-hop outfit reference photo]
+Keep image 1's character IDENTITY: same face, same chic tsundere look, same SD chibi proportions (1:3~1:4).
+RESTYLE her as a GOTH-STREET / HIP-HOP coordinate (image 2):
+- Hair: long straight ASH-SILVER hair with blunt bangs and GREEN dip-dyed tips, plus one thin braided strand — cool and edgy.
+- Pose: a confident HIP-HOP gesture — one hand throwing a relaxed finger sign near the face, swagger attitude.
+- Top: an OVERSIZED football-style JERSEY in BLACK & SILVER color-block with OLD-ENGLISH / blackletter lettering, layered over a black tee, baggy fit.
+- Headwear: a slouchy CHARCOAL KNIT BEANIE with small gothic embroidery (NOT a snapback).
+- Bottom: BAGGY wide pants.
+- Accessories: a thin SILVER CHAIN necklace, a RED wristwatch.
+- Shoes: chunky sneakers.
+- Expression: cool and chic, pale makeup, slight smirk.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+       Keep her clearly the SAME Okja, urban goth-street mood.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom, tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+네거티브(공통 + 추가): `no witch hat, no witch dress (fully replaced), no snapback cap (it's a knit beanie), no gold chain (use silver), no different face, no cropped feet, no over-sexualized outfit (keep it cool & age-safe).`
+
+### A4-의상 ③ 집사 (`okja_butler`)
+
+> 레퍼 코디: 검정 **와이드브림 페도라** · 검정 **수트 재킷/롱코트** · 흰 셔츠 + **검정 넥타이** · **검정 장갑** · 얇은 **안경** · **십자가 펜던트 체인** · 한 손 턱에 괸 시크 포즈. 다크 고딕·음울한 기품.
+
+```
+[Attach TWO images — 1: okja_idle.png (identity lock), 2: a butler / tuxedo outfit reference photo]
+Keep image 1's character IDENTITY: same face, same chic tsundere look, same SD chibi proportions (1:3~1:4).
+RESTYLE her as a DARK GOTHIC BUTLER coordinate (image 2):
+- Hair: free choice but NEAT and tidy, dark.
+- Pose: a chic brooding stance — one BLACK-gloved hand resting on the chin, the other tucked, composed and aloof.
+- Headwear: a black WIDE-BRIM FEDORA hat.
+- Outfit: a black tailored SUIT JACKET / long coat over a white dress shirt with a black NECKTIE.
+- Accessories: BLACK GLOVES on both hands, thin GLASSES, a silver CROSS PENDANT on a chain.
+- Shoes: polished black formal shoes.
+- Expression: calm, cool and dignified, faint aloof look (chic, moody).
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+       Keep her clearly the SAME Okja, classy and prim, dark gothic mood.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom, tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+네거티브(공통 + 추가): `no witch hat (it's a fedora), no witch dress (fully replaced), no maid skirt, no tailcoat tails (it's a suit jacket), no white gloves (use black), no bow tie (use a necktie), no different face, no cropped feet.`
+
+### A5-의상 ④ 크리스마스 (`okja_xmas`)
+
+> 레퍼 코디: 빨강 **산타 드레스** + 흰 **퍼 트림** · 그 위에 **초록 후드 케이프/망토**(흰 퍼 + 금색 땡땡이·별 = 크리스마스 트리 모티프, 후드 착용) · 볼 빨강 **X·하트** 데코 · 빨강 부츠. ⚠️ **크로마키 = 마젠타 `#ff00ff`**(초록 케이프/배경 대비).
+
+```
+[Attach TWO images — 1: okja_idle.png (identity lock), 2: a cute Santa / Christmas dress reference photo]
+Keep image 1's character IDENTITY: same face, same chic tsundere look, same SD chibi proportions (1:3~1:4).
+RESTYLE her as a cozy CHRISTMAS / Santa coordinate (image 2):
+- Hair: free choice, festive and cute, bangs.
+- Pose: warm and inviting — both hands holding the hood by the cheeks, or one hand by the cheek; gentle festive cheer.
+- Outfit: a RED SANTA DRESS trimmed with WHITE FUR (cuffs, hem, collar).
+- Outerwear: a GREEN HOODED CAPE / cloak with WHITE FUR trim, decorated with GOLD polka-dots and little STAR ornaments (Christmas-tree motif), the HOOD worn up over her head.
+- Headwear: the green hood up (instead of a santa hat).
+- Accessories: small star ornaments; a tiny red X mark and a heart drawn cutely on one cheek.
+- Shoes: short RED BOOTS with white fur.
+- Expression: warm cute smile.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
+       Keep her clearly the SAME Okja, cozy Christmas mood, age-safe.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom, tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma MAGENTA (#ff00ff), no scenery, no props, no shadow on background.
+```
+
+네거티브(공통 + 추가): `no witch hat, no witch dress (fully replaced), no chroma green anywhere (use MAGENTA bg — the cape is green), no different face, no cropped feet.`
+
+> 💡 시온이 루돌프(`photo_sion_xmas`, 배경 포함 베이크)는 아래 **"시온이 체키 사진" 섹션**에 프롬프트가 있다(A5에서 같이 뽑는다).
+
+---
+
+### A4·A5-프레임 — 테마 사진 프레임 4종
+
+> **베이스 = 위 "뒷면 사진 프레임 — 지뢰계" 프롬프트.** 골격·규격(`120×180`, 균일 ~6px 테두리 + 사진 창 `~108×162` 순수 크로마 그린, 캡션 스트립 없음, 로고/QR 없음)·네거티브 **전부 그대로** 두고, **테두리 데코 + 색 무드만** 아래로 교체한다. 각 프레임의 색은 **짝이 되는 배경(`bg_cheki_*`)과 같은 팔레트**로 통일해 한 세트로 붙게 한다.
+
+| 파일명 | `Border decoration` 교체 문구 | `Color mood` 교체 문구 |
+|---|---|---|
+| `frame_kinder` (유치원) | the inner rim is drawn in chunky CRAYON strokes; small RAINBOW arcs, toy BLOCKS, a star sticker and a round NAME-TAG badge at the corners; a wavy crayon line along the top edge. | bright primary crayon — sunny yellow, sky blue, grass green, candy red, white. |
+| `frame_hiphop` (힙합) | the inner rim is a spray-paint GRAFFITI outline; a silver CHAIN runs along the edges, a small BOOMBOX and a sneaker doodle at the corners, drips of paint along the top edge. | urban street — concrete gray, black, electric green & magenta spray, gold chain accents. |
+| `frame_butler` (집사) | the inner rim is an ornate ANTIQUE gilt PICTURE-FRAME molding; a silver SERVING TRAY motif and red ROSES at the corners, a thin lace doily edge along the top. | refined antique — deep wine, antique gold, silver tray sheen, ivory lace, rose red. |
+| `frame_xmas` (크리스마스) ⚠️마젠타 | the inner rim is a green HOLLY & RED-BERRY WREATH; SNOW piled on the top edge, small ORNAMENT baubles and a bow at the corners, tiny candy canes. | warm Christmas — pine green, holly red, snow white, gold ornament, against a soft night blue. |
+
+> ⚠️ `frame_xmas`는 초록 홀리가 들어가니 **크로마키를 마젠타 `#ff00ff`** 로(프롬프트의 `chroma green (#00ff00)` → `chroma magenta (#ff00ff)` 로 치환, 단 **사진 창은 여전히 크로마**로 비워야 하므로 창도 마젠타). 나머지 3종은 크로마 그린 그대로.
+
+#### 전체 프롬프트 4종 (바로 복붙)
+
+> 골격·규격·`#### 네거티브`·검수 포인트는 **위 "뒷면 사진 프레임 — 지뢰계"와 동일**. 아래는 카드 베이스색·`Border decoration`·`Color mood`만 그 이벤트로 바꾼 완성본이다. 사진 창은 **순수 크로마 그린(`#00ff00`)** 유지(크리스마스만 마젠타 `#ff00ff`). 저장 경로는 각 `frame_*.png`.
+
+**`frame_kinder` (유치원)**
+```
+Pixel art / dot art of an EMPTY decorated POLAROID-style photo (cheki) FRAME, front view, NO character, NO photo, NO logo, NO text.
+This is an OVERLAY border in a cute KINDERGARTEN / crayon style, themed to MATCH a sunny playground photo inside:
+      the inside is a hollow PHOTO WINDOW where the costume artwork is composited later.
+Card: a bright cream-white card whose inner rim is drawn in chunky CRAYON strokes, childlike and playful. Tall vertical portrait, aspect ratio 120:180 (2:3), card fills the frame.
+Photo window: ONE BIG empty rectangular window filling MOST of the card — a THIN even decorated border (~6px) on ALL
+      four sides, the window occupying roughly 90% (about 108 wide × 162 tall).
+      FLAT SOLID chroma green (#00ff00) and completely EMPTY. NO bottom caption strip.
+Border decoration (KINDERGARTEN crayon): the inner rim is drawn in chunky CRAYON strokes; small RAINBOW arcs, toy BLOCKS,
+      a star sticker and a round NAME-TAG badge at the corners; a wavy crayon line along the TOP edge.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading.
+Color mood: bright primary crayon — sunny yellow, sky blue, grass green, candy red, white.
+Composition: one BIG centered photo window framed by crayon strokes + symmetric corner stickers; the window stays PURE chroma green.
+```
+
+**`frame_hiphop` (힙합)**
+```
+Pixel art / dot art of an EMPTY decorated POLAROID-style photo (cheki) FRAME, front view, NO character, NO photo, NO logo, NO text.
+This is an OVERLAY border in a STREET / GRAFFITI style, themed to MATCH a graffiti-alley photo inside:
+      the inside is a hollow PHOTO WINDOW where the costume artwork is composited later.
+Card: a concrete-gray & black card whose inner rim is a spray-paint GRAFFITI outline, urban and edgy. Tall vertical portrait, aspect ratio 120:180 (2:3), card fills the frame.
+Photo window: ONE BIG empty rectangular window filling MOST of the card — a THIN even decorated border (~6px) on ALL
+      four sides, the window occupying roughly 90% (about 108 wide × 162 tall).
+      FLAT SOLID chroma green (#00ff00) and completely EMPTY. NO bottom caption strip.
+Border decoration (GRAFFITI): the inner rim is a spray-paint GRAFFITI outline; a silver CHAIN runs along the edges,
+      a small BOOMBOX and a sneaker doodle at the corners, drips of paint along the TOP edge.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading.
+Color mood: urban street — concrete gray, black, magenta & teal-LIME spray (keep the lime a teal tone, NOT pure #00ff00), silver chain accents.
+Composition: one BIG centered photo window framed by a graffiti outline + symmetric corner doodles; the window stays PURE chroma green.
+```
+
+**`frame_butler` (집사)**
+```
+Pixel art / dot art of an EMPTY decorated POLAROID-style photo (cheki) FRAME, front view, NO character, NO photo, NO logo, NO text.
+This is an OVERLAY border in an ANTIQUE / aristocratic style, themed to MATCH an antique mansion-hall photo inside:
+      the inside is a hollow PHOTO WINDOW where the costume artwork is composited later.
+Card: a deep-wine card whose inner rim is an ornate ANTIQUE gilt PICTURE-FRAME molding, refined and stately. Tall vertical portrait, aspect ratio 120:180 (2:3), card fills the frame.
+Photo window: ONE BIG empty rectangular window filling MOST of the card — a THIN even decorated border (~6px) on ALL
+      four sides, the window occupying roughly 90% (about 108 wide × 162 tall).
+      FLAT SOLID chroma green (#00ff00) and completely EMPTY. NO bottom caption strip.
+Border decoration (ANTIQUE): the inner rim is an ornate ANTIQUE gilt PICTURE-FRAME molding; a silver SERVING TRAY motif
+      and red ROSES at the corners, a thin lace doily edge along the TOP.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading.
+Color mood: refined antique — deep wine, antique gold, silver tray sheen, ivory lace, rose red.
+Composition: one BIG centered photo window framed by gilt molding + symmetric corner roses; the window stays PURE chroma green.
+```
+
+**`frame_xmas` (크리스마스)** ⚠️ 창·키잉 = 마젠타 `#ff00ff` (테두리에 초록 홀리)
+```
+Pixel art / dot art of an EMPTY decorated POLAROID-style photo (cheki) FRAME, front view, NO character, NO photo, NO logo, NO text.
+This is an OVERLAY border in a CHRISTMAS / wreath style, themed to MATCH a snowy-night photo inside:
+      the inside is a hollow PHOTO WINDOW where the costume artwork is composited later.
+Card: a soft night-blue card whose inner rim is a green HOLLY & RED-BERRY WREATH, warm and festive. Tall vertical portrait, aspect ratio 120:180 (2:3), card fills the frame.
+Photo window: ONE BIG empty rectangular window filling MOST of the card — a THIN even decorated border (~6px) on ALL
+      four sides, the window occupying roughly 90% (about 108 wide × 162 tall).
+      FLAT SOLID chroma MAGENTA (#ff00ff) and completely EMPTY. NO bottom caption strip.
+Border decoration (CHRISTMAS): the inner rim is a green HOLLY & RED-BERRY WREATH; SNOW piled on the TOP edge,
+      small ORNAMENT baubles and a bow at the corners, tiny candy canes.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading.
+Color mood: warm Christmas — pine green, holly red, snow white, gold ornament, against a soft night blue.
+Composition: one BIG centered photo window framed by a holly wreath + symmetric corner baubles; the window stays PURE chroma magenta. NO pure chroma green anywhere (the holly is darker pine green, the window key is MAGENTA).
+```
+
+---
+
+### A4·A5-배경 — 체키 사진 배경 4종
+
+> **베이스 = 위 "체키 사진 배경 — 지뢰계" 프롬프트.** 규격(`120×180` **완전 불투명**, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케) 그대로 두고 **장소(Scene)만** 아래로 교체. 짝 프레임과 같은 팔레트.
+
+| 파일명 | `Scene` 교체 문구 | `Color mood` 교체 문구 |
+|---|---|---|
+| `bg_cheki_kinder` (유치원) | a sunny KINDERGARTEN PLAYGROUND — colorful slide & swings in the back, a rainbow arch, fluffy clouds, soft grass; the LOWER-CENTER (feet area) kept open. | bright sunny day — sky blue, sunny yellow, grass green, candy-colored equipment. |
+| `bg_cheki_hiphop` (힙합) | a GRAFFITI ALLEY / city street at dusk — colorful spray-paint murals on the back wall (abstract glyphs, NOT real letters), a chain-link fence, a couple of street lamps; lower-center open. | urban dusk — concrete gray, brick, vivid spray-paint green/magenta/blue, warm lamp amber. |
+| `bg_cheki_butler` (집사) | an ANTIQUE MANSION HALL — a grand staircase and chandelier in the back (softly blurred), tall arched windows, a red carpet; lower-center open. | refined antique — deep wine walls, antique gold, warm candle glow, ivory marble. |
+| `bg_cheki_xmas` (크리스마스) | a SNOWY night STREET — gently falling snow, a glowing Christmas tree and warm shop windows in the back (soft bokeh), string lights; lower-center open. | cozy Christmas night — deep night blue, snow white, warm window amber, pine green, holly red. |
+
+> ⚠️ 배경은 **완전 불투명**이라 원래도 크로마가 없다 — 크리스마스 배경도 마젠타 걱정 없이 그대로 `--size 120x180`(아래 후처리)로 뽑으면 된다.
+
+#### 전체 프롬프트 4종 (바로 복붙)
+
+> 골격·`#### 네거티브`·검수 포인트는 **위 "체키 사진 배경 — 지뢰계"와 동일**. 아래는 `Scene`/`Depth`/`Color mood`만 그 이벤트로 바꾼 완성본이다. 저장 경로는 각 `bg_cheki_*.png`.
+
+**`bg_cheki_kinder` (유치원)**
+```
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a sunny KINDERGARTEN PLAYGROUND.
+NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
+(a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
+Scene: a cheerful playground — a colorful SLIDE and SWINGS in the back, a big RAINBOW arch, fluffy white CLOUDS in a blue sky,
+      soft green GRASS and a few round bushes; candy-colored play equipment along the top and sides.
+Depth: detailed playground equipment along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of sky and clouds so a standing character reads clearly;
+      the LOWER-CENTER (character's feet area) stays calmer, just soft grass.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh done as clusters of flat pixel dots.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
+Color mood: bright sunny day — sky blue, sunny yellow, grass green, candy red, white.
+```
+
+**`bg_cheki_hiphop` (힙합)**
+```
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a GRAFFITI ALLEY / city street at dusk.
+NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
+(a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
+Scene: a back alley at dusk — colorful spray-paint GRAFFITI murals on the back wall (abstract glyph-like shapes, NOT real letters),
+      a CHAIN-LINK fence, a couple of STREET LAMPS, some pipes and a dumpster silhouette; soft round BOKEH light orbs in the air.
+Depth: detailed graffiti and lamps along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of dusk light so a standing character reads clearly;
+      the LOWER-CENTER (character's feet area) stays calmer, just wet asphalt reflection.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh done as clusters of flat pixel dots.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
+Color mood: urban dusk — concrete gray, brick red, vivid spray-paint green / magenta / blue, warm lamp amber.
+```
+
+**`bg_cheki_butler` (집사)**
+```
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — an ANTIQUE MANSION HALL.
+NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
+(a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
+Scene: a grand mansion interior — a sweeping STAIRCASE and a crystal CHANDELIER in the back (softly blurred), tall arched WINDOWS with drapes,
+      ornate gilt wall molding, a deep red CARPET; soft round BOKEH of warm candle light.
+Depth: detailed chandelier, windows and molding along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of warm light so a standing character reads clearly;
+      the LOWER-CENTER (character's feet area) stays calmer, just red carpet.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh done as clusters of flat pixel dots.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
+Color mood: refined antique — deep wine walls, antique gold, warm candle glow, ivory marble.
+```
+
+**`bg_cheki_xmas` (크리스마스)**
+```
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a SNOWY NIGHT STREET.
+NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
+(a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
+Scene: a cozy snowy street at night — gently falling SNOW, a glowing CHRISTMAS TREE and warm lit SHOP WINDOWS in the back (soft bokeh),
+      STRING LIGHTS strung overhead, a streetlamp, snow piled on rooftops; soft round BOKEH light orbs in the air.
+Depth: detailed tree, string lights and shop windows along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of warm lights and snow so a standing character reads clearly;
+      the LOWER-CENTER (character's feet area) stays calmer, just snow-covered ground.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh done as clusters of flat pixel dots.
+FULLY OPAQUE — solid fill everywhere, NO transparency (the pine-green tree is opaque art, NOT a chroma key).
+Color mood: cozy Christmas night — deep night blue, snow white, warm window amber, pine green, holly red.
+```
+
+---
+
 ## 시온이 (펫 — 교감화면)
 
 > 옥자의 흰 얼룩 고양이. **교감화면 라이브 펫은 항상 기본 흰 고양이**(이벤트 의상은 체키 전용 → 아래 "시온이 체키 의상").
@@ -350,55 +613,62 @@ no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render
 ## 시온이 체키 의상 (쿠로미풍 · 루돌프) → 체키 카드용 정적 아트
 
 > 시온이도 **수집 캐릭터** — 지뢰계·크리스마스 데이 체키가 있다(→ PRD §9.1). 옥자 이벤트 의상과 같은 원리로 **체키(정적 수집물)에만** 들어가고, 교감화면 라이브 시온이는 기본 흰 고양이 고정.
-> **🔑 규격(중요)**: 체키 카드 렌더러(`cheki_card.gd`)는 **모든 의상을 `128×288` 캔버스**(`Okja.SPR_SIZE`)로 읽는다. 그래서 시온이 의상도 **세로 `128×288` 캔버스에, 고양이를 하단 중앙(아래 ~40%)에 두고 위쪽은 비워** 그린다(누끼). 48×48로 저장하면 카드에서 늘어나 깨진다. 파일명은 코드 경로(`cheki_costume_path("sion", event)`)에 맞춰 **`sion_jirai` / `sion_xmas`** (← 펫 반응의 `sioni_*`와 접두어가 다름에 주의).
-> **🔑 워크플로우**: 확정된 `sioni_idle`(정체성 락) + 의상 레퍼런스를 첨부해 "이 고양이에게 이 코디를 입혀라".
+> **🔑 규격(중요·베이크 전환됨)**: 시온이 체키는 **배경 포함 베이크 사진** — 사진 면을 `[배경]+[누끼]+[프레임]` 3겹으로 합성하지 않고, **고양이 전신 + 풍경을 한 장으로 굽는다**(→ 커밋 `시온이 지뢰계 체키를 배경 포함 베이크 사진으로 전환`). `cheki_card.gd`는 `photo_{char}_{slug}.png`(= `cheki_photo_path`)가 있으면 그걸 사진 면으로 쓰고, 없으면 3겹 폴백. 그래서 파일명은 **`photo_sion_jirai` / `photo_sion_xmas`** (← 의상 누끼 `sion_*`·펫 반응 `sioni_*`와 접두어 다름 주의).
+> **🔑 캔버스**: 카드 사진 창 비율에 맞춰 **`120×180`(2:3) 완전 불투명**(누끼 X·크로마 X). 고양이 **전신이 잘리지 않게** 화면 안에 두고, 발치(하단 중앙)는 비교적 비워 캐릭터가 읽히게, 풍경 디테일은 위·옆으로 민다(짝 배경 `bg_cheki_*`와 같은 장소·팔레트).
+> **🔑 워크플로우**: 확정된 `sioni_idle`(정체성 락) + 의상 레퍼런스(+선택: 풍경 레퍼)를 첨부해 "이 고양이에게 이 코디를 입혀 **이 풍경 앞에서 찍은 한 장**으로".
 
-### 지뢰계 (`sion_jirai`, 쿠로미풍)
+### 지뢰계 (`photo_sion_jirai`, 쿠로미풍 + 네온 밤거리)
 
-> 산리오 쿠로미를 **직접 베끼지 말고**(IP 회피) 그 *분위기*만 — 검정 후드 망토 + 분홍 해골 + 광대 칼라 + 작은 악마 꼬리의 지뢰계풍 고양이.
+> 산리오 쿠로미를 **직접 베끼지 말고**(IP 회피) 그 *분위기*만 — 검정 후드 망토 + 분홍 해골 + 광대 칼라 + 작은 악마 꼬리의 지뢰계풍 고양이가 **시부야풍 네온 밤거리** 앞에 선 한 장.
 
 ```
 [Attach: 1 = sioni_idle.png (confirmed cat, identity lock), 2 = jirai-kei / punk-goth pet outfit reference]
+ONE baked PHOTO (cheki snapshot): a JIRAI-KEI costumed cat standing in front of a NEON NIGHT-CITY street. Tall vertical portrait, aspect ratio 120:180 (2:3), image filled edge-to-edge.
 Keep image 1's CAT identity: the SAME VERY CHUBBY round white cat with her EXACT markings
 (BLACK center-parted cap on the head + black on tail/body; ONE tiny BROWN mark on the small pink nose only — no large brown face patch), same face.
-Dress it in a JIRAI-KEI / punk-goth costume:
-- a BLACK hooded cape / hood with little devil-ear points,
-- a PINK SKULL emblem on the hood, a small jester-style frilled collar,
-- pink & black ribbon accents, a tiny curled DEVIL TAIL.
-Cute gothic, age-safe. Keep it clearly the SAME cat, just costumed.
-Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
-Color mood: black & hot-pink jirai-kei over white fur.
-Framing: the cat sits in the LOWER-CENTER of a TALL vertical canvas (aspect 128:288),
-         occupying the bottom ~40%, the UPPER area EMPTY; even margins.
-Background: FLAT SOLID chroma green (#00ff00) EVERYWHERE (the empty upper area is chroma too).
+Costume — dress it in a JIRAI-KEI / punk-goth outfit:
+- a BLACK hooded cape / hood with little devil-ear points, a PINK SKULL emblem on the hood,
+- a small jester-style frilled collar, pink & black ribbon accents, a tiny curled DEVIL TAIL.
+  Cute gothic, age-safe. Clearly the SAME cat, just costumed.
+Background (baked in): a Shibuya-style NEON night street — glowing PINK & PURPLE neon signs (abstract glyph-like glow, NOT real letters),
+  buildings receding into the dark, soft round BOKEH orbs; detailed along the TOP and SIDES, a softer bokeh haze in the CENTER, calm wet-ground reflection at the bottom.
+Composition: the FULL cat (whole body, NOT cropped) sits in the lower-center IN FRONT of the scenery, reading clearly against the blurrier center; even margins.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading; bokeh & neon glow as clusters of flat stepped pixels.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
+Color mood: jirai-kei night — black & hot-pink costume over white fur, deep navy/black street, hot pink, magenta, electric purple, a touch of cyan.
 ```
 
-### 크리스마스 (`sion_xmas`, 루돌프)
+### 크리스마스 (`photo_sion_xmas`, 루돌프 + 눈 내리는 밤거리)
 
 ```
 [Attach: 1 = sioni_idle.png (identity lock), 2 = reindeer / Rudolph costume reference (optional)]
+ONE baked PHOTO (cheki snapshot): a cute RUDOLPH reindeer cat standing in front of a SNOWY night street. Tall vertical portrait, aspect ratio 120:180 (2:3), image filled edge-to-edge.
 Keep image 1's CAT identity: the SAME VERY CHUBBY round white cat with her EXACT markings
 (BLACK center-parted cap on the head + black on tail/body; ONE tiny BROWN mark on the small pink nose only — no large brown face patch).
-Dress it as a cute RUDOLPH reindeer:
+Costume — dress it as a cute RUDOLPH reindeer:
 - small brown ANTLERS headband, a glowing RED NOSE, a green/red HOLLY collar with a jingle bell,
 - optional tiny red cape. Cozy Christmas, age-safe. Clearly the SAME cat.
-Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
-Color mood: warm Christmas red & green, brown antlers, over white fur.
-Framing: the cat in the LOWER-CENTER of a TALL vertical canvas (aspect 128:288), bottom ~40%, UPPER area EMPTY; even margins.
-Background: FLAT SOLID chroma green (#00ff00) everywhere.
+Background (baked in): a cozy SNOWY night street — gently falling SNOW, a glowing CHRISTMAS TREE and warm lit shop windows (soft bokeh),
+  STRING LIGHTS overhead; detailed along the TOP and SIDES, a softer bokeh haze in the CENTER, calm snow-covered ground at the bottom.
+Composition: the FULL cat (whole body, NOT cropped) sits in the lower-center IN FRONT of the scenery, reading clearly against the blurrier center; even margins.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading; bokeh & lights as clusters of flat stepped pixels.
+FULLY OPAQUE — solid fill everywhere, NO transparency (the pine-green tree is opaque art, NOT a chroma key).
+Color mood: cozy Christmas night — warm red & green costume, brown antlers over white fur, deep night blue, snow white, warm window amber, pine green, holly red.
 ```
 
-### 네거티브 (시온이 체키 의상 — 공통)
+### 네거티브 (시온이 체키 사진 — 공통)
 
 ```
 no human, no person, no second character, no text, no watermark, no logo, no QR code,
-no photo frame, no card border (the frame is a separate layer), no scenery in the background,
+no photo frame, no card border, no polaroid edge (the frame is a separate overlay layer composited later),
 no exact Sanrio Kuromi copy, no trademarked character (style/mood only),
-no chroma green on the cat or costume, no cat filling the whole canvas (keep the UPPER area empty),
-no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render.
+no readable signage, no real words, no cropped cat (the whole body must be inside the frame),
+no chroma green, no transparency, no empty/hollow area (this layer is FULLY OPAQUE),
+no busy/cluttered center blocking the cat, no flat repeating pattern wall (the background is a SCENE),
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render, no lens blur photo.
 ```
 
-> ⚠️ **검수 포인트**: ① 같은 흰 얼룩 고양이 정체성 유지 ② **세로 `128×288` 캔버스에 고양이가 하단, 위는 크로마 그린으로 비었는지**(카드에서 발치 정렬) ③ 누끼 깨끗 ④ 마스터 팔레트 인덱싱. 저장: `assets/sprites/sion_jirai.png` · `assets/sprites/sion_xmas.png`.
+> ⚠️ **검수 포인트**: ① 같은 흰 얼룩 고양이 정체성 유지 ② **`120×180`(2:3) 완전 불투명**인지(투명·크로마 그린 한 픽셀도 없어야) ③ 고양이 **전신이 안 잘리고** 중앙에 읽히는지(발치 비움), 배경은 **평면 패턴이 아닌 풍경**인지 ④ 간판이 **읽히는 실제 글자가 아닌** 추상 글로우인지 ⑤ 마스터 팔레트(~32색) 인덱싱. 저장: `assets/sprites/photo_sion_jirai.png` · `assets/sprites/photo_sion_xmas.png`.
 
 ---
 
@@ -768,11 +1038,44 @@ tools/.venv/bin/python tools/dotify.py sioni_play_raw.png \
 tools/.venv/bin/python tools/dotify.py sioni_pet_raw.png \
   --preset sioni --chroma 00ff00 --out assets/sprites/sioni_pet.png
 
-# 시온이 체키 의상 (128×288, preset okja — 카드 렌더러 호환, 고양이는 하단 중앙·위 비움)
-tools/.venv/bin/python tools/dotify.py sion_jirai_raw.png \
-  --preset okja --chroma 00ff00 --out assets/sprites/sion_jirai.png
-tools/.venv/bin/python tools/dotify.py sion_xmas_raw.png \
-  --preset okja --chroma 00ff00 --out assets/sprites/sion_xmas.png
+# 시온이 체키 사진 (배경 포함 베이크 — 120×180 불투명, 누끼 X·크로마 X, 전신+풍경 2:3 한 장)
+tools/.venv/bin/python tools/dotify.py photo_sion_jirai_raw.png \
+  --size 120x180 --out assets/sprites/photo_sion_jirai.png
+tools/.venv/bin/python tools/dotify.py photo_sion_xmas_raw.png \
+  --size 120x180 --out assets/sprites/photo_sion_xmas.png
+
+# ── A4·A5 의상·프레임·배경 확장 (유치원·힙합·집사·크리스마스) ──
+# 옥자 의상 3종 (128×288, preset okja — 체키 카드용 정적 아트)
+tools/.venv/bin/python tools/dotify.py okja_kinder_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/okja_kinder.png
+tools/.venv/bin/python tools/dotify.py okja_hiphop_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/okja_hiphop.png
+tools/.venv/bin/python tools/dotify.py okja_butler_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/okja_butler.png
+# 옥자 크리스마스 의상 (⚠️ 산타 드레스에 초록 홀리 → 크로마는 마젠타 ff00ff)
+tools/.venv/bin/python tools/dotify.py okja_xmas_raw.png \
+  --preset okja --chroma ff00ff --out assets/sprites/okja_xmas.png
+
+# 테마 사진 프레임 4종 (preset cheki — 표준 골격 + 테두리 데코만 교체, 사진 창은 크로마로 투명화)
+tools/.venv/bin/python tools/dotify.py frame_kinder_raw.png \
+  --preset cheki --chroma 00ff00 --out assets/sprites/frame_kinder.png
+tools/.venv/bin/python tools/dotify.py frame_hiphop_raw.png \
+  --preset cheki --chroma 00ff00 --out assets/sprites/frame_hiphop.png
+tools/.venv/bin/python tools/dotify.py frame_butler_raw.png \
+  --preset cheki --chroma 00ff00 --out assets/sprites/frame_butler.png
+# 크리스마스 프레임 (⚠️ 초록 홀리 데코 → 크로마/사진창 모두 마젠타 ff00ff)
+tools/.venv/bin/python tools/dotify.py frame_xmas_raw.png \
+  --preset cheki --chroma ff00ff --out assets/sprites/frame_xmas.png
+
+# 체키 사진 배경 4종 (120×180 불투명, 누끼 X — 의상 누끼를 받치는 풍경 레이어)
+tools/.venv/bin/python tools/dotify.py bg_cheki_kinder_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_kinder.png
+tools/.venv/bin/python tools/dotify.py bg_cheki_hiphop_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_hiphop.png
+tools/.venv/bin/python tools/dotify.py bg_cheki_butler_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_butler.png
+tools/.venv/bin/python tools/dotify.py bg_cheki_xmas_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_xmas.png
 
 # 나라카 지옥 배경 (333×480, 크로마키 없음 — 화면 전체를 채우는 불투명 배경)
 tools/.venv/bin/python tools/dotify.py naraka_bg_raw.png \
