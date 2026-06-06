@@ -21,6 +21,7 @@ func _ready() -> void:
   _test_meters_milestone()
   _test_attendance_status()
   _test_book_smoke()
+  _test_t21_expansion()
   _test_hud_attendance()
   print("── 결과: %d 통과 / %d 실패 ──" % [_pass, _fail])
   SaveManager.wipe()  # 테스트가 user:// 세이브를 오염시키지 않게 정리(실제 플레이 보호)
@@ -267,6 +268,43 @@ func _test_book_smoke() -> void:
       owned_after = true
   _check(owned_after, "책 열린 채 지급 → refresh() 로 '%s' 칸 반영" % ev)
   b2.free()
+
+
+# ── 잠긴 멤버 + 한정 슬롯 + 확장 슬라이드 (T21) ────────────
+## 잠긴 탭 활성화 → 확장 슬라이드 발화, 옥자 그리드 끝 "한정" 슬롯 존재·탭 비모달.
+
+func _test_t21_expansion() -> void:
+  _wipe()
+  var book := CollectionBook.new()
+  add_child(book)  # _ready 동기 빌드(okja 그리드 = 이벤트 + 한정 슬롯)
+
+  # 옥자 그리드 끝에 한정 슬롯이 1칸 들어갔는지(이벤트 수 + 1).
+  var limited_count := 0
+  for s in book._slots:
+    if s.is_limited():
+      limited_count += 1
+  _check(limited_count == 1, "옥자 그리드에 한정 슬롯 1칸 (got %d)" % limited_count)
+  var expected := Events.events_for(Events.OKJA).size() + 1
+  _check(book._slots.size() == expected,
+    "옥자 슬롯 = 이벤트 %d + 한정 1 = %d (got %d)" % [expected - 1, expected, book._slots.size()])
+
+  # 잠긴 탭(바나=index 2) 활성화 → 확장 슬라이드 발화.
+  _check(book._slide == null, "초기엔 슬라이드 없음")
+  book._on_tab(2)
+  _check(book._slide != null, "잠긴 탭 활성화 → 확장 슬라이드 발화")
+  _check(book._slide is ExpansionSlide, "슬라이드 타입 = ExpansionSlide")
+  # 슬라이드 떠 있으면 셸 입력이 슬라이드로 위임됨(CANCEL 닫기 경로) — 크래시 없이 호출되는지.
+  book.handle_shell_action(&"cancel")
+  _check(true, "슬라이드 열린 채 CANCEL 위임 크래시 0")
+  book.free()
+
+  # 한정 슬롯 단독 빌드 — STATE_LIMITED 렌더 + 비보유.
+  var slot := ChekiSlot.new()
+  slot.setup_limited()
+  add_child(slot)
+  _check(slot.is_limited() and not slot.is_owned(), "한정 슬롯: is_limited & 비보유")
+  _check(slot.state == ChekiSlot.STATE_LIMITED, "한정 슬롯 상태 = limited")
+  slot.free()
 
 
 ## HUD 출석 라인이 빌드되고 streak 별로 올바른 문구를 만드는지(빌드 크래시 0 + 텍스트 분기).

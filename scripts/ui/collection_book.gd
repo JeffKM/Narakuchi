@@ -7,8 +7,10 @@ extends Control
 ## 레이어(뒤→앞):
 ##   딤 백드롭 · 가죽 프레임(베젤) · 크림 속지(+N 워터마크·코너 오너먼트) ·
 ##   헤더(타이틀 + 진행도 카운터 + ✕) · 캐릭터 색인 탭 · 2열 그리드(ChekiSlot) · 힌트 · 장식 나비.
-##   - 칸: ChekiSlot 가 owned/empty/locked 3-상태 렌더(미보유=표지 디밍+참). owned 탭 → CardDetail 모달.
-##   - 탭: CharacterTab(초상 색인) — 옥자·시온이 + 잠긴 미래멤버 봉랍 1(풀 구현 T21).
+##   - 칸: ChekiSlot 가 owned/empty/locked/limited 렌더(미보유=표지 디밍+참). owned 탭 → CardDetail 모달.
+##         옥자 그리드 끝 "한정" 슬롯 1칸 = 현장 한정 예고(컨셉/예정, 데모 해금 불가 — T21).
+##   - 탭: CharacterTab(초상 색인) — 옥자·시온이 + 잠긴 네임드 멤버 바나·멜·미호(실루엣+봉랍).
+##         잠긴 탭 OK/터치 → ExpansionSlide 예고(실루엣·이름·다음 업데이트·펫 확장 한 줄). (T21)
 ##   - 카운터: 활성 캐릭터 ◆◆◇◇◇ n/m (미래 포함 전체, 잠긴 핍 회색 — 콘텐츠 예고 후크).
 ## 입력(평면 링): SELECT=포커스 순환(탭+칸) · OK=활성(탭전환/모달열기) · CANCEL=책 닫기.
 ##   터치가 주 입력(탭/칸 직접 터치), 3버튼은 보조. _detail 떠 있으면 그쪽으로 위임.
@@ -50,11 +52,14 @@ const V_SEP := 16
 const PIP := Vector2(7, 10)
 const PIP_GAP := 9.0
 
-# 캐릭터 탭: id + 표시명. locked=미래 멤버 placeholder(OK 무반응 + 힌트, 봉랍 표식).
+# 캐릭터 탭: id + 표시명 + locked + accent(잠긴 멤버 실루엣 구분색).
+# 잠긴 멤버(바나·멜·미호)는 코드 실루엣+봉랍으로 노출, OK/탭 → 확장 슬라이드 예고. (→ T21)
 const TABS := [
-  {"id": "okja", "name": "옥자", "locked": false},
-  {"id": "sion", "name": "시온이", "locked": false},
-  {"id": "?", "name": "", "locked": true},
+  {"id": "okja", "name": "옥자", "locked": false, "accent": Palette.BURGUNDY},
+  {"id": "sion", "name": "시온이", "locked": false, "accent": Palette.GREY_300},
+  {"id": "bana", "name": "바나", "locked": true, "accent": Palette.VIOLET},
+  {"id": "mel",  "name": "멜",   "locked": true, "accent": Palette.TEAL},
+  {"id": "miho", "name": "미호", "locked": true, "accent": Palette.ACCENT_PINK},
 ]
 
 var _active_char: String = "okja"
@@ -69,6 +74,7 @@ var _hint: Label
 var _counter: Control            # 진행도 핍+숫자 홀더(재구성)
 var _char_label: Label           # 헤더 "· 옥자" — 활성 캐릭터명(탭 초상-only 대체 방향감)
 var _detail: CardDetail
+var _slide: ExpansionSlide       # 잠긴 멤버 확장 슬라이드(열려 있으면 셸 입력을 여기로)
 
 
 func _ready() -> void:
@@ -101,6 +107,9 @@ func _ready() -> void:
 # ── 입력 (cafe → 여기 → _detail) ──────────────────────────
 
 func handle_shell_action(action: StringName) -> void:
+  if _slide != null:
+    _slide.handle_shell_action(action)
+    return
   if _detail != null:
     _detail.handle_shell_action(action)
     return
@@ -225,7 +234,8 @@ func _build_tabs() -> void:
   for i in TABS.size():
     var t: Dictionary = TABS[i]
     var tab := CharacterTab.new()
-    tab.setup(String(t["id"]), String(t["name"]), bool(t["locked"]))
+    tab.setup(String(t["id"]), String(t["name"]), bool(t["locked"]),
+      Color(t.get("accent", Palette.GREY_500)))
     tab.position = Vector2(x, 38)
     var idx := i
     tab.pressed.connect(func() -> void: _on_tab(idx))
@@ -433,6 +443,15 @@ func _populate(character: String) -> void:
     _grid.add_child(slot)
     slot.pressed.connect(_on_slot_pressed.bind(slot))
     _slots.append(slot)
+
+  # 옥자 그리드 끝 "한정" 슬롯 1칸 — 현장 한정 예고(컨셉/예정, 데모 해금 불가). (→ T21)
+  if character == Events.OKJA:
+    var limited := ChekiSlot.new()
+    limited.setup_limited()
+    _grid.add_child(limited)
+    limited.pressed.connect(_on_slot_pressed.bind(limited))
+    _slots.append(limited)
+
   _refresh_tab_marks()
   _update_title()
 
@@ -454,7 +473,7 @@ func _update_title() -> void:
 func _on_tab(tab_index: int) -> void:
   var t: Dictionary = TABS[tab_index]
   if bool(t["locked"]):
-    _flash_hint("아직 준비중인 멤버예요")
+    _open_slide(t)               # 잠긴 멤버 → 확장 슬라이드 예고
     _focus_to_tab(tab_index)
     return
   if String(t["id"]) == _active_char:
@@ -486,8 +505,11 @@ func _on_slot_pressed(slot: ChekiSlot) -> void:
   _open_slot(slot)
 
 
-## 칸 열기 — owned 면 모달, 아니면 힌트.
+## 칸 열기 — owned 면 모달, 한정 슬롯이면 예고 힌트, 그 외 미보유면 안내.
 func _open_slot(slot: ChekiSlot) -> void:
+  if slot.is_limited():
+    _flash_hint("현장 한정 체키 — 곧 만나요")  # 컨셉/예정 톤다운(데모 해금 불가)
+    return
   if not slot.is_owned():
     _flash_hint("아직 못 모은 체키예요")
     return
@@ -514,6 +536,21 @@ func _open_detail(slot: ChekiSlot) -> void:
 
 func _on_detail_closed() -> void:
   _detail = null
+
+
+## 잠긴 멤버 확장 슬라이드 열기 — 실루엣·이름·예고 문구(파치먼트 톤). CANCEL/바깥 탭 닫기.
+func _open_slide(member: Dictionary) -> void:
+  if _slide != null:
+    return
+  Sfx.play(&"tap")
+  _slide = ExpansionSlide.new()
+  _slide.setup(String(member["name"]), Color(member.get("accent", Palette.GREY_500)))
+  _slide.closed.connect(_on_slide_closed)
+  add_child(_slide)  # 맨 위
+
+
+func _on_slide_closed() -> void:
+  _slide = null
 
 
 # ── 평면 링 포커스 ────────────────────────────────────────

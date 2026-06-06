@@ -17,6 +17,7 @@ extends Control
 const STATE_OWNED := "owned"
 const STATE_EMPTY := "empty"
 const STATE_LOCKED := "locked"
+const STATE_LIMITED := "limited"  # 옥자 그리드 끝 "한정" 슬롯 — 현장 한정 예고(데모 해금 불가)
 
 # 미보유 표지 디밍 강도(재활용 표지를 얼마나 어둡게) — empty 는 읽히게, locked 는 봉인되게.
 const DIM_EMPTY := Color(0.66, 0.62, 0.68)
@@ -29,6 +30,7 @@ signal pressed
 var character: String
 var event: String
 var state: String = STATE_LOCKED
+var _limited := false   # setup_limited() 로 켜진 "한정" 슬롯
 
 var _content: Control      # 모든 시각 요소(hop 단위)
 var _glow: Panel           # 포커스 골드 글로우(평소 투명)
@@ -41,6 +43,12 @@ var _glow_tw: Tween
 func setup(character_id: String, event_id: String) -> void:
   character = character_id
   event = event_id
+
+
+## "한정" 슬롯으로 셋업(이벤트 없음) — 옥자 그리드 끝 1칸. 표지 디밍 + 봉랍 + 한정 톤다운 문구.
+## 데모에선 실제 해금 불가(컨셉/예정). (→ T21)
+func setup_limited() -> void:
+  _limited = true
 
 
 func _ready() -> void:
@@ -58,6 +66,7 @@ func _ready() -> void:
     STATE_OWNED: _build_owned()
     STATE_EMPTY: _build_unowned(false)
     STATE_LOCKED: _build_unowned(true)
+    STATE_LIMITED: _build_limited()
 
   _build_brackets()  # 콘텐츠 맨 위(hop 같이)
   _build_touch()
@@ -66,6 +75,11 @@ func _ready() -> void:
 ## 보유 가능 여부(owned 만 모달을 연다). CollectionBook 의 prev/next 스코프 필터.
 func is_owned() -> bool:
   return state == STATE_OWNED
+
+
+## "한정" 슬롯 여부 — CollectionBook 이 탭 시 전용 힌트(컨셉/예정)를 띄우게.
+func is_limited() -> bool:
+  return state == STATE_LIMITED
 
 
 ## 평면 링 포커스 표시 — 코너 브래킷 + hop + 글로우.
@@ -79,6 +93,8 @@ func set_focused(focused: bool) -> void:
 # ── 상태 판정 ─────────────────────────────────────────────
 
 func _resolve_state() -> String:
+  if _limited:
+    return STATE_LIMITED
   if Cheki.owned(character, event):
     return STATE_OWNED
   if Events.cheki_art_ready(event):
@@ -157,6 +173,45 @@ func _build_unowned(locked: bool) -> void:
 
   var note := _make_label(Fonts.SIZE_SMALL, Palette.GREY_400, HORIZONTAL_ALIGNMENT_CENTER)
   note.text = "준비중" if locked else "모으는 중"
+  note.position = Vector2(2, ChekiCard.CARD.y - 20)
+  note.size = Vector2(ChekiCard.CARD.x - 4, 14)
+  _content.add_child(note)
+
+
+## "한정" 슬롯 — locked 와 같은 봉인 표지(디밍+스크림+봉랍)에 문구만 한정/예정으로 톤다운.
+## 데모에선 실제 해금 불가(컨셉). 골드 "한정" 코너 태그로 미래 특별 칸임을 살짝 알린다.
+func _build_limited() -> void:
+  var dim := DIM_LOCKED
+
+  var cover := TextureRect.new()
+  cover.texture = _tex(ChekiCard.COVER_BG)
+  cover.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+  cover.size = ChekiCard.CARD
+  cover.modulate = dim
+  cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  _content.add_child(cover)
+
+  var scrim := ColorRect.new()
+  scrim.color = Color(Palette.INK.r, Palette.INK.g, Palette.INK.b, 0.35)
+  scrim.size = ChekiCard.CARD
+  scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  _content.add_child(scrim)
+
+  # 왁스 봉랍 — locked 와 동일 표식.
+  var charm := CardCharm.new()
+  charm.setup(CardCharm.KIND_SEAL)
+  charm.position = (ChekiCard.CARD - CardCharm.SIZE) / 2.0 + Vector2(0, -4)
+  _content.add_child(charm)
+
+  # 라벨: "한정 체키" + 톤다운 안내(현장/예정).
+  var name_lb := _make_label(Fonts.SIZE_SMALL, Palette.GOLD, HORIZONTAL_ALIGNMENT_CENTER)
+  name_lb.text = "한정 체키"
+  name_lb.position = Vector2(2, ChekiCard.CARD.y - 36)
+  name_lb.size = Vector2(ChekiCard.CARD.x - 4, 14)
+  _content.add_child(name_lb)
+
+  var note := _make_label(Fonts.SIZE_SMALL, Palette.GREY_400, HORIZONTAL_ALIGNMENT_CENTER)
+  note.text = "현장에서 · 예정"
   note.position = Vector2(2, ChekiCard.CARD.y - 20)
   note.size = Vector2(ChekiCard.CARD.x - 4, 14)
   _content.add_child(note)
