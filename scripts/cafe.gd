@@ -516,13 +516,17 @@ func _on_book_closed() -> void:
   _book = null
 
 
-## 디버그 — 게이지를 즉시 채워 "오늘의 체키" 획득 리빌을 띄운다(DebugTools 키 4 / 컬렉션북 전 확인용).
-func debug_grant_cheki() -> void:
+## 디버그 — 게이지를 즉시 채워 "오늘의 체키" 획득 리빌을 띄운다(컬렉션북 전 확인용).
+## character: 옥자(DebugTools 키 4) / 시온이(키 6). 시온이 미보유 일반 → 중복 시 나비 승급 확인.
+func debug_grant_cheki(character := Events.OKJA) -> void:
   if _reveal != null:
     return
-  SaveManager.set_value("okja.gauge", Balance.GAUGE_OKJA)  # 게이지 풀(연출·HUD 일관성)
+  if character == Events.SION:
+    SaveManager.set_value("sion.gauge", Balance.GAUGE_SION)  # 게이지 풀(연출·HUD 일관성)
+  else:
+    SaveManager.set_value("okja.gauge", Balance.GAUGE_OKJA)
   _hud.refresh()
-  _on_gauge_full(Events.OKJA)  # 정규 획득 경로 그대로 — 그랜트 + 소진 + 리빌
+  _on_gauge_full(character)  # 정규 획득 경로 그대로 — 그랜트 + 소진 + 리빌
 
 
 ## 디버그 — 연속출석 마일스톤(3일) 나비 조각 보상 리빌을 강제로 띄운다(T14 확인용, DebugTools 키 5).
