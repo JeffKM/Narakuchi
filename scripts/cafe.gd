@@ -544,6 +544,9 @@ func _on_gauge_full(character: String) -> void:
 func _on_reveal_closed() -> void:
   _reveal = null
   _hud.refresh()
+  # 책이 열린 채 체키가 지급된 경우(디버그 키 4 등 — 리빌이 책 위에 뜸) 닫힌 뒤 책을 최신으로.
+  if _book != null and is_instance_valid(_book):
+    _book.refresh()
   _to_idle()
   _sion_to_idle()
   _maybe_cutin()  # 리빌과 단계 상승이 겹쳤으면 닫힌 뒤 컷인

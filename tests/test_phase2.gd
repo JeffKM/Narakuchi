@@ -225,6 +225,20 @@ func _test_book_smoke() -> void:
     _check(built, "컬렉션북 빌드 OK (streak=%d)" % streak)
     book.free()
 
+  # 책이 열린 채 체키가 지급되면(디버그 키 4 — 리빌이 책 위에 뜸) refresh() 로 즉시 반영돼야 함.
+  _wipe()
+  var ev := Cheki.pick_today(Events.OKJA)
+  var b2 := CollectionBook.new()
+  add_child(b2)                # 미보유 상태로 슬롯 빌드
+  Cheki.grant(Events.OKJA, ev) # 책 열린 채 지급(stale 발생 지점)
+  b2.refresh()                 # cafe._on_reveal_closed 가 호출하는 경로
+  var owned_after := false
+  for s in b2._slots:
+    if s.character == Events.OKJA and s.event == ev and s.is_owned():
+      owned_after = true
+  _check(owned_after, "책 열린 채 지급 → refresh() 로 '%s' 칸 반영" % ev)
+  b2.free()
+
 
 ## HUD 출석 라인이 빌드되고 streak 별로 올바른 문구를 만드는지(빌드 크래시 0 + 텍스트 분기).
 func _test_hud_attendance() -> void:

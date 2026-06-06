@@ -110,6 +110,16 @@ func handle_shell_action(action: StringName) -> void:
     &"cancel": _close()
 
 
+## 외부 새로고침 — 책이 열린 채 컬렉션 데이터가 바뀐 경우(예: 디버그로 체키 지급) 현재 보기를 다시 그린다.
+## 탭 전환 없이 활성 캐릭터 그리드·카운터만 최신 상태로 재빌드한다(_on_tab 과 동일 골격, 캐릭터 유지).
+func refresh() -> void:
+  _populate(_active_char)
+  _rebuild_focus()
+  _focus_index = clampi(_focus_index, 0, maxi(0, _focus.size() - 1))
+  _apply_focus()
+  _update_counter()
+
+
 # ── 화면 구성 ─────────────────────────────────────────────
 
 ## 가죽 바인더 베젤 — book_frame_leather.png 를 각 변 FRAME_BLEED 만큼 오버스캔해서
