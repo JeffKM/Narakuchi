@@ -52,6 +52,22 @@ static func make_theme() -> Theme:
   return t
 
 
+## 갈무리를 엔진 전역 기본 폰트로 설치 (부트 시 1회). 폰트 없으면 무시(엔진 기본 폰트).
+##
+## Window 테마는 뷰포트 경계를 못 넘어, 셸 LCD(SubViewport, shell.gd) 안의 Control 은
+## 테마 소유주가 없어 ThemeDB 기본 테마의 default_font(=Open Sans, 한글 글리프 없음)로
+## 폴백한다 → 웹에서 한글이 .notdef 박스로 깨진다(데스크톱은 OS 한글 시스템폴백이 가려
+## 증상이 안 보였을 뿐). 기본 테마의 default_font 자체를 갈무리로 교체해 소유주 유무·
+## 뷰포트 경계와 무관하게 모든 Control 이 한글을 그리게 한다. (단일 출처: 부트에서만 호출)
+static func install_global() -> void:
+  var f := galmuri()
+  if f == null:
+    return
+  var dt := ThemeDB.get_default_theme()
+  dt.default_font = f
+  dt.default_font_size = SIZE_BODY
+
+
 ## 갈무리 사용 가능 여부 (한글 표기 분기용)
 static func has_galmuri() -> bool:
   return ResourceLoader.exists(GALMURI11)

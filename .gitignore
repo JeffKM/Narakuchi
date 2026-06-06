@@ -19,3 +19,4 @@
 /mcp-shrimp-task-manager/
 tools/.venv/
 tools/__pycache__/
+.vercel

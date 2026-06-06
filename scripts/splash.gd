@@ -137,15 +137,19 @@ func _make_card() -> Control:
     lb.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     panel.add_child(lb)
   else:
-    # 인사 + 부제 — 두 줄을 박스 중앙쯤에 묶어 배치(부제는 작게 위계)
-    lb.position = Vector2(8, 16)
-    lb.size = Vector2(cw - 16, 0)
-    panel.add_child(lb)
+    # 인사 + 부제 — VBox 로 세로 중앙 스택. 인사가 길어 두 줄로 줄바꿈돼도 부제가
+    # 밀려나 겹치지 않는다(고정 좌표는 인사 1줄을 가정해 두 줄일 때 부제와 겹쳤음).
+    var box := VBoxContainer.new()
+    box.position = Vector2(8, 0)
+    box.size = Vector2(cw - 16, ch)
+    box.alignment = BoxContainer.ALIGNMENT_CENTER  # 스택 블록을 박스 세로 중앙에
+    box.add_theme_constant_override("separation", 4)
+    box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    box.add_child(lb)  # autowrap=on → VBox 폭(cw-16)에서 줄바꿈, 높이 자동
     var lb2 := _label(sub, Palette.CANDLE)
     lb2.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
-    lb2.position = Vector2(8, 44)
-    lb2.size = Vector2(cw - 16, 0)
-    panel.add_child(lb2)
+    box.add_child(lb2)
+    panel.add_child(box)
   return panel
 
 

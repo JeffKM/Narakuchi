@@ -22,6 +22,7 @@ const BTN_W := 160
 
 var _step := 0  # 0=닉네임 입력, 1=맞이/증정
 var _submitting := false  # 제출 await 중 중복 진입 방지(엔터+버튼 동시)
+var _prompting := false  # 웹 prompt 재진입 가드 — 닫힐 때 큐에 남은 탭 이벤트의 재발화 차단
 var _title: Label
 var _body: Label
 var _nick_edit: LineEdit
@@ -86,7 +87,36 @@ func _ready() -> void:
   _confirm.pressed.connect(_advance)
   add_child(_confirm)
 
-  _nick_edit.grab_focus()
+  # 웹: Godot 가상키보드는 텍스트(특히 한글 IME) 동기화가 깨져 입력이 칸에 안 들어온다.
+  # 입력칸을 탭(=포커스)하면 브라우저 네이티브 prompt(OS 입력기 → 한글 완벽)로 받아 채운다.
+  # 그 외(데스크톱 네이티브)는 물리 키보드로 바로 입력 → 직접 포커스.
+  if OS.has_feature("web"):
+    _nick_edit.focus_entered.connect(_web_prompt_nickname)
+  else:
+    _nick_edit.grab_focus()
+
+
+## 웹 닉네임 입력 — 브라우저 네이티브 prompt 로 받아 입력칸에 채운다(Godot 웹 가상키보드
+## 입력 동기화 깨짐 우회). OS 입력기를 그대로 쓰므로 한글 IME 가 안전하다.
+##
+## prompt 가 닫힐 때 큐에 남은 탭/포인터 이벤트가 입력칸을 다시 포커스시켜 focus_entered 가
+## 재발화 → 무한 루프가 된다. 재진입 가드(_prompting)로 닫힌 직후 한 박자 동안 무시하고,
+## 가드 해제 직전 포커스를 해제해 그 사이 들어온 재포커스를 털어낸다(이후 새 탭은 정상 동작).
+func _web_prompt_nickname() -> void:
+  if _prompting:
+    return
+  _prompting = true
+  var cur := _nick_edit.text.replace("\\", "").replace("'", "")
+  var r: Variant = JavaScriptBridge.eval(
+    "window.prompt('닉네임을 입력하세요 (최대 %d자)', '%s')" % [NICK_MAX, cur], true)
+  if typeof(r) == TYPE_STRING:
+    var s := (r as String).strip_edges()
+    if s.length() > NICK_MAX:
+      s = s.substr(0, NICK_MAX)
+    _nick_edit.text = s
+  await get_tree().create_timer(0.5).timeout
+  _nick_edit.release_focus()
+  _prompting = false
 
 
 ## 셸 OK → 진행 (SELECT/CANCEL 은 온보딩에선 무시).
@@ -99,6 +129,10 @@ func handle_shell_action(action: StringName) -> void:
 
 func _advance() -> void:
   if _step == 0:
+    # 웹에서 아직 빈 입력이면 제출(=손님 기본값) 대신 prompt 를 먼저 띄워 입력 유도.
+    if OS.has_feature("web") and _nick_edit.visible and _nick_edit.text.strip_edges().is_empty():
+      _web_prompt_nickname()
+      return
     _submit_nickname()
   else:
     finished.emit()
