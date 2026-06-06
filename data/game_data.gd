@@ -13,11 +13,13 @@ const TICKER_PATH := "res://data/ticker.json"
 const TALK_PATH := "res://data/talk.json"
 const GIFTS_PATH := "res://data/gifts.json"
 const BUTTONS_PATH := "res://data/buttons.json"
+const BALANCE_PATH := "res://data/balance.json"
 
 static var _ticker: Dictionary
 static var _talk: Dictionary
 static var _gifts: Dictionary
 static var _buttons: Dictionary
+static var _balance: Dictionary
 
 
 ## 티커 풀 { okja:{상황:{guest,regular}}, sion:{버튼키:[...]} }.
@@ -48,12 +50,20 @@ static func buttons() -> Dictionary:
   return _buttons
 
 
+## 호감도 밸런스 { affinity:{talk,gift,...} }. (Balance 가 게이트웨이로 읽음)
+static func balance() -> Dictionary:
+  if _balance.is_empty():
+    _balance = _load_dict(BALANCE_PATH)
+  return _balance
+
+
 ## 캐시 비우기(디버그 — 다음 접근에 다시 읽음).
 static func reload() -> void:
   _ticker = {}
   _talk = {}
   _gifts = {}
   _buttons = {}
+  _balance = {}
 
 
 ## JSON 파일 한 장을 Dictionary 로 읽는다. 실패 시 빈 사전 + 에러 로그(게임은 멈추지 않음).

@@ -31,6 +31,23 @@ func _check(cond: bool, label: String) -> void:
 
 
 func _run() -> void:
+  # 0) 단골 등극 컷인: announced=guest 에서 단골(regular,200) 도달 → 다음 입장에 단골 컷인 발화
+  SaveManager.reset(true)
+  SaveManager.set_value("flags.announced_stage", "guest")
+  SaveManager.set_value("okja.affinity_total", Balance.REL_REGULAR)
+  SaveManager.save_game()
+  _check(Balance.relationship_stage(Balance.REL_REGULAR) == "regular", "시드: 200=단골(regular) 도달")
+  var cafe0: Node = CafeScript.new()
+  add_child(cafe0)
+  cafe0.start()
+  await get_tree().process_frame
+  _check(cafe0._cutin != null, "단골 도달: 단골 등극 컷인 발화")
+  _check(cafe0._cutin != null and cafe0._cutin._stage == "regular", "단골 컷인 stage=regular")
+  _check(String(SaveManager.get_value("flags.announced_stage", "?")) == "regular",
+    "단골 컷인 후: announced_stage=regular 커밋")
+  cafe0.queue_free()
+  await get_tree().process_frame
+
   # 1) 데모 시드: 단골(595) + announced_stage=regular
   SaveManager.reset(true)
   _check(String(SaveManager.get_value("flags.announced_stage", "?")) == "regular",

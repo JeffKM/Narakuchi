@@ -10,7 +10,7 @@ extends Node2D
 ## 핵심 연출:
 ##   - 게이지 풀 → 오늘의 체키 자동 획득(T13): 그랜트 + 리빌 오버레이(ChekiReveal) + 게이지 소진. ✅
 ##   - 대화 2지선다 분기 · 선물 선호표(T11): `대화`/`선물` → ChoicePopup(선택 시점에 소모/적용). ✅
-##   - 반말 전환 컷인(T11): 관계 단계 guest→regular 시 StageCutin(오버레이 닫힌 뒤 예약 발화). ✅
+##   - 단계 상승 컷인(T11): 단골(regular,200)·반말 전환(comfy,600) 도달 시 StageCutin(오버레이 닫힌 뒤 예약 발화). ✅
 
 const LCD_W := 333
 const LCD_H := 480
@@ -55,8 +55,8 @@ var _revert_sion: Tween  # 시온이 반응 자동 복귀 트윈
 var _reveal: ChekiReveal  # 체키 획득 리빌 오버레이 (열려 있으면 셸 입력을 여기로)
 var _book: CollectionBook  # 컬렉션북 오버레이 (T16, 열려 있으면 셸 입력을 여기로)
 var _popup: ChoicePopup   # 대화/선물 2지선다 팝업 (T11, 열려 있으면 셸 입력을 여기로)
-var _cutin: StageCutin    # 반말 전환 컷인 (T11, 열려 있으면 셸 입력을 여기로)
-var _pending_cutin := false  # guest→regular 도달 — 떠 있는 오버레이가 다 닫히면 컷인 발화
+var _cutin: StageCutin    # 단계 상승 컷인 (T11, 열려 있으면 셸 입력을 여기로)
+var _pending_cutin_stage := ""  # 도달 단계("regular"|"comfy") — 떠 있는 오버레이가 다 닫히면 컷인 발화(""=없음)
 
 
 func _ready() -> void:
@@ -66,8 +66,9 @@ func _ready() -> void:
 
 ## Main 이 온보딩 후(또는 바로) 호출 — 세션 시작 + 맞이 보이스.
 ## 단계 상승 연출은 '넘긴 그 자리'가 아니라 이 입장에서 1회 발화한다(다음에 들를 때 인사가 바뀌어 있는 결).
+##   - regular(200) 도달: 단골 등극 컷인이 입장 인사를 대신함
 ##   - comfy(600) 도달: 반말 전환 컷인이 입장 인사를 대신함
-##   - regular(200)/close(2000) 도달: stage_up 티커 한 줄로 입장 인사 대체
+##   - close(2000) 도달: 전용 연출 없음 — 평소 입장 인사(후속에 컷인 추가 가능)
 func start() -> void:
   meters.begin_session()
   _hud.refresh()
@@ -76,20 +77,19 @@ func start() -> void:
 
   # 지난 세션에 넘긴 단계가 아직 안 알려졌으면, 이 입장에서 그 연출을 한다.
   var announce := _pending_stage_announcement()
-  if announce == "comfy":
-    _pending_cutin = true  # 반말 전환 컷인 예약 — 아래 _maybe_cutin (마일스톤 리빌보다 뒤)
-  elif announce != "":
-    _ticker.show_line(Dialogue.okja_line("stage_up", announce, _nick()))  # 단골/마음연: 입장 티커
+  if announce == "regular" or announce == "comfy":
+    _pending_cutin_stage = announce  # 단계 상승 컷인 예약 — 아래 _maybe_cutin (마일스톤 리빌보다 뒤)
   else:
+    # close(2000) 도달 포함 — 평소 입장 인사로 둔다(close 전용 연출은 후속). guest 는 시작 단계라 announce 안 됨.
     var sit := "neglect" if meters.was_neglected else "enter"
     _ticker.show_line(Dialogue.okja_line(sit, meters.stage(), _nick()))
   if announce != "":
-    _mark_stage_announced()  # 이번 입장에 알렸으니 커밋(재발화 방지)
+    _mark_stage_announced()  # 컷인이든 평소 인사든 이번 입장에 알렸으니 커밋(재발화 방지)
 
   # 연속출석 마일스톤(3일/7일) 보상 — 있으면 나비 조각 리빌(T14). 셸 입력은 리빌로 위임.
   if not meters.pending_milestone.is_empty():
     _show_milestone_reward(meters.pending_milestone)
-  _maybe_cutin()  # comfy 예약 컷인: 마일스톤 리빌 없으면 바로, 있으면 리빌 닫힌 뒤(_on_reveal_closed)
+  _maybe_cutin()  # 예약 컷인(단골/반말): 마일스톤 리빌 없으면 바로, 있으면 리빌 닫힌 뒤(_on_reveal_closed)
 
 
 ## 출석 마일스톤 나비 조각 보상 리빌 (T14) — 보상 카드(승급이면 나비)를 상단 배너와 함께 보여준다.
@@ -290,10 +290,10 @@ func _on_action(id: String) -> void:
   meters.spend_stamina()  # 주문음은 ActionBar._choose 가 id 기준으로 발화 (T18)
   match id:
     "cheki":
-      meters.add_affinity_okja(Balance.AFF_CHEKI)
+      meters.add_affinity_okja(Balance.aff("cheki"))
       _react(_okja_emotion("cheki", &"talk"))  # 버튼→감정 (buttons.json)
     "drink":
-      meters.add_affinity_okja(Balance.AFF_DRINK)  # 선호 음료 보너스는 후속
+      meters.add_affinity_okja(Balance.aff("drink"))  # 선호 음료 보너스는 후속
       _brew(_okja_emotion("drink", &"brew"))
   _ticker.show_line(Dialogue.okja_line(id, meters.stage(), _nick()))
 
@@ -305,9 +305,9 @@ func _on_action(id: String) -> void:
 func _on_sion_action(id: String, can: bool) -> void:
   var def := _sion_action_def(id)
   if can:
-    # affinity: "cheki" → AFF_CHEKI, 그 외("sion") → AFF_SION (호감도 종류는 데이터에서)
-    var aff := Balance.AFF_CHEKI if String(def.get("affinity", "sion")) == "cheki" else Balance.AFF_SION
-    meters.add_affinity_sion(aff)
+    # affinity: "cheki" → aff("cheki"), 그 외("sion") → aff("sion") (호감도 종류는 데이터에서)
+    var gain := Balance.aff("cheki") if String(def.get("affinity", "sion")) == "cheki" else Balance.aff("sion")
+    meters.add_affinity_sion(gain)
   # 버튼별 감정 반응(항상) + 버튼별 티커 풀
   _react_sion(StringName(def.get("emotion", "play")))
   _ticker.show_line(Dialogue.sion_line(String(def.get("ticker", id))))
@@ -370,7 +370,7 @@ func _open_gift() -> void:
 ## 대화 선택 확정 — 스태미나 1회 소모 + tier 별 호감도 + 옥자 표정 반응.
 func _on_talk_chosen(choice: Dictionary) -> void:
   meters.spend_stamina()
-  meters.add_affinity_okja(_talk_affinity(String(choice.get("tier", "plain"))))
+  meters.add_affinity_okja(Balance.aff_talk(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"talk"))
   _ticker.show_line(String(choice.get("reply", "")))  # 옥자 대답은 하단 티커(보이스 단일 채널)
 
@@ -378,7 +378,7 @@ func _on_talk_chosen(choice: Dictionary) -> void:
 ## 선물 선택 확정 — 스태미나 1회 소모 + 선호도(tier) 별 호감도 + 옥자 표정 반응.
 func _on_gift_chosen(choice: Dictionary) -> void:
   meters.spend_stamina()
-  meters.add_affinity_okja(_gift_affinity(String(choice.get("tier", "plain"))))
+  meters.add_affinity_okja(Balance.aff_gift(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"shy"))
   _ticker.show_line(String(choice.get("reply", "")))  # 옥자 대답은 하단 티커(보이스 단일 채널)
 
@@ -386,33 +386,22 @@ func _on_gift_chosen(choice: Dictionary) -> void:
 func _on_popup_closed() -> void:
   _popup = null
   # 단계 상승 컷인은 이 자리서 안 띄운다 — 다음 입장(start)으로 미뤄짐(announced_stage).
+  # tier→호감도 매핑은 Balance.aff_talk()/aff_gift() (수치 단일 출처 — data/balance.json).
 
 
-## 대화 tier → 호감도 (수치는 Balance 단일 출처).
-func _talk_affinity(tier: String) -> int:
-  return Balance.AFF_TALK_GOOD if tier == "good" else Balance.AFF_TALK_PLAIN
-
-
-## 선물 tier → 호감도. sion(시온이 간식) > match(좋아함) > plain(보통).
-func _gift_affinity(tier: String) -> int:
-  match tier:
-    "sion": return Balance.AFF_GIFT_SION_TO_OKJA
-    "match": return Balance.AFF_GIFT_MATCH
-    _: return Balance.AFF_GIFT_PLAIN
-
-
-# ── 반말 전환 컷인 (T11) ───────────────────────────────────
+# ── 단계 상승 컷인 (T11) ───────────────────────────────────
 
 ## 예약된 컷인을 띄운다 — 단, 떠 있는 오버레이가 하나도 없을 때만(순차 보장).
 ## 리빌/팝업/책이 닫힐 때마다 호출돼, 모두 정리된 순간 한 번 발화한다.
 func _maybe_cutin() -> void:
-  if not _pending_cutin:
+  if _pending_cutin_stage == "":
     return
   if _reveal != null or _popup != null or _book != null or _cutin != null:
     return
-  _pending_cutin = false
+  var stage := _pending_cutin_stage
+  _pending_cutin_stage = ""
   _cutin = StageCutin.new()
-  _cutin.setup(_nick())
+  _cutin.setup(_nick(), stage)
   _cutin.closed.connect(_on_cutin_closed)
   add_child(_cutin)  # 맨 위(HUD·액션바 덮음)
 
@@ -603,9 +592,9 @@ func debug_milestone() -> void:
 
 ## 관계 단계 상승 (T11). 연출은 '넘긴 그 자리'에서 하지 않는다 — 교감 흐름을 끊지 않게,
 ## 그리고 "다음에 들르니 옥자가 달라져 있더라"의 결을 살려 다음 입장(start)에서 1회 발화한다.
-##   - 단골(regular, 200): 다음 입장 stage_up 티커 "자주 오시네요"
+##   - 단골(regular, 200): 다음 입장 단골 등극 컷인(존댓말 유지)
 ##   - 편해진 사이(comfy, 600): 다음 입장 반말 전환 컷인(존댓말 해제)
-##   - 마음 연 사이(close, 2000): 다음 입장 stage_up 티커
+##   - 마음 연 사이(close, 2000): 전용 연출 없음 — 평소 입장 인사(후속)
 ## 여기선 아무것도 띄우지 않는다(누적 호감도는 이미 저장됨 → start 가 announced_stage 와 비교해 처리).
 func _on_stage_changed(_stage: String) -> void:
   pass

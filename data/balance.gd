@@ -11,18 +11,15 @@ const STAMINA_MAX := 30          # 최대치 (매일 접속 시 풀 충전)
 const STAMINA_PER_ACTION := 5    # 액션당 소모 → 하루 6액션 (옥자/시온이 공유, 터치 무료)
 
 # ── 호감도 획득 (액션별) ───────────────────────
-const AFF_DRINK := 12            # 🍷 음료 주문
-const AFF_DRINK_FAVORITE := 18   # 🍷 선호 음료 보너스
-const AFF_CHEKI := 10            # 🃏 체키 주문 (획득 아님, 호감도만)
-const AFF_TALK_GOOD := 15        # 💬 대화 — 좋은 선택
-const AFF_TALK_PLAIN := 8        # 💬 대화 — 평범한 선택
-const AFF_GIFT_MATCH := 20       # 🎁 선물 — 맞음
-const AFF_GIFT_PLAIN := 10       # 🎁 선물 — 보통
-const AFF_GIFT_SION_TO_OKJA := 25 # 🎁 시온이 간식 → 옥자 호감도
-const AFF_TOUCH := 2             # 👆 터치 (무료)
-const AFF_TOUCH_SESSION_CAP := 10 # 👆 터치 세션당 호감도 상한
-const AFF_SION := 10             # 🐱 시온이 간식/놀기/쓰담 각
-const AFF_SION_FAVORITE := 15    # 🐱 선호 간식 보너스
+# ⚠️ 수치는 data/balance.json 의 "affinity" 에서 온다(content_studio '밸런스' 탭 편집). Balance 는 단일 게이트웨이.
+#    talk/gift 는 tier→수치 매핑(aff_talk/aff_gift), 나머지는 액션별 고정 수치(aff). 폴백 기본값은 PRD §4.5 v1.
+const _AFF_DEFAULT := {
+  "drink": 12, "drink_favorite": 18, "cheki": 10,
+  "touch": 2, "touch_session_cap": 10,
+  "sion": 10, "sion_favorite": 15,
+}
+const _AFF_TALK_DEFAULT := {"good": 15, "plain": 8}
+const _AFF_GIFT_DEFAULT := {"match": 20, "sion": 25, "plain": 10}
 
 # ── 게이지 → 체키 ─────────────────────────────
 const GAUGE_OKJA := 300          # 옥자 호감도 게이지 풀 = 체키 1장
@@ -66,3 +63,26 @@ static func relationship_stage(affinity_total: int) -> String:
 ## 대화/티커 풀의 존댓말("guest")·반말("regular") 분기 단일 출처. (반말 전환 컷인도 comfy 도달 시)
 static func is_casual(stage: String) -> bool:
   return stage == "comfy" or stage == "close"
+
+
+# ── 호감도 수치 게이트웨이 (data/balance.json "affinity") ──
+## balance.json 의 affinity 사전. 데이터가 없거나 키가 빠지면 _AFF_DEFAULT 폴백.
+static func _aff_table() -> Dictionary:
+  return GameData.balance().get("affinity", {})
+
+
+## 대화 tier("good"|"plain") → 호감도. 선택지는 tier 만 들고 수치는 여기서. (수치 단일 출처)
+static func aff_talk(tier: String) -> int:
+  var t: Dictionary = _aff_table().get("talk", {})
+  return int(t.get(tier, _AFF_TALK_DEFAULT.get(tier, _AFF_TALK_DEFAULT["plain"])))
+
+
+## 선물 tier("match"|"sion"|"plain") → 호감도. sion(시온이 간식) > match > plain.
+static func aff_gift(tier: String) -> int:
+  var t: Dictionary = _aff_table().get("gift", {})
+  return int(t.get(tier, _AFF_GIFT_DEFAULT.get(tier, _AFF_GIFT_DEFAULT["plain"])))
+
+
+## 액션별 고정 호감도(drink/drink_favorite/cheki/touch/touch_session_cap/sion/sion_favorite).
+static func aff(key: String) -> int:
+  return int(_aff_table().get(key, _AFF_DEFAULT.get(key, 0)))

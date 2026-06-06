@@ -1,9 +1,12 @@
 class_name StageCutin
 extends Control
-## 관계 단계 전환 컷인 (T11) — 존댓말(손님·단골) → 반말(편해진 사이) "존댓말 해제" 연출. (→ docs/script-okja.md)
+## 관계 단계 상승 컷인 (T11) — 단골 등극(regular, 200) / 반말 해금(comfy, 600) 보상 연출. (→ docs/script-okja.md)
 ##
-## 관계 단계가 처음 'comfy'(편해진 사이, 600) 로 올라설 때 한 번 터지는 보상 연출. 말투 전환이 핵심 보상이라
-##   티커 한 줄로 흘리지 않고, 옥자를 가운데 세워 3줄 대사 시퀀스 + "반말 해금" 배지로 못박는다.
+## 관계 단계가 처음 올라설 때 다음 입장에서 한 번 터지는 보상 연출. 티커 한 줄로 흘리지 않고,
+##   옥자를 가운데 세워 대사 시퀀스 + 골드 배지로 못박는다.
+##   - regular(단골 등극): 존댓말 유지, "단골 등극" 배지
+##   - comfy(반말 해금)  : 존댓말→반말 전환, "반말 해금" 배지(핵심 보상)
+## 대사/해금 줄/배지는 data/ticker.json 의 okja_cutin[stage] (콘텐츠 스튜디오 편집). Dialogue.okja_cutin 으로 로드.
 ## 셸 3버튼/탭으로 한 줄씩 진행, 마지막에 해금 배지 → 한 번 더로 닫힘. 닫히면 closed 신호.
 ## LCD(333×480) 전체를 덮는 오버레이(뒤 카페 입력 차단).
 
@@ -13,16 +16,13 @@ const LCD := Vector2(333, 480)
 const OKJA_FEET := Vector2(LCD.x / 2.0, 392)
 const OkjaScript := preload("res://scripts/okja.gd")
 
-# 3줄 대사 시퀀스 — {nick} 치환. expr = 그 줄에서의 옥자 표정.
-const LINES := [
-  {"text": "{nick}님. ……아니.",                       "expr": &"talk"},
-  {"text": "이제 그냥 {nick}이라고 부를게.\n매일 오는데 님은 무슨.", "expr": &"shy"},
-  {"text": "……착각 마. 부르기 편해서야.",               "expr": &"shy"},
-]
-
 var _nick := "손님"
+var _stage := "comfy"     # 도달 단계("regular"|"comfy") — 컷인 데이터 키
+var _lines: Array = []    # [{text:String, expr:StringName}] — okja_cutin[stage].lines
+var _reveal := ""         # 마지막 줄 후 해금 줄
+var _badge_text := ""     # 골드 배지 문구
 var _idx := 0
-var _unlocked := false  # 마지막 줄 후 '반말 해금' 배지를 띄웠나
+var _unlocked := false  # 마지막 줄 후 해금 배지를 띄웠나
 var _okja: Okja
 var _panel: Panel
 var _line: Label
@@ -30,13 +30,25 @@ var _hint: Label
 var _badge: Control
 
 
-func setup(nick: String) -> void:
+## nick + 도달 단계("regular"|"comfy")로 컷인 데이터를 로드한다. 데이터 없으면 빈 시퀀스(즉시 닫힘).
+func setup(nick: String, stage: String = "comfy") -> void:
   _nick = nick
+  _stage = stage
+  var data := Dialogue.okja_cutin(stage, nick)
+  _lines = data.get("lines", [])
+  _reveal = data.get("reveal", "")
+  _badge_text = data.get("badge", "")
 
 
 func _ready() -> void:
   size = LCD
   mouse_filter = Control.MOUSE_FILTER_STOP
+
+  # 데이터가 비었으면(누락/오타) 연출 없이 즉시 닫는다 — 입장 흐름을 막지 않게.
+  if _lines.is_empty():
+    push_warning("StageCutin: okja_cutin['%s'] 비어 있음 — 컷인 생략" % _stage)
+    call_deferred("_close")
+    return
 
   # 1) 묵직한 딤(컷인 — 집중)
   var dim := ColorRect.new()
@@ -52,7 +64,7 @@ func _ready() -> void:
   _okja.position = OKJA_FEET
   _okja.modulate.a = 0.0
   add_child(_okja)
-  _okja.set_expression(LINES[0]["expr"])
+  _okja.set_expression(_lines[0]["expr"])
   create_tween().tween_property(_okja, "modulate:a", 1.0, 0.3)
 
   # 3) 하단 대사 패널
@@ -100,9 +112,9 @@ func _on_dim_input(event: InputEvent) -> void:
 
 ## 한 줄 진행 → 마지막 줄 후 해금 배지 → 한 번 더로 닫힘.
 func _advance() -> void:
-  if _idx < LINES.size() - 1:
+  if _idx < _lines.size() - 1:
     _idx += 1
-    _okja.set_expression(LINES[_idx]["expr"])
+    _okja.set_expression(_lines[_idx]["expr"])
     _show_line()
   elif not _unlocked:
     _reveal_unlock()
@@ -111,17 +123,18 @@ func _advance() -> void:
 
 
 func _show_line() -> void:
-  _line.text = String(LINES[_idx]["text"]).replace("{nick}", _nick)
+  # text 는 setup 에서 {nick} 치환 완료된 사본 — 그대로 표시.
+  _line.text = String(_lines[_idx]["text"])
 
 
-## 마지막 줄 후 — "반말 해금" 골드 배지 + 옥자 폴짝(부끄럽게). 한 번 더로 닫힘.
+## 마지막 줄 후 — 해금 줄 + 골드 배지 + 옥자 폴짝(리워드 순간). 한 번 더로 닫힘.
 func _reveal_unlock() -> void:
   _unlocked = true
   _okja.hop()  # smile 재사용 폴짝(리워드 순간)
-  _line.text = "이제부터 반말이에요, %s." % _nick
+  _line.text = _reveal
   _hint.text = "OK ▶ 닫기"
 
-  _badge = _make_badge("✦ 반말 해금 ✦")
+  _badge = _make_badge(_badge_text)
   add_child(_badge)
 
 

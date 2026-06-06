@@ -1,0 +1,15 @@
+{
+  "_doc": "호감도 획득 밸런스 수치 — content_studio '밸런스' 탭에서 편집. balance.gd 가 GameData 통해 읽는다(수치 단일 출처는 여전히 Balance, 값만 데이터). 게임/툴 단일 출처.",
+  "_affinity_doc": "talk/gift 는 tier→수치 매핑(선택지는 tier 만 들고, 실제 수치는 여기서). 나머지는 액션별 고정 수치. drink_favorite/sion_favorite 는 선호 보너스(후속 연동). 단위는 누적 호감도 포인트.",
+  "affinity": {
+    "talk": { "good": 15, "plain": 8 },
+    "gift": { "match": 20, "sion": 25, "plain": 10 },
+    "drink": 12,
+    "drink_favorite": 18,
+    "cheki": 10,
+    "touch": 2,
+    "touch_session_cap": 10,
+    "sion": 10,
+    "sion_favorite": 15
+  }
+}

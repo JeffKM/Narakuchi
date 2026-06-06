@@ -34,6 +34,7 @@ FILES = {
     "talk": "talk.json",
     "gifts": "gifts.json",
     "buttons": "buttons.json",
+    "balance": "balance.json",
 }
 
 # 게임 코드와 일치해야 하는 허용값(검증용 단일 출처 — okja.gd / sioni.gd EXPRESSIONS 와 동기).
@@ -75,6 +76,24 @@ def validate(db):
                 continue
             if not is_str_list(lines):
                 errs.append(f"옥자 티커 '{sit}.{stage}' 는 문자열 배열이어야 함")
+
+    # ticker.okja_cutin — 단계 상승 컷인(lines[{text,expr}] + reveal + badge)
+    cutin = db.get("ticker", {}).get("okja_cutin", {})
+    for stage, data in cutin.items():
+        if stage.startswith("_"):
+            continue
+        if not isinstance(data, dict):
+            errs.append(f"컷인 '{stage}' 형식 오류")
+            continue
+        lines = data.get("lines", [])
+        if not isinstance(lines, list) or len(lines) == 0:
+            errs.append(f"컷인 '{stage}' 대사는 최소 1줄이어야 함")
+        else:
+            for li, ln in enumerate(lines):
+                if not isinstance(ln, dict) or not isinstance(ln.get("text"), str):
+                    errs.append(f"컷인 {stage}#{li+1} 대사 형식 오류(text 필요)")
+                elif ln.get("expr") not in OKJA_EXPR:
+                    errs.append(f"컷인 {stage}#{li+1} 감정 값 오류({ln.get('expr')})")
 
     # ticker.sion
     sion = db.get("ticker", {}).get("sion", {})
@@ -125,6 +144,21 @@ def validate(db):
             errs.append(f"시온이 버튼 '{a.get('id')}' 감정 값 오류({a.get('emotion')})")
         if a.get("ticker") not in sion_keys:
             errs.append(f"시온이 버튼 '{a.get('id')}' 티커풀 '{a.get('ticker')}' 가 시온이 티커에 없음")
+
+    # balance.affinity — tier별(대화/선물) + 액션별 고정 수치 (모두 정수)
+    def is_int(v):
+        return isinstance(v, int) and not isinstance(v, bool)
+
+    aff = db.get("balance", {}).get("affinity", {})
+    for k in ("good", "plain"):
+        if not is_int(aff.get("talk", {}).get(k)):
+            errs.append(f"밸런스 대화 tier '{k}' 는 정수여야 함")
+    for k in ("match", "sion", "plain"):
+        if not is_int(aff.get("gift", {}).get(k)):
+            errs.append(f"밸런스 선물 tier '{k}' 는 정수여야 함")
+    for k in ("drink", "drink_favorite", "cheki", "touch", "touch_session_cap", "sion", "sion_favorite"):
+        if not is_int(aff.get(k)):
+            errs.append(f"밸런스 '{k}' 는 정수여야 함")
 
     return errs
 
@@ -303,13 +337,17 @@ const TABS = [
   ["talk", "대화"],
   ["gifts", "선물"],
   ["buttons", "버튼·감정"],
+  ["balance", "밸런스"],
 ];
 const SITU_LABEL = {
   enter:"입장/첫 방문", neglect:"방치 후 복귀", cheki:"체키 주문", drink:"음료 주문",
   talk:"대화 진입", gift:"선물 진입", touch:"옥자 터치", touch_cap:"터치 상한",
-  no_stamina:"기력 소진", cheki_get:"체키 획득", stage_up:"단계 상승", idle:"평소/심심",
+  no_stamina:"기력 소진", cheki_get:"체키 획득", idle:"평소/심심",
 };
-const STAGE_LABEL = { guest:"존댓말 (손님)", regular:"반말 (단골)" };
+// 티커 풀 키 = 말투 분기(단계명 아님). guest=존댓말 풀(손님·단골), regular=반말 풀(편해진 사이~).
+const STAGE_LABEL = { guest:"존댓말 (손님·단골)", regular:"반말 (편해진 사이~)" };
+// 단계 상승 컷인 키 = 도달 단계 직접 매핑(말투 분기 아님).
+const CUTIN_LABEL = { regular:"단골 등극 컷인 (존댓말 유지·200)", comfy:"반말 해금 컷인 (존댓말→반말·600)" };
 
 // ── DOM 헬퍼 ──
 function el(tag, attrs={}, kids=[]) {
@@ -424,6 +462,68 @@ function renderOkja() {
     main.append(el("div", {class:"card"}, [
       el("h3", {}, [SITU_LABEL[sit]||sit, el("span", {class:"lock"}, "상황: "+sit+" (잠금)")]),
       cols,
+    ]));
+  }
+  renderCutin();  // 같은 탭 아래에 단계 상승 컷인(오버레이) 편집
+}
+
+// 컷인 대사 한 줄(text + 옥자 표정 + {nick} 미리보기 + 삭제). lines 는 [{text,expr}] 객체 배열.
+function cutinLineRow(lines, idx, rerender) {
+  const ln = lines[idx];
+  const input = el("input", {type:"text", value:ln.text||""});
+  const prev = el("div", {class:"preview"});
+  function updatePrev() {
+    if ((ln.text||"").includes("{nick}")) { prev.style.display=""; prev.innerHTML = "▸ <b>"+esc(sub(ln.text))+"</b>"; }
+    else prev.style.display = "none";
+  }
+  input.addEventListener("input", () => { ln.text = input.value; markDirty(); updatePrev(); });
+  updatePrev();
+  return el("div", {}, [
+    el("div", {class:"row"}, [
+      input,
+      el("button", {class:"x", onclick:() => { lines.splice(idx,1); markDirty(); rerender(); }}, "✕"),
+    ]),
+    emotionPicker("okja", ln.expr, (e) => { ln.expr = e; markDirty(); }),
+    prev,
+  ]);
+}
+
+// 단계 상승 컷인 카드(단골 등극 / 반말 해금). 단계 키는 코드 연동 — 추가/삭제 금지(내용만).
+function renderCutin() {
+  const main = document.getElementById("main");
+  const cut = DB.ticker.okja_cutin;
+  if (!cut) return;
+  for (const stage of ["regular","comfy"]) {
+    if (!(stage in cut)) continue;
+    const data = cut[stage];
+    if (!Array.isArray(data.lines)) data.lines = [];
+    const linesBox = el("div");
+    function renderLines() {
+      linesBox.innerHTML = "";
+      data.lines.forEach((_, i) => linesBox.append(cutinLineRow(data.lines, i, renderLines)));
+      linesBox.append(el("button", {class:"add", onclick:() => {
+        data.lines.push({text:"", expr:"talk"}); markDirty(); renderLines();
+      }}, "+ 대사 추가"));
+    }
+    renderLines();
+    const revInput = el("input", {type:"text", value:data.reveal||""});
+    const revPrev = el("div", {class:"preview"});
+    function updateRevPrev() {
+      if ((data.reveal||"").includes("{nick}")) { revPrev.style.display=""; revPrev.innerHTML = "▸ <b>"+esc(sub(data.reveal))+"</b>"; }
+      else revPrev.style.display = "none";
+    }
+    revInput.addEventListener("input", () => { data.reveal = revInput.value; markDirty(); updateRevPrev(); });
+    updateRevPrev();
+    const badgeInput = el("input", {type:"text", value:data.badge||""});
+    badgeInput.addEventListener("input", () => { data.badge = badgeInput.value; markDirty(); });
+    main.append(el("div", {class:"card"}, [
+      el("h3", {}, [CUTIN_LABEL[stage]||stage, el("span", {class:"lock"}, "단계: "+stage+" (잠금)")]),
+      el("div", {class:"stage-label"}, "대사 시퀀스 (한 줄씩 진행)"),
+      linesBox,
+      el("div", {class:"stage-label", style:"margin-top:12px"}, "해금 줄 (마지막 + 배지)"),
+      revInput, revPrev,
+      el("div", {class:"stage-label", style:"margin-top:12px"}, "골드 배지"),
+      badgeInput,
     ]));
   }
 }
@@ -597,8 +697,61 @@ function renderButtons() {
   main.append(sionCard);
 }
 
+// ── 탭: 밸런스 (호감도 수치) ──
+// 숫자 한 줄(라벨 + 정수 입력). obj[key] 를 직접 갱신.
+function numRow(label, obj, key, hint) {
+  const input = el("input", {type:"number", value:(obj[key]??0), min:"0", style:"width:96px;flex:0 0 auto"});
+  input.addEventListener("input", () => {
+    const v = parseInt(input.value, 10);
+    obj[key] = Number.isFinite(v) ? v : 0;
+    markDirty();
+  });
+  return el("div", {class:"row", style:"align-items:center; gap:10px"}, [
+    el("div", {style:"flex:1"}, [
+      el("div", {style:"font-size:13px;color:var(--ink)"}, label),
+      hint ? el("div", {class:"hint", style:"margin-top:0"}, hint) : null,
+    ]),
+    input,
+  ]);
+}
+
+function renderBalance() {
+  const main = document.getElementById("main");
+  const bal = DB.balance || {};
+  const aff = bal.affinity;
+  if (!aff) { main.append(el("div", {class:"err-list"}, "balance.json 에 affinity 가 없습니다.")); return; }
+
+  main.append(el("div", {class:"card"}, [
+    el("h3", {}, ["💬 대화 — tier별 호감도", el("span", {class:"lock"}, "talk")]),
+    numRow("좋은 선택 (good ↑↑)", aff.talk, "good"),
+    numRow("평범한 선택 (plain ↑)", aff.talk, "plain"),
+  ]));
+
+  main.append(el("div", {class:"card"}, [
+    el("h3", {}, ["🎁 선물 — tier별 호감도", el("span", {class:"lock"}, "gift")]),
+    numRow("맞음 (match ↑↑)", aff.gift, "match"),
+    numRow("시온이 간식 (sion ↑↑↑)", aff.gift, "sion"),
+    numRow("보통 (plain ↑)", aff.gift, "plain"),
+  ]));
+
+  main.append(el("div", {class:"card"}, [
+    el("h3", {}, ["🍷🃏👆🐱 액션별 고정 호감도", el("span", {class:"lock"}, "action")]),
+    numRow("🍷 음료 주문 (drink)", aff, "drink"),
+    numRow("🍷 선호 음료 보너스 (drink_favorite)", aff, "drink_favorite", "※ 아직 게임 미연동(후속)"),
+    numRow("🃏 체키 주문 (cheki)", aff, "cheki", "호감도만 — 체키 획득 아님"),
+    numRow("👆 터치 1회 (touch)", aff, "touch"),
+    numRow("👆 터치 세션 상한 (touch_session_cap)", aff, "touch_session_cap", "세션당 터치로 얻을 수 있는 총량"),
+    numRow("🐱 시온이 교감 (sion)", aff, "sion", "간식/놀기/쓰담 각"),
+    numRow("🐱 시온이 선호 간식 (sion_favorite)", aff, "sion_favorite", "※ 아직 게임 미연동(후속)"),
+  ]));
+
+  main.append(el("div", {class:"hint"},
+    "단위는 누적 호감도 포인트. 관계 단계: 단골 200 · 편해진 사이(반말 전환) 600 · 마음 연 사이 2000 (코드 상수). " +
+    "대화·선물 선택지는 tier 만 고르고(대화/선물 탭), 실제 수치는 여기서 한 곳에 모은다."));
+}
+
 // ── 탭 전환/렌더 ──
-const RENDER = { okja:renderOkja, sion:renderSion, talk:renderTalk, gifts:renderGifts, buttons:renderButtons };
+const RENDER = { okja:renderOkja, sion:renderSion, talk:renderTalk, gifts:renderGifts, buttons:renderButtons, balance:renderBalance };
 function render() {
   document.getElementById("main").innerHTML = "";
   RENDER[activeTab]();

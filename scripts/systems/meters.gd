@@ -164,10 +164,10 @@ func consume_gauge_sion() -> void:
 ## 옥자 터치 호감도(무료, 세션 상한). 상한 도달 시 0 반환.
 func add_touch_affinity() -> int:
   var used := int(SaveManager.get_value("session.touch_affinity", 0))
-  var cap := Balance.AFF_TOUCH_SESSION_CAP
+  var cap := Balance.aff("touch_session_cap")
   if used >= cap:
     return 0
-  var amount := mini(Balance.AFF_TOUCH, cap - used)
+  var amount := mini(Balance.aff("touch"), cap - used)
   SaveManager.set_value("session.touch_affinity", used + amount)
 
   var before_stage := stage()

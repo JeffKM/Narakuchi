@@ -125,17 +125,17 @@ func _test_dialogue_gift() -> void:
   _check(pg != p_comfy, "선물 프롬프트 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
 
 
-# ── tier → 호감도 매핑 (cafe 로직 재현 검증) ─────────────────
-# cafe._talk_affinity/_gift_affinity 는 private 이므로 동일 규칙을 Balance 로 재현해 일관성만 본다.
+# ── tier → 호감도 매핑 (Balance 게이트웨이 검증) ─────────────
+# tier→수치는 Balance.aff_talk/aff_gift (data/balance.json 단일 출처) — 서열 일관성을 본다.
 
 func _test_tier_affinity() -> void:
-  _check(Balance.AFF_TALK_GOOD > Balance.AFF_TALK_PLAIN, "대화 good > plain 호감")
-  _check(Balance.AFF_GIFT_SION_TO_OKJA > Balance.AFF_GIFT_MATCH, "선물 sion > match 호감")
-  _check(Balance.AFF_GIFT_MATCH > Balance.AFF_GIFT_PLAIN, "선물 match > plain 호감")
+  _check(Balance.aff_talk("good") > Balance.aff_talk("plain"), "대화 good > plain 호감")
+  _check(Balance.aff_gift("sion") > Balance.aff_gift("match"), "선물 sion > match 호감")
+  _check(Balance.aff_gift("match") > Balance.aff_gift("plain"), "선물 match > plain 호감")
   # 데모 시드가 '반말 전환(편해진 사이, 600)' 직전인지 — 첫 교감 한 번으로 넘어가야 함
   var gap := Balance.REL_COMFY - Balance.DEMO_SEED_AFFINITY
-  _check(gap > 0 and gap <= Balance.AFF_TALK_PLAIN,
-    "데모 시드가 가장 작은 액션으로도 반말 전환(편해진 사이) 도달(gap=%d ≤ %d)" % [gap, Balance.AFF_TALK_PLAIN])
+  _check(gap > 0 and gap <= Balance.aff_talk("plain"),
+    "데모 시드가 가장 작은 액션으로도 반말 전환(편해진 사이) 도달(gap=%d ≤ %d)" % [gap, Balance.aff_talk("plain")])
   # 단골(200)은 시드(595)가 이미 넘긴 상태여야 함
   _check(Balance.DEMO_SEED_AFFINITY >= Balance.REL_REGULAR, "데모 시드는 단골(200) 이상에서 시작")
 

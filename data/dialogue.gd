@@ -13,7 +13,7 @@ extends RefCounted
 ##    data/ticker.json · talk.json · gifts.json 을 GameData 통해 읽는다(게임/툴 단일 출처).
 ##    정적 API(okja_line/sion_line/pick_talk/gift_prompt/gift_choices) 시그니처는 그대로다.
 ## 호감 수치는 여기서 안 박는다 — 선택지의 tier("good"/"match"/"sion"/"plain")만 들고,
-## 실제 호감도 매핑은 Cafe 가 Balance.AFF_* 로 한다(수치 단일 출처 사수).
+## 실제 tier→수치 매핑은 Balance.aff_talk()/aff_gift() (data/balance.json, content_studio '밸런스' 탭 편집).
 
 
 ## 상황+단계에 맞는 옥자 티커 한 줄을 랜덤으로 골라 {nick} 치환해 반환한다.
@@ -28,6 +28,27 @@ static func okja_line(situation: String, stage: String, nick: String) -> String:
     return ""
   var line: String = pool[randi() % pool.size()]
   return line.replace("{nick}", nick)
+
+
+## 관계 단계 상승 컷인 데이터(StageCutin 오버레이용). stage 는 도달 단계("regular"|"comfy").
+## 반환 { lines:[{text,expr}], reveal:String, badge:String } — {nick} 치환된 사본. 없으면 빈 사전.
+## okja_cutin 은 단계 키 직접 매핑(존댓말/반말 분기 아님) — regular=단골 등극, comfy=반말 해금.
+static func okja_cutin(stage: String, nick: String) -> Dictionary:
+  var pools: Dictionary = GameData.ticker().get("okja_cutin", {})
+  var data: Dictionary = pools.get(stage, {})
+  if data.is_empty():
+    return {}
+  var lines: Array = []
+  for ln in data.get("lines", []):
+    lines.append({
+      "text": String(ln.get("text", "")).replace("{nick}", nick),
+      "expr": StringName(ln.get("expr", "talk")),
+    })
+  return {
+    "lines": lines,
+    "reveal": String(data.get("reveal", "")).replace("{nick}", nick),
+    "badge": String(data.get("badge", "")),
+  }
 
 
 ## 시온이 티커 한 줄 랜덤 — 버튼 id 별 풀에서 고른다(없으면 idle 폴백). (버튼별 풀 분리)
