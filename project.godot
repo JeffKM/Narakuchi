@@ -20,6 +20,14 @@ run/main_scene="res://scenes/Main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[audio]
+
+; mix_rate=0 → AudioContext를 디바이스 기본 샘플레이트로 생성.
+; iOS Safari 하드웨어는 48kHz라 기본값 44100을 강제하면 무음이 되는 경우가 많다.
+; (iOS 웹 무음 양대 원인 ①: 샘플레이트 불일치. ②=AudioContext resume은 HTML unlock 스크립트로 처리, export_presets.cfg 참조.)
+driver/mix_rate=0
+driver/mix_rate.web=0
+
 [autoload]
 
 SaveManager="*res://scripts/systems/save_manager.gd"
