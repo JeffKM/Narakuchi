@@ -196,6 +196,7 @@ def process(params):
     im, tw, th, transparent or chroma is not None, lcd,
     alpha_thr=alpha_thr, chroma=chroma, chroma_tol=chroma_tol,
     apply_palette=apply_palette, palette=pal,
+    center=bool(params.get("center")),
   )
   ok, lines = dotify.audit(out, tw, th, pal if pal is not None else dotify.load_palette(), lcd)
   return {
@@ -454,6 +455,8 @@ PAGE = r"""<!DOCTYPE html>
         <input type="range" id="alpha_thr" min="0" max="255" value="128"></label>
       <label class="chk" style="margin-top:8px">
         <input type="checkbox" id="apply_palette" checked> 32색 팔레트 적용</label>
+      <label class="chk" style="margin-top:8px">
+        <input type="checkbox" id="center"> 중앙 정렬 (초상 — 콘텐츠 크롭 후 사방 균등 여백)</label>
       <label style="margin-top:10px">미리보기 배율 <span class="val" id="scalev">3×</span>
         <input type="range" id="scale" min="1" max="6" value="3"></label>
     </div>
@@ -541,6 +544,8 @@ function selectSlot(id) {
   const ch = it.chroma ? ('#' + String(it.chroma).replace(/^#/, '')) : null;
   $('chroma_on').checked = !!ch;
   if (ch) { $('chroma').value = ch; $('chroma_hex').value = ch; }
+  // 초상 슬롯(center:true)은 "중앙 정렬"을 자동 ON — 좌우 잘림(여백 0) 방지
+  $('center').checked = !!it.center;
   $('savePath').value = it.path;
   syncUI(); renderChecklist();
   render();
@@ -613,7 +618,7 @@ $('chroma').oninput = () => { $('chroma_hex').value = $('chroma').value; render(
 $('chroma_hex').oninput = () => { if (/^#?[0-9a-fA-F]{6}$/.test($('chroma_hex').value)) {
   $('chroma').value = $('chroma_hex').value.startsWith('#') ? $('chroma_hex').value : '#'+$('chroma_hex').value; render(); } };
 
-['preset','width','height','transparent','chroma_on','chroma_tol','alpha_thr','apply_palette','scale']
+['preset','width','height','transparent','chroma_on','chroma_tol','alpha_thr','apply_palette','center','scale']
   .forEach(id => $(id).addEventListener('input', () => { syncUI(); render(); }));
 
 function params() {
@@ -623,7 +628,7 @@ function params() {
     transparent: $('transparent').checked,
     chroma_on: $('chroma_on').checked, chroma: $('chroma_hex').value,
     chroma_tol: +$('chroma_tol').value, alpha_thr: +$('alpha_thr').value,
-    apply_palette: $('apply_palette').checked, palette: palette,
+    apply_palette: $('apply_palette').checked, center: $('center').checked, palette: palette,
   };
 }
 

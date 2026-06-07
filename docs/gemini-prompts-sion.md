@@ -56,6 +56,34 @@ no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render
 
 > 디오라마(Phase 3.5)에선 시온이가 발치가 아니라 **선반 어깨 높이**에 앉아 옥자와 한 쌍으로 읽힌다. **그림은 위 프롬프트 그대로**, 출력만 `48→60px`. 새로 그릴 필요 없이 **기존 raw(또는 확정 idle)를 `--size 60x60`으로 재출력**하고, `sioni.gd`의 `SPR_SIZE`를 `Vector2(60,60)`으로 올린다(앵커=바닥 중앙은 동일). 4종(idle/snack/play/pet) 모두 60px.
 
+### 시온이 탭 미니 초상 (`portrait_sion`)
+
+> 컬렉션북 탭·로스터 선택 화면의 시온이 식별 초상(24×24). **권장: 생성하지 말고 크롭** — 확정된 `sioni_idle.png`에서 **얼굴(검은 두건+흰 가르마+코)을 정사각으로, 좌·우·위 여백을 똑같이 두고** 크롭 → `dotify --size 24x24`.
+> ⚠️ **왼쪽 잘림 원인 = 얼굴이 정중앙이 아니라 왼쪽으로 치우친 채 크롭/생성됨.** 재작업 시 **정면·정중앙·사방 균등 여백**(얼굴이 어느 가장자리에도 닿지 않게)을 반드시 못 박는다. 크롭 소스가 마땅치 않을 때만 아래로 생성:
+
+```
+[Attach: 확정된 sioni_idle.png 또는 assets/sprites/_src/sion_ref.png]
+Pixel art / dot art tiny SQUARE PORTRAIT bust (cat FACE + a little shoulder), STRICT FRONT view,
+PERFECTLY CENTERED with EQUAL margins on the LEFT, RIGHT and TOP — the face must NOT touch or run off any edge,
+leave a small even gap on every side.
+Subject: "Sioni", Okja's VERY ROUND chubby cat — base coat MOSTLY WHITE, big round eyes, small PINK nose.
+Markings (keep EXACT): a BLACK cap over the top of the head and ears, SPLIT down the middle by a WHITE
+         center blaze (center hair-parting "gareuma"), roughly SYMMETRIC. ONE tiny BROWN mark on the pink nose ONLY.
+         Clearly a CAT (NOT a fox, NOT a human).
+Style: polished 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients.
+       Use 2-3 tones per color (highlight, midtone, shadow), NOT flat single-tone fills. Match the Okja/Miho portrait shading depth.
+Color mood: white fur with BLACK center-parted head markings, pink nose, tiny brown nose mark.
+Background: FLAT SOLID chroma green (#00ff00), nothing else.
+```
+
+```
+[네거티브] no off-center / left-shifted face, no face touching or cropped by ANY edge,
+no full body, no tiny face with huge empty margins, no text, no extra characters, no scenery,
+no fox ears (this is a CAT), no witch hat, no large brown face patch (brown is ONLY a tiny nose mark),
+no all-white head (keep the BLACK center-parted cap), no chroma green on the cat,
+no gradient, no soft anti-aliased edges, no 3D render.
+```
+
 ---
 
 ## 시온이 체키 의상 (쿠로미풍 · 루돌프) → 체키 카드용 정적 아트
@@ -149,9 +177,11 @@ tools/.venv/bin/python tools/dotify.py photo_sion_jirai_raw.png \
 tools/.venv/bin/python tools/dotify.py photo_sion_xmas_raw.png \
   --size 120x180 --out assets/sprites/photo_sion_xmas.png
 
-# 탭 미니 초상 (권장: sioni_idle 얼굴 크롭본을 입력으로 — 공통 파일 참조)
+# 탭 미니 초상 (→ 위 "시온이 탭 미니 초상" 섹션)
+# preset portrait = 24×24 + 콘텐츠 크롭 후 사방 균등 여백 '중앙 정렬'(좌우 잘림/여백0 방지).
+# 도트 스튜디오에선 초상 슬롯이 "중앙 정렬"을 자동 ON 한다(별도 플래그 불필요).
 tools/.venv/bin/python tools/dotify.py portrait_sion_raw.png \
-  --size 24x24 --chroma 00ff00 --out assets/sprites/portrait_sion.png
+  --preset portrait --chroma 00ff00 --out assets/sprites/portrait_sion.png
 ```
 
 > 검수·반복 루프는 [공통 파일](./gemini-prompts-common.md) 참조.

@@ -735,10 +735,11 @@ tools/.venv/bin/python tools/dotify.py book_frame_leather_raw.png \
 tools/.venv/bin/python tools/dotify.py book_page_parchment_raw.png \
   --size 301x372 --out assets/sprites/book_page_parchment.png
 # 탭 미니 초상 (권장: *_idle 얼굴 크롭본을 입력으로)
+# preset portrait = 24×24 + 콘텐츠 크롭 후 사방 균등 여백 '중앙 정렬'(좌우 잘림/여백0 방지).
 tools/.venv/bin/python tools/dotify.py portrait_okja_raw.png \
-  --size 24x24 --chroma 00ff00 --out assets/sprites/portrait_okja.png
+  --preset portrait --chroma 00ff00 --out assets/sprites/portrait_okja.png
 tools/.venv/bin/python tools/dotify.py portrait_sion_raw.png \
-  --size 24x24 --chroma 00ff00 --out assets/sprites/portrait_sion.png
+  --preset portrait --chroma 00ff00 --out assets/sprites/portrait_sion.png
 # 참 (P0 봉랍 / P1 반짝임) + 장식 (P1 코너·나비·워터마크)
 tools/.venv/bin/python tools/dotify.py seal_wax_raw.png \
   --size 24x24 --chroma 00ff00 --out assets/sprites/seal_wax.png

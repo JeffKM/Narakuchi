@@ -30,16 +30,23 @@ PALETTE_HEX = os.path.join(ROOT, "assets", "palettes", "narakuchi.hex")
 #  ⚠️ 게임기 셸(shell_frame.png)은 이 파이프라인이 아니라 tools/prep_shell.py로 생성한다.
 #     (흰 배경 누끼 + LCD 정밀 펀칭이 필요해 fit+팔레트 파이프라인으로는 못 만든다)
 PRESETS = {
-  "okja":  (128, 288, True,  None),
-  "sioni": (48,  48,  True,  None),
-  "bg":    (333, 480, False, None),  # 내부 교감화면 = 셸 LCD 구멍 333×480 (→ ADR 0001)
-  "cheki": (120, 180, True,  None),
+  "okja":     (128, 288, True,  None),
+  "sioni":    (48,  48,  True,  None),
+  "bg":       (333, 480, False, None),  # 내부 교감화면 = 셸 LCD 구멍 333×480 (→ ADR 0001)
+  "cheki":    (120, 180, True,  None),
+  "portrait": (24,  24,  True,  None),  # 탭/로스터 미니 초상 — 콘텐츠 크롭 후 사방 균등 여백 중앙 정렬
 }
 
 # 캐릭터 프리셋 = 자동 충전(콘텐츠 크롭→높이 충전·하단정렬) 기본 on.
 #  여백째 축소돼 작게 떠는 문제를 막아 모든 캐릭터·표정이 옥자와 같은 스케일로 정합된다.
 #  배경(bg/cheki)은 화면을 꽉 채우는 그림이라 충전 대상 아님.
 FILL_PRESETS = {"okja", "sioni"}
+
+# 중앙 정렬 프리셋 = 콘텐츠만 크롭한 뒤 사방 균등 여백으로 '양축 중앙' 배치(하단정렬 아님).
+#  얼굴 흉상 초상은 소스 프레이밍(가로로 넓게 잡힘)에 따라 좌우 여백이 0이 돼 "잘린 것처럼"
+#  보이던 문제를 없앤다 — 소스가 어떻게 잡혀도 항상 사방에 숨 쉴 여백이 생긴다.
+CENTER_PRESETS = {"portrait"}
+CENTER_MARGIN = 0.12  # 초상 사방 여백 비율 (24px 기준 ~3px)
 
 
 def load_palette(path=PALETTE_HEX):
@@ -95,6 +102,20 @@ def fill_canvas(im, target_w, target_h, head_margin=0.04):
   return canvas
 
 
+def center_fit_canvas(im, target_w, target_h, margin=CENTER_MARGIN):
+  """콘텐츠를 양축 '중앙'에 사방 균등 여백으로 안착(초상 흉상용).
+  fill_canvas(하단정렬)와 달리 위·아래·좌·우 여백을 똑같이 둬 작은 정사각 초상이
+  어느 가장자리에도 붙지 않게 한다 — 호출 전 crop_to_content 로 배경 여백을 떼고 쓴다."""
+  src_w, src_h = im.size
+  avail_w, avail_h = target_w * (1 - margin), target_h * (1 - margin)
+  scale = min(avail_w / src_w, avail_h / src_h)
+  new_w, new_h = max(1, round(src_w * scale)), max(1, round(src_h * scale))
+  resized = im.resize((new_w, new_h), Image.BOX)
+  canvas = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
+  canvas.paste(resized, ((target_w - new_w) // 2, (target_h - new_h) // 2))  # 양축 중앙
+  return canvas
+
+
 def index_to_palette(rgb, pal):
   """각 픽셀을 가장 가까운 팔레트색으로 매핑(RGB 유클리드 최근접)."""
   flat = rgb.reshape(-1, 3).astype(np.float32)
@@ -103,16 +124,21 @@ def index_to_palette(rgb, pal):
 
 
 def dotify_image(im, target_w, target_h, transparent, lcd, alpha_thr=128,
-                 chroma=None, chroma_tol=48, apply_palette=True, palette=None, fill=False):
-  """핵심 파이프라인(메모리 이미지): (충전) → 축소 → (크로마키 제거) → 알파 이진화 → 팔레트 인덱싱 → LCD 투명.
+                 chroma=None, chroma_tol=48, apply_palette=True, palette=None, fill=False,
+                 center=False):
+  """핵심 파이프라인(메모리 이미지): (충전/중앙정렬) → 축소 → (크로마키 제거) → 알파 이진화 → 팔레트 인덱싱 → LCD 투명.
 
   CLI(dotify)와 GUI(dot_studio)가 공유하는 단일 처리 함수. 규격 로직은 여기 한 곳에서만 산다.
   apply_palette=False는 팔레트 인덱싱 전 원본 색을 유지(미리보기 비교용).
   palette=(N,3) 배열을 주면 파일 대신 그 팔레트로 인덱싱(스튜디오 라이브 편집용).
   fill=True면 캐릭터를 캔버스에 꽉 충전(콘텐츠 크롭→높이 충전·하단정렬). 배경(bg/cheki)은 False.
+  center=True면 콘텐츠 크롭→사방 균등 여백 양축 중앙(초상 흉상용 — 좌우 잘림 방지). fill 보다 우선.
   """
   im = im.convert("RGBA")
-  if fill:
+  if center:
+    im = crop_to_content(im, chroma=chroma, chroma_tol=chroma_tol, alpha_thr=alpha_thr)
+    im = center_fit_canvas(im, target_w, target_h)
+  elif fill:
     im = crop_to_content(im, chroma=chroma, chroma_tol=chroma_tol, alpha_thr=alpha_thr)
     im = fill_canvas(im, target_w, target_h)
   else:
@@ -144,10 +170,11 @@ def dotify_image(im, target_w, target_h, transparent, lcd, alpha_thr=128,
 
 
 def dotify(src_path, target_w, target_h, transparent, lcd, alpha_thr=128,
-           chroma=None, chroma_tol=48, fill=False):
+           chroma=None, chroma_tol=48, fill=False, center=False):
   """파일 경로 → 규격 도트 이미지(CLI용 얇은 래퍼)."""
   return dotify_image(Image.open(src_path), target_w, target_h, transparent, lcd,
-                      alpha_thr=alpha_thr, chroma=chroma, chroma_tol=chroma_tol, fill=fill)
+                      alpha_thr=alpha_thr, chroma=chroma, chroma_tol=chroma_tol,
+                      fill=fill, center=center)
 
 
 def audit(img, target_w, target_h, pal, lcd, check_fill=False):
@@ -204,6 +231,9 @@ def main():
                   help="캐릭터를 캔버스에 꽉 충전(크롭→높이 충전·하단정렬). 캐릭터 프리셋은 기본 on")
   ap.add_argument("--no-fill", dest="fill", action="store_false",
                   help="자동 충전 끄기(여백 유지 중앙 배치)")
+  ap.add_argument("--center", dest="center", action="store_true", default=None,
+                  help="콘텐츠 크롭 후 사방 균등 여백 중앙 정렬(초상 흉상 — 좌우 잘림 방지). portrait 프리셋은 기본 on")
+  ap.add_argument("--no-center", dest="center", action="store_false", help="중앙 정렬 끄기")
   args = ap.parse_args()
 
   chroma = None
@@ -214,16 +244,19 @@ def main():
   if args.preset:
     tw, th, transparent, lcd = PRESETS[args.preset]
     fill_default = args.preset in FILL_PRESETS
+    center_default = args.preset in CENTER_PRESETS
   elif args.size:
     tw, th = (int(v) for v in args.size.lower().split("x"))
     transparent, lcd = args.transparent, None
     fill_default = False
+    center_default = False
   else:
     ap.error("--preset 또는 --size 중 하나는 필수")
 
-  fill = fill_default if args.fill is None else args.fill  # --fill/--no-fill로 명시 시 우선
+  fill = fill_default if args.fill is None else args.fill        # --fill/--no-fill로 명시 시 우선
+  center = center_default if args.center is None else args.center  # --center/--no-center로 명시 시 우선
   img = dotify(args.src, tw, th, transparent or chroma is not None, lcd, chroma=chroma,
-               chroma_tol=args.chroma_tol, fill=fill)
+               chroma_tol=args.chroma_tol, fill=fill, center=center)
   img.save(args.out)
 
   if args.preview > 0:
@@ -232,7 +265,8 @@ def main():
 
   ok, lines = audit(img, tw, th, load_palette(), lcd, check_fill=fill)
   print(f"\n=== 도트화: {os.path.basename(args.src)} → {args.out} ===")
-  print(f"프리셋: {args.preset or args.size}{'  (자동 충전 on)' if fill else ''}")
+  mode_note = "  (자동 충전 on)" if fill else ("  (중앙 정렬 on)" if center else "")
+  print(f"프리셋: {args.preset or args.size}{mode_note}")
   print("\n[검수 리포트]")
   print("\n".join(lines))
   print(f"\n{'✅ 규격 통과 — 그대로 사용 가능' if ok else '⚠️ 일부 항목 미달 — pixilart 수동 정리 필요'}")

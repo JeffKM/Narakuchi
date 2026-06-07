@@ -376,7 +376,8 @@
           ],
           "transparent": true,
           "chroma": "00ff00",
-          "path": "assets/sprites/portrait_okja.png"
+          "path": "assets/sprites/portrait_okja.png",
+          "center": true
         },
         {
           "id": "portrait_sion",
@@ -387,7 +388,8 @@
           ],
           "transparent": true,
           "chroma": "00ff00",
-          "path": "assets/sprites/portrait_sion.png"
+          "path": "assets/sprites/portrait_sion.png",
+          "center": true
         },
         {
           "id": "seal_wax",
@@ -556,7 +558,8 @@
           ],
           "transparent": true,
           "chroma": "00ff00",
-          "path": "assets/sprites/portrait_miho.png"
+          "path": "assets/sprites/portrait_miho.png",
+          "center": true
         },
         {
           "id": "miho_jirai",

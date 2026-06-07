@@ -206,7 +206,7 @@ tools/.venv/bin/python tools/dotify.py bg_cheki_miho_jirai_raw.png \
 
 # 미호 탭 미니 초상 (권장: miho_idle 얼굴 크롭본을 입력으로)
 tools/.venv/bin/python tools/dotify.py portrait_miho_raw.png \
-  --size 24x24 --chroma 00ff00 --out assets/sprites/portrait_miho.png
+  --preset portrait --chroma 00ff00 --out assets/sprites/portrait_miho.png
 ```
 
 > ⚠️ **이슈 #1 Acceptance criteria 대응**: ① 표정 6장 누끼·규격(~128×288)·마스터 팔레트 32색 인덱싱 → 위 6종 명령 + dotify 검수 리포트 ② `portrait_miho` 임포트·렌더 → 24×24 ③ 미호 지뢰계 체키 의상 레이어 합성 → `miho_jirai` + **미호 배경 `bg_cheki_miho_jirai`** + 이벤트 공통 `frame_jirai` ④ 팔레트 벗어난 픽셀 0 → dotify 인덱싱 통과.
