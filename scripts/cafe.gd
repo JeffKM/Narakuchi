@@ -88,7 +88,7 @@ func start() -> void:
   else:
     # close(2000) 도달 포함 — 평소 입장 인사로 둔다(close 전용 연출은 후속). guest 는 시작 단계라 announce 안 됨.
     var sit := "neglect" if meters.was_neglected else "enter"
-    _ticker.show_line(Dialogue.okja_line(sit, meters.stage(), _nick()))
+    _ticker.show_line(Dialogue.line(_dialogue_key(),sit, meters.stage(), _nick()))
   if announce != "":
     _mark_stage_announced()  # 컷인이든 평소 인사든 이번 입장에 알렸으니 커밋(재발화 방지)
 
@@ -295,7 +295,7 @@ func _on_action(id: String) -> void:
   # 옥자: 기력 소진 시 시무룩 + 안내 한 줄.
   if not can:
     _react(&"sad")  # 잠깐 시무룩 → 무표정 복귀
-    _ticker.show_line(Dialogue.okja_line("no_stamina", meters.stage(), _nick()))
+    _ticker.show_line(Dialogue.line(_dialogue_key(),"no_stamina", meters.stage(), _nick()))
     return
 
   # 대화·선물은 2지선다 팝업으로 분기(T11) — 선택 시점에 스태미나 소모/호감도 적용(취소 시 무변경).
@@ -315,7 +315,7 @@ func _on_action(id: String) -> void:
     "drink":
       meters.add_affinity_main(_active_main, Balance.aff("drink"))  # 선호 음료 보너스는 후속
       _brew(_okja_emotion("drink", &"brew"))
-  _ticker.show_line(Dialogue.okja_line(id, meters.stage(), _nick()))
+  _ticker.show_line(Dialogue.line(_dialogue_key(),id, meters.stage(), _nick()))
 
 
 ## 시온이 4버튼(체키 주문/간식/놀기/쓰담) — 호감도(기력 있을 때만) + 반응 스왑(항상). (T15)
@@ -339,6 +339,11 @@ func _sion_action_def(id: String) -> Dictionary:
     if String((a as Dictionary).get("id", "")) == id:
       return a
   return {}
+
+
+## 현재 메인의 대사 데이터 키(Characters.dialogue_key) — 티커·대화·선물·컷인 풀 선택. (T31/이슈 #4)
+func _dialogue_key() -> String:
+  return Characters.dialogue_key(_active_main)
 
 
 ## 옥자 버튼/터치 감정값 — buttons.json okja.emotion[key], 없으면 fallback. (StringName 정규화)
@@ -368,7 +373,7 @@ func _brew(expr: StringName = &"brew") -> void:
 func _open_talk() -> void:
   if _popup != null:
     return
-  var topic := Dialogue.pick_talk(meters.stage(), _nick())
+  var topic := Dialogue.pick_talk(_dialogue_key(), meters.stage(), _nick())
   _popup = ChoicePopup.new()
   _popup.setup(String(topic["prompt"]), topic["choices"])
   _popup.chosen.connect(_on_talk_chosen)
@@ -381,7 +386,7 @@ func _open_gift() -> void:
   if _popup != null:
     return
   _popup = ChoicePopup.new()
-  _popup.setup(Dialogue.gift_prompt(meters.stage()), Dialogue.gift_choices(meters.stage(), _nick()))
+  _popup.setup(Dialogue.gift_prompt(_dialogue_key(), meters.stage()), Dialogue.gift_choices(_dialogue_key(), meters.stage(), _nick()))
   _popup.chosen.connect(_on_gift_chosen)
   _popup.closed.connect(_on_popup_closed)
   add_child(_popup)
@@ -428,7 +433,7 @@ func _maybe_cutin() -> void:
   var stage := _pending_cutin_stage
   _pending_cutin_stage = ""
   _cutin = StageCutin.new()
-  _cutin.setup(_nick(), stage)
+  _cutin.setup(_nick(), stage, _active_main)  # 현재 메인의 컷인 대사·렌더 (T31/이슈 #4)
   _cutin.closed.connect(_on_cutin_closed)
   add_child(_cutin)  # 맨 위(HUD·액션바 덮음)
 
@@ -436,7 +441,7 @@ func _maybe_cutin() -> void:
 func _on_cutin_closed() -> void:
   _cutin = null
   _to_idle()
-  _ticker.show_line(Dialogue.okja_line("idle", meters.stage(), _nick()))
+  _ticker.show_line(Dialogue.line(_dialogue_key(),"idle", meters.stage(), _nick()))
 
 
 # ── 단계 상승 입장 연출 판정 (announced_stage 추적) ─────────
@@ -473,12 +478,12 @@ func _on_okja_touch() -> void:
     # 세션 터치 상한 — 더는 호감도 안 오르고 살짝 짜증 보이스
     Sfx.event(&"okja_touch_cap")  # → ADR 0004
     _react(_okja_emotion("touch_cap", &"shy"))
-    _ticker.show_line(Dialogue.okja_line("touch_cap", meters.stage(), _nick()))
+    _ticker.show_line(Dialogue.line(_dialogue_key(),"touch_cap", meters.stage(), _nick()))
     return
   # 터치 반응 — buttons.json okja.emotion.touch 풀에서 무작위(기본 부끄/웃음 번갈아)
   Sfx.event(&"okja_touch")  # → ADR 0004
   _react(_okja_touch_emotion())
-  _ticker.show_line(Dialogue.okja_line("touch", meters.stage(), _nick()))
+  _ticker.show_line(Dialogue.line(_dialogue_key(),"touch", meters.stage(), _nick()))
 
 
 ## 시온이 탭 — 옥자 모드면 시온이 교감 모드 진입, 이미 시온이 모드면 가벼운 반응.
@@ -515,7 +520,7 @@ func _exit_sion_mode() -> void:
   _hud.set_focus(_active_main)
   _reset_stage()  # 1x 풀 디오라마 복귀 (T27)
   _to_idle()
-  _ticker.show_line(Dialogue.okja_line("idle", meters.stage(), _nick()))
+  _ticker.show_line(Dialogue.line(_dialogue_key(),"idle", meters.stage(), _nick()))
 
 
 # ── 디오라마 줌 (T27) ─────────────────────────────────────
@@ -564,7 +569,7 @@ func _on_gauge_full(character: String) -> void:
   else:
     meters.consume_gauge_main(character)
     _okja.hop()  # smile 재사용 폴짝 (리워드 순간 → ADR 0001/T07)
-    _ticker.show_line(Dialogue.okja_line("cheki_get", meters.stage(), _nick()))
+    _ticker.show_line(Dialogue.line(_dialogue_key(),"cheki_get", meters.stage(), _nick()))
 
   _reveal = ChekiReveal.new()
   _reveal.setup(result)
@@ -681,7 +686,7 @@ func swap_active(main_id: String, pet_id: String) -> void:
     # 새 메인이 그 관계 단계에 맞춰 맞이한다(메인 바뀌면 인사도 바뀐 결).
     Sfx.event(&"scene_enter")
     _to_idle()
-    _ticker.show_line(Dialogue.okja_line("enter", meters.stage(), _nick()))
+    _ticker.show_line(Dialogue.line(_dialogue_key(),"enter", meters.stage(), _nick()))
 
 
 ## 디버그 — 게이지를 즉시 채워 "오늘의 체키" 획득 리빌을 띄운다(컬렉션북 전 확인용).

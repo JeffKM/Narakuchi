@@ -10,14 +10,14 @@ const PET := "pet"
 
 # id → 정의. 삽입 순서 = 로스터/탭 표시 순서.
 #   kind            : main(교감·관계단계·기분) | pet(게이지만)
-#   dialogue/buttons: 보이스·버튼 데이터 키 (미호는 #4 전까지 옥자 템플릿 공유)
+#   dialogue/buttons: 보이스·버튼 데이터 키 (미호는 #4부터 전용 대사 miho / 버튼·표정 매핑은 okja 공유)
 #   intro_event     : 온보딩/인트로 체키 이벤트 id (→ Events)
 #   accent          : 로스터/잠긴멤버 등 UI 강조 색(Palette) — 캐릭터 시그니처 톤
 #   tag             : 로스터 카드 한 줄 소개(펫은 관계 단계가 없어 이 문구를 부제로 쓴다)
 const REGISTRY := {
   "okja": {"name": "옥자",   "kind": MAIN, "dialogue": "okja", "buttons": "okja", "intro_event": "mine",
     "accent": Palette.VIOLET,      "tag": "지옥의 마녀"},
-  "miho": {"name": "미호",   "kind": MAIN, "dialogue": "okja", "buttons": "okja", "intro_event": "mine",
+  "miho": {"name": "미호",   "kind": MAIN, "dialogue": "miho", "buttons": "okja", "intro_event": "mine",
     "accent": Palette.CANDLE,      "tag": "백·노랑 구미호"},
   "sion": {"name": "시온이", "kind": PET,  "dialogue": "sion", "buttons": "sion", "intro_event": "mine",
     "accent": Palette.ACCENT_PINK, "tag": "곁의 흰 고양이"},

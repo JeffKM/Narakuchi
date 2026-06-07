@@ -14,6 +14,7 @@ func run_suite() -> void:
   _test_milestone_pick()
   _test_dialogue_talk()
   _test_dialogue_gift()
+  _test_dialogue_miho()
   _test_tier_affinity()
   _test_build_state()
   _test_first_cheki_nickname()
@@ -76,7 +77,7 @@ func _test_milestone_pick() -> void:
 # ── 대화 토막 (T11) ───────────────────────────────────────
 
 func _test_dialogue_talk() -> void:
-  var g := Dialogue.pick_talk("guest", "지은")
+  var g := Dialogue.pick_talk("okja", "guest", "지은")
   check(g.has("prompt") and g.has("choices"), "pick_talk 구조 {prompt,choices}")
   check((g["choices"] as Array).size() >= 2, "대화 선택지 2개 이상")
   var c0: Dictionary = g["choices"][0]
@@ -85,14 +86,14 @@ func _test_dialogue_talk() -> void:
 
   # 단골(regular)은 아직 존댓말 풀, 편해진 사이(comfy)부터 반말 풀(guest 풀과 교집합 없어야 함)
   var guest_prompts := _talk_prompts("guest")
-  var reg := Dialogue.pick_talk("regular", "지은")
+  var reg := Dialogue.pick_talk("okja", "regular", "지은")
   check(guest_prompts.has(String(reg["prompt"])), "단골(regular) = 아직 존댓말 풀에서 선택")
-  var comfy := Dialogue.pick_talk("comfy", "지은")
+  var comfy := Dialogue.pick_talk("okja", "comfy", "지은")
   check(not guest_prompts.has(String(comfy["prompt"])), "편해진 사이(comfy) = 반말 풀에서 선택")
 
   # {nick} 치환 확인 — 토큰이 남아있으면 안 됨
   for _i in range(10):
-    var t := Dialogue.pick_talk("guest", "지은")
+    var t := Dialogue.pick_talk("okja", "guest", "지은")
     check(not String(t["prompt"]).contains("{nick}"), "{nick} 치환됨(prompt)")
 
 
@@ -106,7 +107,7 @@ func _talk_prompts(stage: String) -> Array:
 # ── 선물 선호표 (T11) ─────────────────────────────────────
 
 func _test_dialogue_gift() -> void:
-  var choices := Dialogue.gift_choices("guest", "지은")
+  var choices := Dialogue.gift_choices("okja", "guest", "지은")
   check(choices.size() == 4, "선물 4종 (got %d)" % choices.size())
   var tiers := {}
   for c in choices:
@@ -121,18 +122,70 @@ func _test_dialogue_gift() -> void:
   check(String((choices[0] as Dictionary)["icon"]) == "icon_gift_1", "첫 선물 아이콘 슬롯 = icon_gift_1")
 
   # 존댓말(손님·단골) vs 반말(편해진 사이~) 프롬프트가 달라야 함. 단골은 존댓말이라 손님과 동일.
-  var pg := Dialogue.gift_prompt("guest")
-  var p_regular := Dialogue.gift_prompt("regular")
-  var p_comfy := Dialogue.gift_prompt("comfy")
+  var pg := Dialogue.gift_prompt("okja", "guest")
+  var p_regular := Dialogue.gift_prompt("okja", "regular")
+  var p_comfy := Dialogue.gift_prompt("okja", "comfy")
   check(pg == p_regular, "선물 프롬프트: 단골(regular)은 존댓말이라 손님과 동일")
   check(pg != p_comfy, "선물 프롬프트 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
 
   # reply 도 단계별 분기 — 존댓말(guest) ≠ 반말(comfy). 첫 선물 기준.
-  var r_guest := String((Dialogue.gift_choices("guest", "지은")[0] as Dictionary)["reply"])
-  var r_regular := String((Dialogue.gift_choices("regular", "지은")[0] as Dictionary)["reply"])
-  var r_comfy := String((Dialogue.gift_choices("comfy", "지은")[0] as Dictionary)["reply"])
+  var r_guest := String((Dialogue.gift_choices("okja", "guest", "지은")[0] as Dictionary)["reply"])
+  var r_regular := String((Dialogue.gift_choices("okja", "regular", "지은")[0] as Dictionary)["reply"])
+  var r_comfy := String((Dialogue.gift_choices("okja", "comfy", "지은")[0] as Dictionary)["reply"])
   check(r_guest == r_regular, "선물 반응: 단골(regular)은 존댓말이라 손님과 동일")
   check(r_guest != r_comfy, "선물 반응 차등: 존댓말(손님) ≠ 반말(편해진 사이)")
+
+
+# ── 미호 대사 캐릭터별 일반화 (이슈 #4) ────────────────────
+# 미호가 옥자 템플릿이 아닌 전용 대사를 쓰고, 말투 분기(존댓말/반말)가 캐릭터 독립인지 본다.
+
+func _test_dialogue_miho() -> void:
+  # 미호 drink = 시그니처 '미호 스파클링' 보이스(옥자 '나락트루바'와 다름)
+  var miho_drink := Dialogue.line("miho", "drink", "guest", "지은")
+  check(miho_drink.contains("스파클링"), "미호 drink = 미호 스파클링 보이스 (got: %s)" % miho_drink)
+
+  # 미호 enter = 옥자 풀과 분리된 전용 대사
+  var okja_enter := _ticker_pool("okja", "enter", "guest")
+  var miho_enter := Dialogue.line("miho", "enter", "guest", "지은")
+  check(not okja_enter.has(miho_enter), "미호 enter = 옥자 풀과 분리된 전용 대사")
+
+  # 말투 분기: 미호 guest(존댓말) vs comfy(반말) 풀이 분리 — stage 로만 분기(옥자 상태 누설 없음)
+  var miho_guest_enter := _ticker_pool("miho", "enter", "guest")
+  var miho_casual := Dialogue.line("miho", "enter", "comfy", "지은")
+  check(not miho_guest_enter.has(miho_casual), "미호 comfy(반말) = 미호 존댓말 풀과 분리(말투 단일 출처)")
+
+  # 미호 대화 토막 = 미호 전용(옥자 guest 풀과 교집합 없음)
+  var miho_talk := Dialogue.pick_talk("miho", "guest", "지은")
+  check((miho_talk["choices"] as Array).size() >= 2, "미호 대화 선택지 2+")
+  check(not _talk_prompts("guest").has(String(miho_talk["prompt"])), "미호 대화 = 옥자 풀과 분리")
+
+  # 미호 선물 = 4종, reply 는 미호 톤(옥자와 다름)
+  var miho_gifts := Dialogue.gift_choices("miho", "guest", "지은")
+  check(miho_gifts.size() == 4, "미호 선물 4종 (got %d)" % miho_gifts.size())
+  var okja_g0 := String((Dialogue.gift_choices("okja", "guest", "지은")[0] as Dictionary)["reply"])
+  var miho_g0 := String((miho_gifts[0] as Dictionary)["reply"])
+  check(okja_g0 != miho_g0, "미호 선물 반응 = 옥자와 다른 전용 톤")
+
+  # 미호 단계 컷인 = 전용(반말 해금), {nick} 치환
+  var cut := Dialogue.cutin("miho", "comfy", "지은")
+  check(not (cut.get("lines", []) as Array).is_empty(), "미호 comfy 컷인 lines 존재")
+  check(String(cut.get("badge", "")).contains("반말"), "미호 반말 해금 배지")
+  check(String(cut.get("reveal", "")).contains("반말"), "미호 반말 reveal")
+  for ln in cut.get("lines", []):
+    check(not String((ln as Dictionary)["text"]).contains("{nick}"), "미호 컷인 {nick} 치환")
+
+  # 폴백: 미정의 dialogue_key → 옥자 풀로 폴백(빈 문자열 아님 = 안전)
+  check(Dialogue.line("zzz_none", "enter", "guest", "지은") != "", "미정의 키 → 옥자 폴백(무손상)")
+
+
+## ticker 풀 한 묶음을 {nick} 치환해 배열로(미호/옥자 풀 비교용).
+func _ticker_pool(key: String, situation: String, stage_key: String) -> Array:
+  var c: Dictionary = GameData.ticker().get(key, {})
+  var pools: Dictionary = c.get(situation, {})
+  var out: Array = []
+  for ln in pools.get(stage_key, []):
+    out.append(String(ln).replace("{nick}", "지은"))
+  return out
 
 
 # ── tier → 호감도 매핑 (Balance 게이트웨이 검증) ─────────────

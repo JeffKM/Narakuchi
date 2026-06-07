@@ -6,7 +6,8 @@ extends Control
 ##   옥자를 가운데 세워 대사 시퀀스 + 골드 배지로 못박는다.
 ##   - regular(단골 등극): 존댓말 유지, "단골 등극" 배지
 ##   - comfy(반말 해금)  : 존댓말→반말 전환, "반말 해금" 배지(핵심 보상)
-## 대사/해금 줄/배지는 data/ticker.json 의 okja_cutin[stage] (콘텐츠 스튜디오 편집). Dialogue.okja_cutin 으로 로드.
+## 대사/해금 줄/배지는 data/ticker.json 의 {key}_cutin[stage] (콘텐츠 스튜디오 편집). Dialogue.cutin 으로 로드.
+## 주인공은 active_main(옥자·미호…) — setup(character) 로 대사·라이브 렌더가 함께 캐릭터를 따른다. (T31/이슈 #4)
 ## 셸 3버튼/탭으로 한 줄씩 진행, 마지막에 해금 배지 → 한 번 더로 닫힘. 닫히면 closed 신호.
 ## LCD(333×480) 전체를 덮는 오버레이(뒤 카페 입력 차단).
 
@@ -18,6 +19,7 @@ const OkjaScript := preload("res://scripts/okja.gd")
 
 var _nick := "손님"
 var _stage := "comfy"     # 도달 단계("regular"|"comfy") — 컷인 데이터 키
+var _character := "okja"  # 컷인 주인공 메인 id (대사·라이브 렌더 — T31/이슈 #4)
 var _lines: Array = []    # [{text:String, expr:StringName}] — okja_cutin[stage].lines
 var _reveal := ""         # 마지막 줄 후 해금 줄
 var _badge_text := ""     # 골드 배지 문구
@@ -30,11 +32,12 @@ var _hint: Label
 var _badge: Control
 
 
-## nick + 도달 단계("regular"|"comfy")로 컷인 데이터를 로드한다. 데이터 없으면 빈 시퀀스(즉시 닫힘).
-func setup(nick: String, stage: String = "comfy") -> void:
+## nick + 도달 단계("regular"|"comfy") + 메인 id 로 컷인 데이터를 로드한다. 데이터 없으면 빈 시퀀스(즉시 닫힘).
+func setup(nick: String, stage: String = "comfy", character: String = "okja") -> void:
   _nick = nick
   _stage = stage
-  var data := Dialogue.okja_cutin(stage, nick)
+  _character = character
+  var data := Dialogue.cutin(Characters.dialogue_key(character), stage, nick)
   _lines = data.get("lines", [])
   _reveal = data.get("reveal", "")
   _badge_text = data.get("badge", "")
@@ -61,8 +64,9 @@ func _ready() -> void:
   add_child(dim)
   create_tween().tween_property(dim, "color:a", 0.86, 0.25)
 
-  # 2) 가운데 옥자 (자체 인스턴스 — 카페와 독립)
+  # 2) 가운데 메인 캐릭터 (자체 인스턴스 — 카페와 독립). character 는 _ready(add_child) 전에 지정.
   _okja = OkjaScript.new()
+  _okja.character = _character
   _okja.position = OKJA_FEET
   _okja.modulate.a = 0.0
   add_child(_okja)

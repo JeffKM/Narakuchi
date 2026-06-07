@@ -46,5 +46,54 @@
       "expr": "shy",
       "icon": "icon_gift_4"
     }
-  ]
+  ],
+  "_miho_doc": "미호 선물 선호표(캐릭터 키). 옥자는 평면(루트 prompt/gifts), 미호는 miho 하위에 동일 구조. dialogue._section 폴백이 갈라 읽는다. tier·label·icon 은 옥자와 동일 라인업, reply 만 미호 톤(고양이 츄르=반려묘 규종이 것).",
+  "miho": {
+    "prompt": {
+      "guest": "저한테 주시는 거예요?",
+      "regular": "오, 나 주는 거야?"
+    },
+    "gifts": [
+      {
+        "label": "딸기 생크림 조각 케이크",
+        "reply": {
+          "guest": "어머, 너무 예뻐서 못 먹겠어요. ……아니, 먹을래요. 후훗.",
+          "regular": "와 이거 완전 내 취향! 같이 먹자, {nick}."
+        },
+        "tier": "plain",
+        "expr": "smile",
+        "icon": "icon_gift_1"
+      },
+      {
+        "label": "폭신한 동물 인형",
+        "reply": {
+          "guest": "말랑말랑… 꼬리 옆에 두고 잘게요. 고마워요.",
+          "regular": "헉 부드러워! 규종이가 질투하겠다. 헤헤."
+        },
+        "tier": "match",
+        "expr": "shy",
+        "icon": "icon_gift_2"
+      },
+      {
+        "label": "고양이 츄르",
+        "reply": {
+          "guest": "이건 규종이 거네요. ……챙겨주셔서 고마워요.",
+          "regular": "규종이 거잖아~ 우리 애 이뻐해줘서 고마워, {nick}."
+        },
+        "tier": "sion",
+        "expr": "smile",
+        "icon": "icon_gift_3"
+      },
+      {
+        "label": "꽃다발",
+        "reply": {
+          "guest": "예쁘네요. 여우 굴… 아니, 카페에 꽂아둘게요.",
+          "regular": "예쁘다~ 잘 보이는 데 둘게. 고마워."
+        },
+        "tier": "plain",
+        "expr": "shy",
+        "icon": "icon_gift_4"
+      }
+    ]
+  }
 }

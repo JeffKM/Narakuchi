@@ -56,8 +56,9 @@ func _build() -> void:
   bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
   add_child(bg)
 
-  # 2) 옥자 (상황별 표정) — 처음엔 문 뒤라 안 보임
+  # 2) 메인 캐릭터 (active_main, 상황별 표정) — 처음엔 문 뒤라 안 보임
   _okja = OkjaScript.new()
+  _okja.character = _main_id()  # add_child 전에 지정 (로스터에서 고른 메인이 맞이 — 이슈 #4)
   _okja.position = OKJA_FEET
   add_child(_okja)
   _okja.set_expression(_okja_expr())
@@ -100,10 +101,17 @@ func _make_gate_half(tex: Texture2D, region: Rect2, is_left: bool, hinge_x: floa
   return d
 
 
+## 현재 스플래시 주인공 메인 id — 로스터에서 고른 active_main(없으면 기본 메인). 렌더·인사 공용. (이슈 #4)
+func _main_id() -> String:
+  return String(SaveManager.get_value("flags.active_main", Characters.default_main()))
+
+
 ## 하단 인사 카드 (골드 테두리 패널 + 상황별 한 줄). 표정/문구는 _eval·관계 단계로 분기.
 func _make_card() -> Control:
   var nick := String(SaveManager.get_value("player.nickname", "손님"))
-  var stage := Balance.relationship_stage(int(SaveManager.get_value("okja.affinity_total", 0)))
+  var main_id := _main_id()
+  var key := Characters.dialogue_key(main_id)
+  var stage := Balance.relationship_stage(int(SaveManager.get_value("%s.affinity_total" % main_id, 0)))
   var onboarded := bool(SaveManager.get_value("flags.onboarded", false))
 
   var title := ""
@@ -111,10 +119,10 @@ func _make_card() -> Control:
   if not onboarded:
     title = "나라카에 어서 와요"
   elif bool(_eval["was_neglected"]):
-    title = Dialogue.okja_line("neglect", stage, nick)
+    title = Dialogue.line(key, "neglect", stage, nick)
     sub = "그래도, 와줘서."
   else:
-    title = Dialogue.okja_line("enter", stage, nick)
+    title = Dialogue.line(key, "enter", stage, nick)
     sub = "%d일째 방문" % int(_eval["streak"])
 
   var cw := 280
