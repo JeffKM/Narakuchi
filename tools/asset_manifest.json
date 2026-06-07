@@ -513,7 +513,7 @@
       "items": [
         {
           "id": "miho_idle",
-          "label": "미호 기본(구미호 메이드룩)",
+          "label": "미호 기본(백·노랑 구미호)",
           "preset": "okja",
           "path": "assets/sprites/miho_idle.png"
         },
