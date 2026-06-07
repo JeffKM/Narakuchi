@@ -95,24 +95,27 @@ no chroma green on the subject, no gradient, no soft anti-aliased edges, no 3D r
 
 > 미호 슬라이스의 **인트로 체키** — 온보딩에서 미호를 고르면 주는 첫 체키(→ 이슈 #5, `character-expansion-plan`). 옥자와 동일하게 **지뢰계 데이** 의상이 인트로 슬롯이다. **체키 카드용 정적 아트** — 교감화면 스킨 아님이라 포즈·머리색 자유(라이브 미호는 메이드룩 고정).
 > **🔑 워크플로우(옥자 지뢰계와 동일)**: **① 확정된 `miho_idle.png`(SD 도트 — 얼굴·여우 귀/꼬리·정체성·등신비 락) + ② 지뢰계 레퍼런스 사진(의상·머리색·포즈 락)**(+선택 ③ 신발 레퍼)을 첨부하고 "1번 캐릭터를 2번 코디로 다시 그려라". **여우 귀·꼬리는 의상이 바뀌어도 유지**(미호의 핵심 정체성).
-> **지뢰계 코디 가이드**: 지뢰계(landmine-girl) 무드 — 핑크/검정 girly-grunge. **이건 미호의 평소 백·노랑 구미호룩과 대비되는 이벤트 코스튬**이라 핑크/검정을 써도 OK(시그니처 충돌 아님 — 의상 대비로 활용). 베레모/리본/십자가/체인/플랫폼 슈즈 등은 옥자 지뢰계([옥자 파일](./gemini-prompts-okja.md))의 레퍼를 참고. **여우 귀·꼬리·여우 분장은 의상이 바뀌어도 유지**(미호의 핵심 정체성).
+> **지뢰계 코디 가이드(실물 레퍼 기준 — `_src/miho_jirai_ref.png`)**: 미호의 지뢰계 데이 룩은 **레오파드 스트릿 갸루** 무드(옥자의 핑크 레이스 지뢰계와 결이 다름). 핵심 = **화이트 오버사이즈 티(레오파드+레드 그래픽, 한쪽 오프숄더) + 레오파드 미니스커트**. **노란 네일·노란 스크런치**가 미호 노랑/골드 시그니처와 자연스레 맞물린다. 머리는 **샴페인/애시 블론드 생머리+일자뱅**(트윈테일 X), 머리 위엔 **검은 리본 달린 둥근/하트 선글라스를 얹음**(안 씀 — 여우 귀는 그 사이로 보이게). 포즈는 **핑거건/V 갸루 셀카**. **여우 귀·꼬리·여우 분장은 유지**(미호 핵심 정체성).
 
 ```
-[Attach: 1 = miho_idle.png (confirmed SD dot, identity lock), 2 = jirai-kei outfit reference photo (+optional 3 = shoes reference)]
+[Attach: 1 = miho_idle.png (confirmed SD dot, identity lock), 2 = miho jirai-day reference photo (outfit + pose lock)]
 Keep image 1's character IDENTITY: same face, same warm gumiho fox look (WHITE fox ears, whisker makeup,
 red under-eye accent), same SD chibi proportions (head:body ≈ 1:3~1:4),
 and KEEP her WHITE FOX EARS and big FLUFFY WHITE FOX TAIL (these stay even in the new outfit).
-RESTYLE her as a cute JIRAI-KEI ("landmine girl") coordinate (image 2), pink/black girly-grunge (an event costume contrast):
-- Hair: long, styled (twin-tails work well), free color — her BLACK hair, or a soft pastel/pink as a costume look, both read fine.
-- Pose: a playful selfie / gyaru pose — head tilted, one hand raised beside the face with fingers spread, sassy but sweet.
-- Headwear: a beret / cap with ribbon (a small spot for the fox ears to peek through).
-- Top: a sheer blouse with a front ribbon lace-up over a lace camisole, a cross or heart ornament on the chest.
-- Bottom: a pleated mini skirt.
-- Accessories: cross necklace, metal-HEART & ribbon belt chain, lots of PINK & black ribbons.
-- Shoes: chunky platform shoes with star charms and a chain, with slouch socks.
-- Expression: cute, cool-sweet, mouth closed or a faint smile.
+RESTYLE her into her JIRAI-DAY coordinate (image 2) — a LEOPARD-print street GYARU look (cool, sassy, age-safe):
+- Hair: long, straight, CHAMPAGNE / ASH-BLONDE (beige blonde) with blunt straight BANGS, worn DOWN (NOT twin-tails).
+- Headwear: round / heart-shaped SUNGLASSES with a small black ribbon, pushed UP and resting ON TOP of the head
+  (not over the eyes) — placed so the WHITE FOX EARS still show.
+- Top: an OVERSIZED WHITE short-sleeve T-SHIRT with a LEOPARD / cheetah-print graphic and RED accents on the front,
+  worn OFF-SHOULDER on one side (a thin black camisole strap peeking).
+- Bottom: a LEOPARD-print mini skirt with a black waistband.
+- Nails: long YELLOW / lime nails. Accessories: a YELLOW wrist scrunchie + a wristwatch, a few rings
+  (the yellow nails & band tie into Miho's gold/yellow signature). Lips: red / vermilion.
+- Shoes: chunky platform sneakers or boots (feet not in the ref — keep them simple).
+- Pose (KEEP from image 2): a sassy GYARU SELFIE — head slightly tilted, one (or both) hand(s) raised beside the face
+  making a finger-gun / V sign near the eye, big eyes, cool-cute confident look.
 Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
-       Keep her clearly the SAME Miho (fox ears + tail intact), jirai-kei girly-grunge mood, age-safe.
+       Keep her clearly the SAME Miho (fox ears + tail intact), leopard street-gyaru mood, age-safe.
 Framing: FULL body centered (head to shoes all visible, tail not cropped), big head near top, feet near bottom,
          tall vertical 4:9 portrait, even margins.
 Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
@@ -122,12 +125,14 @@ Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow o
 
 ```
 no different face, no extra characters, no cropped feet, no cropped or hidden tail, no missing fox ears,
-no cat ears, no witch hat, no original maid dress (it is fully replaced by the jirai-kei outfit),
+no cat ears, no witch hat, no original maid dress (it is fully replaced by the jirai-day outfit),
+no twin-tails (hair worn DOWN), no beret/cap (sunglasses rest on top of the head instead),
+no sunglasses over the eyes (they sit on top of the head), no pink lace girly blouse (this is a leopard street look),
 no realistic body proportions, no long thin legs, no adult tall figure, no tiny face,
-no over-sexualized outfit (keep it cute girly-grunge, age-safe brand).
+no over-sexualized outfit (keep it cute street-gyaru, age-safe brand).
 ```
 
-> ⚠️ **검수 포인트**: 체키 카드 안에 들어갈 정적 아트이므로 idle 앵커 일치는 불필요. **얼굴(미호 정체성) + 여우 귀·꼬리 유지 + 신발까지 프레임 안에 다 들어왔는지**를 본다. 핑크/체인/레이스는 색이 튀니 후처리 **마스터 팔레트 인덱싱 필수**. 저장: `assets/sprites/miho_jirai.png`.
+> ⚠️ **검수 포인트**: 체키 카드 안에 들어갈 정적 아트이므로 idle 앵커 일치는 불필요. **얼굴(미호 정체성) + 여우 귀·꼬리 유지 + 신발까지 프레임 안에 다 들어왔는지**를 본다. 또 **레오파드 무늬·블론드 생머리+일자뱅·머리 위 선글라스(얹음)·오프숄더·핑거건 갸루 포즈**가 살았는지 확인. 레오파드·레드 그래픽·옐로 네일은 색이 튀니 후처리 **마스터 팔레트 인덱싱 필수**. 저장: `assets/sprites/miho_jirai.png`.
 > 🃏 **체키 합성 레이어**: 미호 지뢰계 체키 = `miho_jirai`(누끼) + **미호 전용 배경 `bg_cheki_miho_jirai`**(아래 신설) + 이벤트 공통 `frame_jirai`(→ [공통 파일](./gemini-prompts-common.md)). **프레임은 이벤트 데이 공통, 배경은 멤버별**(ADR 0003 개정 2026-06-07) — 미호 배경도 네온 야경 팔레트는 유지하되(공통 프레임과 짝) 스팟·연출을 미호 의상에 맞춘다.
 > 📌 **이후 이벤트 의상(유치원·힙합·집사·크리스마스 등)은 별도 아트 트랙으로 점증** — 5벌 선결 금지(시온이 선례, → `character-expansion-plan` 슬라이스 DoD). 의상 + 짝 배경(`bg_cheki_miho_{slug}`)을 한 세트로 갈아끼우면 된다.
 
@@ -135,19 +140,19 @@ no over-sexualized outfit (keep it cute girly-grunge, age-safe brand).
 
 ## 미호 지뢰계 체키 사진 배경 (`bg_cheki_miho_jirai`)
 
-> **베이스 = [공통 파일](./gemini-prompts-common.md)의 "체키 사진 배경 — 지뢰계"**(규격 `120×180` 완전 불투명, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케). **이벤트 공통 `frame_jirai`(네이비·블랙 + 네온 핑크·퍼플)와 짝**이라 **네온 야경 팔레트는 유지**하고, 옥자(시부야 큰길)와 구분되게 **미호의 스팟 = 핑크 네온 퓨리쿠라(스티커 사진) 부스/골목**으로 달리한다. 미호 시그니처 노랑/골드는 **포인트 네온**으로만 살짝(팔레트 깨지 않게).
+> **베이스 = [공통 파일](./gemini-prompts-common.md)의 "체키 사진 배경 — 지뢰계"**(규격 `120×180` 완전 불투명, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케). **이벤트 공통 `frame_jirai`(네이비·블랙 + 네온 핑크·퍼플)와 짝**이라 **네온 야경 팔레트는 유지**하고, 옥자(시부야 큰길)와 구분되게 **미호의 스팟 = 산업적 철제 계단/뒷골목**으로 달리한다(실물 레퍼 `_src/miho_jirai_ref.png` 배경 결 — 레오파드 스트릿 갸루 룩과 맞물림). 차가운 메탈 그런지 위에 **네온 핑크·퍼플 글로우**를 얹어 프레임과 한 세트로 붙이고, 미호 시그니처 노랑/골드는 **포인트 네온**으로만 살짝.
 
 ```
-Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a JIRAI-KEI ("landmine girl") PURIKURA photo-booth corner in a neon night arcade.
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a JIRAI-KEI ("landmine girl") grungy INDUSTRIAL BACK-ALLEY with a metal staircase and railings at night.
 NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
 (a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
-Scene: a cute neon photo-booth nook at night — glowing PINK and PURPLE NEON tube hearts and signs around a booth frame (abstract glyph-like glow, NOT real letters),
-      a sticker-photo (purikura) machine silhouette to the side, dangling fairy lights, a few warm GOLD accent lights; soft round BOKEH light orbs in the air.
-Depth: detailed neon hearts and signs along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of pink light so a standing character reads clearly;
-      the LOWER-CENTER (character's feet area) stays calmer, just a glossy floor catching pink neon reflections.
+Scene: a moody industrial nook at night — a worn METAL STAIRCASE and pipe RAILINGS, corrugated metal / concrete walls,
+      a few PINK and PURPLE NEON tubes and signs glowing on the walls (abstract glyph-like glow, NOT real letters), exposed pipes; soft round BOKEH light orbs in the air.
+Depth: detailed metal railings, pipes and neon along the TOP and the two SIDE edges; the CENTER is a softer, blurrier BOKEH haze of neon light so a standing character reads clearly;
+      the LOWER-CENTER (character's feet area) stays calmer, just a metal-grate / concrete floor catching pink neon reflections.
 Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh done as clusters of flat pixel dots.
 FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
-Color mood: jirai-kei night, SAME neon palette as the shared jirai frame — deep navy/black, hot pink, magenta, electric purple, a small touch of warm GOLD accent.
+Color mood: jirai-kei night, SAME neon palette as the shared jirai frame — deep navy/black + cool metal gray, hot pink, magenta, electric purple, a small touch of warm GOLD accent.
 ```
 
 > 네거티브는 [공통 파일](./gemini-prompts-common.md)의 "지뢰계 배경 네거티브" 그대로. 저장: `assets/sprites/bg_cheki_miho_jirai.png`.
