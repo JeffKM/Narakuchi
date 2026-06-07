@@ -479,6 +479,7 @@ func _on_tab(tab_index: int) -> void:
   if String(t["id"]) == _active_char:
     _focus_to_tab(tab_index)
     return
+  Sfx.event(&"tab_switch")  # 캐릭터 탭 전환 → ADR 0004
   _populate(String(t["id"]))
   _rebuild_focus()
   _focus_index = _first_slot_focus_index()
@@ -520,6 +521,7 @@ func _open_slot(slot: ChekiSlot) -> void:
 func _open_detail(slot: ChekiSlot) -> void:
   if _detail != null:
     return
+  Sfx.event(&"card_open")  # 카드 확대 모달 진입 → ADR 0004
   var owned_events: Array = []
   for s in _slots:
     if s.is_owned():
@@ -542,7 +544,7 @@ func _on_detail_closed() -> void:
 func _open_slide(member: Dictionary) -> void:
   if _slide != null:
     return
-  Sfx.play(&"tap")
+  Sfx.event(&"popup_open")  # 잠긴 멤버 예고 슬라이드 열기 → ADR 0004
   _slide = ExpansionSlide.new()
   _slide.setup(String(member["name"]), Color(member.get("accent", Palette.GREY_500)))
   _slide.closed.connect(_on_slide_closed)
@@ -550,6 +552,7 @@ func _open_slide(member: Dictionary) -> void:
 
 
 func _on_slide_closed() -> void:
+  Sfx.event(&"popup_close")  # 예고 슬라이드 닫힘 → ADR 0004 (디테일은 자체 cancel 음)
   _slide = null
 
 
@@ -567,6 +570,7 @@ func _rebuild_focus() -> void:
 func _move_focus(dir: int) -> void:
   if _focus.is_empty():
     return
+  Sfx.event(&"cursor_move")  # 탭/칸 포커스 이동 → ADR 0004
   _focus_index = (_focus_index + dir + _focus.size()) % _focus.size()
   _apply_focus()
 
@@ -629,6 +633,7 @@ func _focus_to_tab(tab_index: int) -> void:
 # ── 닫기 / 헬퍼 ───────────────────────────────────────────
 
 func _close() -> void:
+  Sfx.event(&"cancel")  # 컬렉션북 닫기(뒤로) → ADR 0004
   var t := create_tween()
   t.tween_property(self, "modulate:a", 0.0, 0.16)
   t.tween_callback(func() -> void:

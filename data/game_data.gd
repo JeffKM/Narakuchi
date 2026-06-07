@@ -14,12 +14,14 @@ const TALK_PATH := "res://data/talk.json"
 const GIFTS_PATH := "res://data/gifts.json"
 const BUTTONS_PATH := "res://data/buttons.json"
 const BALANCE_PATH := "res://data/balance.json"
+const SOUND_PATH := "res://data/sound.json"
 
 static var _ticker: Dictionary
 static var _talk: Dictionary
 static var _gifts: Dictionary
 static var _buttons: Dictionary
 static var _balance: Dictionary
+static var _sound: Dictionary
 
 
 ## 티커 풀 { okja:{상황:{guest,regular}}, sion:{버튼키:[...]} }.
@@ -57,6 +59,14 @@ static func balance() -> Dictionary:
   return _balance
 
 
+## 효과음 이벤트 바인딩 { defaults:{cat:file}, gain:{cat:dB}, events:{id:{label,cat,file,pitch,jitter}} }.
+## (Sfx 가 게이트웨이로 읽음 → ADR 0004)
+static func sound() -> Dictionary:
+  if _sound.is_empty():
+    _sound = _load_dict(SOUND_PATH)
+  return _sound
+
+
 ## 캐시 비우기(디버그 — 다음 접근에 다시 읽음).
 static func reload() -> void:
   _ticker = {}
@@ -64,6 +74,7 @@ static func reload() -> void:
   _gifts = {}
   _buttons = {}
   _balance = {}
+  _sound = {}
 
 
 ## JSON 파일 한 장을 Dictionary 로 읽는다. 실패 시 빈 사전 + 에러 로그(게임은 멈추지 않음).

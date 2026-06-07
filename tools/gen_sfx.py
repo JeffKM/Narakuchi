@@ -210,6 +210,85 @@ def cue_shutter():
     return cat(click1, silence(0.05), click2)
 
 
+# ── 신규 큐 (→ ADR 0004 이벤트 바인딩) ───────────────────
+def cue_ui_tick():
+    # ui 기본 — 아주 작고 짧은 소프트 틱(네비/일반 UI). tap 보다 부드럽고 짧다.
+    return tone(f("E6"), 0.035, "tri", 0.42, attack=0.002, release=0.015, decay_exp=20)
+
+
+def cue_ui_soft():
+    # interaction 기본 — 따뜻한 삼각 단음(시온이/일반 상호작용 공유음).
+    return tone(f("G5"), 0.07, "tri", 0.5, attack=0.003, release=0.03, decay_exp=10)
+
+
+def cue_ui_back():
+    # 뒤로(CANCEL) — 두 음 하강(딩-동 역방향).
+    return sweep(720, 380, 0.14, "tri", 0.5, attack=0.003, release=0.04)
+
+
+def cue_ui_woosh():
+    # 화면 전환 — 부드러운 노이즈 스월 + 살짝 하강 글라이드.
+    sw = noise(0.26, 0.34, lp=0.05, attack=0.04, release=0.12, decay_exp=5)
+    glide = sweep(900, 500, 0.24, "tri", 0.16, attack=0.02, release=0.08)
+    return mix(sw, glide)
+
+
+def cue_soft_touch():
+    # 옥자 쓰담 — 포근한 삼각 단음 + 미세 비브라토(간지러운 결).
+    return tone(f("A5"), 0.13, "tri", 0.55, attack=0.006, release=0.05,
+                decay_exp=7, vib_rate=11, vib_depth=0.02)
+
+
+def cue_touch_cap():
+    # 쓰담 상한(시무룩 거절) — 부드러운 2음 하강, 낮게.
+    a = tone(f("E5"), 0.10, "tri", 0.5, decay_exp=9, release=0.03)
+    b = tone(f("C5"), 0.16, "tri", 0.46, decay_exp=7, release=0.05)
+    return cat(a, b)
+
+
+def cue_stage_appear():
+    # 단계 상승 등장 — 기대감 상승 스웰(부드러운 크레셴도).
+    return sweep(294, 588, 0.46, "tri", 0.5, attack=0.06, release=0.05)
+
+
+def cue_stage_reveal():
+    # 단계 상승 공개(반말 전환 — 관계 따뜻함의 피크) — 밝은 메이저 코드 블룸 + 반짝.
+    chord = mix(tone(f("C5"), 0.7, "tri", 0.5, attack=0.01, decay_exp=2.4),
+                tone(f("E5"), 0.7, "tri", 0.42, attack=0.01, decay_exp=2.4),
+                tone(f("G5"), 0.7, "tri", 0.42, attack=0.01, decay_exp=2.4),
+                tone(f("C6"), 0.7, "tri", 0.38, attack=0.01, decay_exp=2.2))
+    sparkle = cat(silence(0.22), tone(f("E6"), 0.06, "square", 0.22, duty=0.25, decay_exp=16),
+                  silence(0.1), tone(f("G6"), 0.06, "square", 0.2, duty=0.25, decay_exp=16))
+    return mix(chord, sparkle)
+
+
+def cue_talk():
+    # 대화 선택 — 가벼운 2음 상승(긍정 수긍). pitch 로 good/plain 변주.
+    a = tone(f("E5"), 0.05, "tri", 0.5, release=0.02, decay_exp=12)
+    b = tone(f("A5"), 0.06, "tri", 0.5, release=0.02, decay_exp=11)
+    return cat(a, b)
+
+
+def cue_gift():
+    # 선물 — 귀여운 3음 상승 아르페지오. pitch 로 tier(match/sion/plain) 변주.
+    arp = []
+    for nm in ["E5", "G5", "C6"]:
+        arp = cat(arp, tone(f(nm), 0.06, "tri", 0.52, release=0.02, decay_exp=10))
+    return arp
+
+
+def cue_sioni_chirp():
+    # 시온이 — 짧고 높은 '냥' 블립(상향 벤드).
+    return sweep(820, 1180, 0.09, "tri", 0.42, attack=0.004, release=0.03)
+
+
+def cue_day_advance():
+    # 날짜 넘김 — 부드러운 페이지 스월 + 낮은 안착 톤(새 하루).
+    page = noise(0.3, 0.3, lp=0.05, attack=0.03, release=0.12, decay_exp=5)
+    settle = cat(silence(0.06), tone(f("G4"), 0.2, "tri", 0.4, attack=0.01, release=0.08, decay_exp=4))
+    return mix(page, settle)
+
+
 CUES = {
     "order": (cue_order, 0.72),
     "cheki_get": (cue_cheki_get, 0.85),
@@ -219,6 +298,19 @@ CUES = {
     "gauge_full": (cue_gauge_full, 0.78),
     "book": (cue_book, 0.62),
     "shutter": (cue_shutter, 0.70),
+    # 신규 (ADR 0004)
+    "ui_tick": (cue_ui_tick, 0.45),
+    "ui_soft": (cue_ui_soft, 0.50),
+    "ui_back": (cue_ui_back, 0.55),
+    "ui_woosh": (cue_ui_woosh, 0.50),
+    "soft_touch": (cue_soft_touch, 0.60),
+    "touch_cap": (cue_touch_cap, 0.55),
+    "stage_appear": (cue_stage_appear, 0.62),
+    "stage_reveal": (cue_stage_reveal, 0.82),
+    "talk": (cue_talk, 0.55),
+    "gift": (cue_gift, 0.60),
+    "sioni_chirp": (cue_sioni_chirp, 0.50),
+    "day_advance": (cue_day_advance, 0.55),
 }
 
 

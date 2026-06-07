@@ -1,0 +1,204 @@
+{
+  "_doc": "효과음 이벤트 바인딩 (→ ADR 0004). 평면 이벤트→파일. file 비우면 cat 기본음(defaults). 키·라벨·cat 은 코드 소유(추가/삭제 금지) — 스튜디오는 file·pitch·jitter·mute 만 편집. run_tests 가 코드 Sfx.event id 와 일치 검증. file 은 assets/audio/ 안 파일명.",
+  "defaults": {
+    "ui": "sfx_ui_tick.wav",
+    "interaction": "sfx_ui_soft.wav",
+    "reward": null,
+    "transition": "sfx_ui_woosh.wav"
+  },
+  "gain": {
+    "ui": -6.0,
+    "interaction": -3.0,
+    "reward": 0.0,
+    "transition": -4.0
+  },
+  "events": {
+    "cursor_move": {
+      "label": "커서 이동",
+      "cat": "ui",
+      "file": "sfx_ui_tick.wav",
+      "pitch": 0.9,
+      "jitter": 0.05
+    },
+    "confirm": {
+      "label": "확정(OK)",
+      "cat": "ui",
+      "file": "sfx_tap.wav",
+      "pitch": 1.0
+    },
+    "cancel": {
+      "label": "뒤로(CANCEL)",
+      "cat": "ui",
+      "file": "sfx_ui_back.wav",
+      "pitch": 1.0
+    },
+    "popup_open": {
+      "label": "팝업 열기",
+      "cat": "ui",
+      "file": "sfx_ui_tick.wav",
+      "pitch": 1.15
+    },
+    "popup_close": {
+      "label": "팝업 닫기",
+      "cat": "ui",
+      "file": "sfx_ui_tick.wav",
+      "pitch": 0.82
+    },
+    "tab_switch": {
+      "label": "탭 전환",
+      "cat": "ui",
+      "file": "sfx_ui_tick.wav",
+      "pitch": 1.05
+    },
+    "card_open": {
+      "label": "카드 상세",
+      "cat": "ui",
+      "file": "sfx_ui_tick.wav",
+      "pitch": 1.2
+    },
+    "nickname_key": {
+      "label": "닉네임 입력",
+      "cat": "ui",
+      "file": "sfx_ui_tick.wav",
+      "pitch": 1.0,
+      "jitter": 0.08
+    },
+    "nickname_confirm": {
+      "label": "닉네임 확정",
+      "cat": "ui",
+      "file": "sfx_tap.wav",
+      "pitch": 1.05
+    },
+    "okja_touch": {
+      "label": "옥자 쓰담",
+      "cat": "interaction",
+      "file": "sfx_soft_touch.wav",
+      "pitch": 1.0,
+      "jitter": 0.06
+    },
+    "okja_touch_cap": {
+      "label": "옥자 쓰담·상한",
+      "cat": "interaction",
+      "file": "sfx_touch_cap.wav",
+      "pitch": 1.0
+    },
+    "sioni_touch": {
+      "label": "시온이 쓰담",
+      "cat": "interaction",
+      "file": "sfx_sioni_chirp.wav",
+      "pitch": 1.0,
+      "jitter": 0.05
+    },
+    "drink_order": {
+      "label": "음료 주문",
+      "cat": "interaction",
+      "file": "sfx_order.wav",
+      "pitch": 1.0
+    },
+    "cheki_order": {
+      "label": "체키 주문",
+      "cat": "interaction",
+      "file": "sfx_order.wav",
+      "pitch": 1.06
+    },
+    "talk_pick_good": {
+      "label": "대화·좋은선택",
+      "cat": "interaction",
+      "file": "sfx_talk.wav",
+      "pitch": 1.15
+    },
+    "talk_pick_plain": {
+      "label": "대화·평범선택",
+      "cat": "interaction",
+      "file": "sfx_talk.wav",
+      "pitch": 1.0
+    },
+    "gift_match": {
+      "label": "선물·맞음",
+      "cat": "interaction",
+      "file": "sfx_gift.wav",
+      "pitch": 1.1
+    },
+    "gift_sion": {
+      "label": "선물·시온이간식",
+      "cat": "interaction",
+      "file": "sfx_gift.wav",
+      "pitch": 1.22
+    },
+    "gift_plain": {
+      "label": "선물·보통",
+      "cat": "interaction",
+      "file": "sfx_gift.wav",
+      "pitch": 0.95
+    },
+    "sioni_snack": {
+      "label": "시온이 간식",
+      "cat": "interaction",
+      "file": "sfx_sioni_chirp.wav",
+      "pitch": 1.1
+    },
+    "sioni_play": {
+      "label": "시온이 놀기",
+      "cat": "interaction",
+      "file": "sfx_sioni_chirp.wav",
+      "pitch": 1.25
+    },
+    "sioni_pet": {
+      "label": "시온이 쓰담(버튼)",
+      "cat": "interaction",
+      "file": "sfx_sioni_chirp.wav",
+      "pitch": 0.9
+    },
+    "gauge_full": {
+      "label": "게이지 가득",
+      "cat": "reward",
+      "file": "sfx_gauge_full.wav"
+    },
+    "cheki_get": {
+      "label": "체키 획득",
+      "cat": "reward",
+      "file": "sfx_cheki_get.wav"
+    },
+    "card_flip": {
+      "label": "카드 뒤집기",
+      "cat": "reward",
+      "file": "sfx_flip.wav"
+    },
+    "butterfly_upgrade": {
+      "label": "나비 승급",
+      "cat": "reward",
+      "file": "sfx_butterfly.wav"
+    },
+    "stage_up_appear": {
+      "label": "단계상승·등장",
+      "cat": "reward",
+      "file": "sfx_stage_appear.wav"
+    },
+    "stage_up_reveal": {
+      "label": "단계상승·공개",
+      "cat": "reward",
+      "file": "sfx_stage_reveal.wav"
+    },
+    "book_open": {
+      "label": "체키북 열기",
+      "cat": "reward",
+      "file": "sfx_book.wav"
+    },
+    "share_save": {
+      "label": "공유 저장",
+      "cat": "reward",
+      "file": "sfx_shutter.wav"
+    },
+    "scene_enter": {
+      "label": "카페 입장",
+      "cat": "transition",
+      "file": "sfx_ui_woosh.wav",
+      "pitch": 1.0
+    },
+    "day_advance": {
+      "label": "날짜 넘김",
+      "cat": "transition",
+      "file": "sfx_day_advance.wav"
+    }
+  }
+}

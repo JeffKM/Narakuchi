@@ -76,6 +76,7 @@ func _ready() -> void:
   UiTheme.style_input(_nick_edit)  # 공용 지옥풍 입력칸 테마
   _nick_edit.add_theme_font_size_override("font_size", Fonts.SIZE_LEAD)  # 입력 글자 키움(공용 11→14)
   _nick_edit.text_submitted.connect(func(_t): _advance())  # 엔터로 제출
+  _nick_edit.text_changed.connect(func(_t): Sfx.event(&"nickname_key"))  # 한 글자 타이핑음 → ADR 0004
   add_child(_nick_edit)
 
   _confirm = Button.new()
@@ -143,6 +144,7 @@ func _submit_nickname() -> void:
   if _submitting:
     return
   _submitting = true
+  Sfx.event(&"nickname_confirm")  # 닉네임 확정(입장) → ADR 0004
   # 한글 IME 로 조합 중(preedit)인 마지막 음절은 아직 LineEdit.text 에 없다.
   # 포커스를 풀어 조합을 확정시키고 한 프레임 뒤에 읽어 마지막 글자 누락을 막는다.
   _nick_edit.release_focus()

@@ -78,8 +78,8 @@ func _ready() -> void:
     head.text = _headline
     add_child(head)
 
-  # 획득 사운드 + 카드 뒤 햇살 버스트 (T18 — 파일 없으면 무음)
-  Sfx.play(&"cheki_get")
+  # 획득 사운드 + 카드 뒤 햇살 버스트 (→ ADR 0004)
+  Sfx.event(&"cheki_get")
   _rays.burst()
 
   # 표지 입장(페이드 + 상승 + 중앙 스케일 팝) → 끝나면 cover 단계 + 자동 플립 예약
@@ -114,11 +114,11 @@ func _do_flip() -> void:
   if _auto_tw and _auto_tw.is_valid():
     _auto_tw.kill()
   _phase = "photo"
-  Sfx.play(&"flip")
+  Sfx.event(&"card_flip")
   _card.flip()
   _hint.text = "OK ▶ 닫기"
   if bool(_result.get("upgraded", false)):
-    Sfx.play(&"butterfly")
+    Sfx.event(&"butterfly_upgrade")
     _spawn_butterflies()
   _show_share_button()  # 사진 공개 = 자랑하고 싶은 순간 → 공유 진입 (T19)
 
@@ -193,7 +193,7 @@ func _show_share_button() -> void:
 func _open_share() -> void:
   if _share != null:
     return
-  Sfx.play(&"tap")
+  Sfx.event(&"popup_open")  # 공유 오버레이 열기 → ADR 0004
   _share = ShareCard.new()
   _share.setup(
     String(_result["character"]), String(_result["event"]),

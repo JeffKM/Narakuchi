@@ -85,8 +85,16 @@ func _choose(idx: int) -> void:
   _cursor = idx
   _update_cursor()
   var aid := String(actions[idx]["id"])
-  # 주문(체키/음료)은 주문음, 그 외(대화/선물/간식/놀기/쓰담)는 UI 선택음. (T18 — 파일 없으면 무음)
-  Sfx.play(&"order" if aid == "cheki" or aid == "drink" else &"tap")
+  # 버튼 id → 의미 이벤트 (→ ADR 0004). 대화/선물은 팝업을 여니 popup_open.
+  # 옥자: cheki·drink·talk·gift / 시온이: cheki·snack·play·pet. (없으면 confirm 기본)
+  match aid:
+    "cheki": Sfx.event(&"cheki_order")
+    "drink": Sfx.event(&"drink_order")
+    "talk", "gift": Sfx.event(&"popup_open")
+    "snack": Sfx.event(&"sioni_snack")
+    "play": Sfx.event(&"sioni_play")
+    "pet": Sfx.event(&"sioni_pet")
+    _: Sfx.event(&"confirm")
   action_chosen.emit(actions[idx]["id"])
 
 

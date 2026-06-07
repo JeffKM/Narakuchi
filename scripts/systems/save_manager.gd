@@ -64,7 +64,7 @@ func default_save() -> Dictionary:
     # 임의 플래그 (온보딩 완료, 튜토리얼 등)
     #   announced_stage = 마지막으로 '입장 연출'한 관계 단계. 단계 상승은 그 자리서 안 터지고
     #   다음 입장(Cafe.start)에 1회만 발화 — 이 값으로 재발화를 막는다. (guest/regular/comfy/close)
-    "flags": {"announced_stage": "guest"},
+    "flags": {"announced_stage": "guest", "sfx_on": true},
     "last_saved_unix": 0,    # 마지막 저장 시각 (epoch sec) — 기분 경과시간 계산용
   }
 

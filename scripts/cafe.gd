@@ -70,6 +70,9 @@ func _ready() -> void:
 ##   - comfy(600) 도달: 반말 전환 컷인이 입장 인사를 대신함
 ##   - close(2000) 도달: 전용 연출 없음 — 평소 입장 인사(후속에 컷인 추가 가능)
 func start() -> void:
+  # 입장 효과음 — 새 하루면 day_advance, 아니면 scene_enter (begin_session 전에 새날 판정). (→ ADR 0004)
+  var is_new_day := bool(Meters.evaluate_session().get("is_new_day", false))
+  Sfx.event(&"day_advance" if is_new_day else &"scene_enter")
   meters.begin_session()
   _hud.refresh()
   if meters.was_neglected:
@@ -122,9 +125,12 @@ func handle_shell_action(action: StringName) -> void:
     return
   var bar := _active_bar()
   match action:
-    &"select": bar.move_cursor()
+    &"select":
+      Sfx.event(&"cursor_move")  # OK 의 확정음은 ActionBar._choose 가 의미별로 발화
+      bar.move_cursor()
     &"ok": bar.activate_focused()
     &"cancel":
+      # 뒤로 효과음은 행선지가 낸다: 시온이 복귀=_exit_sion_mode(cancel) / 책 열기=_open_book(book_open).
       if _mode == MODE_SION:
         _exit_sion_mode()  # 시온이 모드에선 CANCEL = 옥자에게 복귀
       else:
@@ -369,6 +375,8 @@ func _open_gift() -> void:
 
 ## 대화 선택 확정 — 스태미나 1회 소모 + tier 별 호감도 + 옥자 표정 반응.
 func _on_talk_chosen(choice: Dictionary) -> void:
+  # tier 별 선택음 (good=살짝 밝게 / plain=평범) → ADR 0004
+  Sfx.event(&"talk_pick_good" if String(choice.get("tier", "plain")) == "good" else &"talk_pick_plain")
   meters.spend_stamina()
   meters.add_affinity_okja(Balance.aff_talk(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"talk"))
@@ -377,6 +385,11 @@ func _on_talk_chosen(choice: Dictionary) -> void:
 
 ## 선물 선택 확정 — 스태미나 1회 소모 + 선호도(tier) 별 호감도 + 옥자 표정 반응.
 func _on_gift_chosen(choice: Dictionary) -> void:
+  # 선물 tier 별 선택음 (match/sion=좋아함 / plain=보통) → ADR 0004
+  match String(choice.get("tier", "plain")):
+    "match": Sfx.event(&"gift_match")
+    "sion": Sfx.event(&"gift_sion")
+    _: Sfx.event(&"gift_plain")
   meters.spend_stamina()
   meters.add_affinity_okja(Balance.aff_gift(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"shy"))
@@ -444,16 +457,19 @@ func _on_okja_touch() -> void:
   var gained := meters.add_touch_affinity()
   if gained <= 0:
     # 세션 터치 상한 — 더는 호감도 안 오르고 살짝 짜증 보이스
+    Sfx.event(&"okja_touch_cap")  # → ADR 0004
     _react(_okja_emotion("touch_cap", &"shy"))
     _ticker.show_line(Dialogue.okja_line("touch_cap", meters.stage(), _nick()))
     return
   # 터치 반응 — buttons.json okja.emotion.touch 풀에서 무작위(기본 부끄/웃음 번갈아)
+  Sfx.event(&"okja_touch")  # → ADR 0004
   _react(_okja_touch_emotion())
   _ticker.show_line(Dialogue.okja_line("touch", meters.stage(), _nick()))
 
 
 ## 시온이 탭 — 옥자 모드면 시온이 교감 모드 진입, 이미 시온이 모드면 가벼운 반응.
 func _on_sioni_touch() -> void:
+  Sfx.event(&"sioni_touch")  # → ADR 0004 (모드 진입이든 가벼운 반응이든 시온이 쓰담음)
   if _mode == MODE_OKJA:
     _enter_sion_mode()
     return
@@ -478,6 +494,7 @@ func _enter_sion_mode() -> void:
 func _exit_sion_mode() -> void:
   if _mode == MODE_OKJA:
     return
+  Sfx.event(&"cancel")  # 옥자에게 복귀(뒤로) → ADR 0004
   _mode = MODE_OKJA
   _bar_sion.visible = false
   _bar.visible = true
@@ -522,7 +539,7 @@ func _tween_stage(scale_to: Vector2, pos_to: Vector2) -> void:
 func _on_gauge_full(character: String) -> void:
   if _reveal != null:
     return
-  Sfx.play(&"gauge_full")  # 게이지 가득 차오름 완료음 (T18)
+  Sfx.event(&"gauge_full")  # 게이지 가득 차오름 완료음 (→ ADR 0004)
   var event := Cheki.pick_today(character)
   var result := Cheki.grant(character, event)
 
@@ -558,7 +575,7 @@ func _on_reveal_closed() -> void:
 func _open_book() -> void:
   if _reveal != null or _book != null or _popup != null or _cutin != null:
     return
-  Sfx.play(&"book")  # 체키북 열기음 (T18)
+  Sfx.event(&"book_open")  # 체키북 열기음 (→ ADR 0004)
   _book = CollectionBook.new()
   _book.closed.connect(_on_book_closed)
   add_child(_book)  # 맨 위(HUD·액션바 덮음)

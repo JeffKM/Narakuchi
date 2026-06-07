@@ -271,7 +271,7 @@ func _layout_preview() -> void:
 func _save() -> void:
   if _image == null:
     return
-  Sfx.play(&"shutter")
+  Sfx.event(&"share_save")  # 공유 이미지 저장(찰칵) → ADR 0004
   var buf := _image.save_png_to_buffer()
   var fname := "narakuchi_cheki_%s_%s.png" % [Events.event_slug(_event), _date_stamp()]
 

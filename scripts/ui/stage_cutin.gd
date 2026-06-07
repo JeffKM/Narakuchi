@@ -50,6 +50,8 @@ func _ready() -> void:
     call_deferred("_close")
     return
 
+  Sfx.event(&"stage_up_appear")  # 단계 상승 등장(기대감) → ADR 0004
+
   # 1) 묵직한 딤(컷인 — 집중)
   var dim := ColorRect.new()
   dim.color = Color(Palette.INK.r, Palette.INK.g, Palette.INK.b, 0.0)
@@ -130,6 +132,7 @@ func _show_line() -> void:
 ## 마지막 줄 후 — 해금 줄 + 골드 배지 + 옥자 폴짝(리워드 순간). 한 번 더로 닫힘.
 func _reveal_unlock() -> void:
   _unlocked = true
+  Sfx.event(&"stage_up_reveal")  # 반말 전환 등 핵심 보상 공개(피크) → ADR 0004
   _okja.hop()  # smile 재사용 폴짝(리워드 순간)
   _line.text = _reveal
   _hint.text = "OK ▶ 닫기"

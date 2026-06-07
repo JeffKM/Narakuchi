@@ -99,18 +99,21 @@ func _on_dim_input(event: InputEvent) -> void:
 func _step(dir: int) -> void:
   if _events.size() <= 1:
     return
+  Sfx.event(&"cursor_move")  # 보유 카드 순환 → ADR 0004
   _index = (_index + dir + _events.size()) % _events.size()
   _render()
 
 
 func _flip() -> void:
   if _card:
+    Sfx.event(&"card_flip")  # → ADR 0004
     _card.flip()
 
 
 func _close() -> void:
   if _closing:
     return
+  Sfx.event(&"cancel")  # 닫기(뒤로) → ADR 0004
   _closing = true
   var t := create_tween()
   t.tween_property(self, "modulate:a", 0.0, 0.16)
@@ -182,7 +185,7 @@ func _build_share_button() -> void:
 func _open_share() -> void:
   if _share != null or _events.is_empty():
     return
-  Sfx.play(&"tap")
+  Sfx.event(&"popup_open")  # 공유 오버레이 열기 → ADR 0004
   var ev := String(_events[_index])
   var r := Cheki.record(_character, ev)
   _share = ShareCard.new()

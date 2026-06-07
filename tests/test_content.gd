@@ -20,6 +20,7 @@ func run_suite() -> void:
   _test_book_smoke()
   _test_t21_expansion()
   _test_hud_attendance()
+  _test_sound_binding()
   await _test_share_smoke()
 
 
@@ -311,3 +312,67 @@ func _test_hud_attendance() -> void:
   check(hud._attend.text.contains("다 모음"),
     "HUD 출석 라인: streak 9 → 보상 다 모음 (got '%s')" % hud._attend.text)
   hud.free()
+
+
+# ── 효과음 바인딩 단일 출처 가드 (→ ADR 0004) ─────────────
+## 코드의 Sfx.event(&"id") 집합 == data/sound.json events 키 집합(양방향) + 바인딩 파일 존재.
+## 고아(코드 없는 이벤트)·누락(json 없는 호출)·죽은 파일을 막아 "스튜디오에서 지웠더니 무음" 류 표류를 잡는다.
+func _test_sound_binding() -> void:
+  var snd := GameData.sound()
+  var events: Dictionary = snd.get("events", {})
+  var defaults: Dictionary = snd.get("defaults", {})
+  check(not events.is_empty(), "사운드: sound.json events 로드됨")
+
+  # 1) 코드에서 쓰는 이벤트 id 수집 (scripts/ 전 .gd, Sfx.event 라인의 &"…" 리터럴 — 삼항 포함 복수 추출)
+  var used := {}
+  var re := RegEx.new()
+  re.compile('&"([a-z_]+)"')
+  for path in _gd_files("res://scripts"):
+    var f := FileAccess.open(path, FileAccess.READ)
+    if f == null:
+      continue
+    while not f.eof_reached():
+      var line := f.get_line()
+      if line.find("Sfx.event") == -1:
+        continue
+      for m in re.search_all(line):
+        used[m.get_string(1)] = true
+    f.close()
+  check(not used.is_empty(), "사운드: 코드에서 Sfx.event 호출 수집됨")
+
+  # 2) 양방향 일치
+  for id in used:
+    check(events.has(id), "사운드: 코드 이벤트 '%s' 가 sound.json 에 있음(누락 아님)" % id)
+  for id in events:
+    check(used.has(id), "사운드: json 이벤트 '%s' 가 코드에서 쓰임(고아 아님)" % id)
+
+  # 3) 바인딩 파일 존재 (events[id].file → 없으면 defaults[cat])
+  for id in events:
+    var e: Dictionary = events[id]
+    var file := String(e.get("file", ""))
+    if file.is_empty():
+      file = String(defaults.get(String(e.get("cat", "")), ""))
+    check(not file.is_empty(), "사운드: '%s' 해소 파일 있음(직접 또는 cat 기본)" % id)
+    if not file.is_empty():
+      check(ResourceLoader.exists("res://assets/audio/" + file),
+        "사운드: '%s' 바인딩 파일 존재(%s)" % [id, file])
+
+
+## res://scripts 하위 .gd 전부(재귀) — 사운드 바인딩 가드용 소스 스캔.
+func _gd_files(dir_path: String) -> Array:
+  var out: Array = []
+  var d := DirAccess.open(dir_path)
+  if d == null:
+    return out
+  d.list_dir_begin()
+  var name := d.get_next()
+  while name != "":
+    var full := dir_path + "/" + name
+    if d.current_is_dir():
+      if not name.begins_with("."):
+        out.append_array(_gd_files(full))
+    elif name.ends_with(".gd"):
+      out.append(full)
+    name = d.get_next()
+  d.list_dir_end()
+  return out
