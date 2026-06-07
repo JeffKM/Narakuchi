@@ -28,9 +28,14 @@ static func okja_actions() -> Array:
   return GameData.buttons().get("okja", {}).get("actions", [])
 
 
-## 시온이 4버튼 세트 [{id,label,emotion,ticker,affinity}...] — buttons.json sion.actions.
+## 펫 4버튼 세트 [{id,label,emotion,ticker,affinity}...] — buttons.json[key].actions. (펫별 전용 — 시온이/규종이…)
+static func pet_actions(key: String) -> Array:
+  return GameData.buttons().get(key, {}).get("actions", [])
+
+
+## 시온이 4버튼 세트 — 백호환 래퍼(기존 호출부). 제네릭 펫 경로로 위임.
 static func sion_actions() -> Array:
-  return GameData.buttons().get("sion", {}).get("actions", [])
+  return pet_actions("sion")
 
 var _buttons: Array[Button] = []
 var _cursor := 0

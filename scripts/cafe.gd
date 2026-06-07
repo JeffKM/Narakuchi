@@ -178,7 +178,7 @@ func _build() -> void:
   #     접지 그림자(바닥 고정) → 시온이 → 옥자보다 앞. bob 떠도 그림자가 바닥에 잡아준다.
   _add_shadow(Vector2(SIONI_FEET.x, SIONI_FEET.y - SIONI_PAD_BOTTOM), 58, 12)  # 96px 발바닥폭 ~58
   _sioni = SioniScript.new()
-  _sioni.sprite_prefix = _active_pet  # 곁의 펫(active_pet)으로 렌더 — 트리 진입 전 지정(이슈 #6 정식 배선)
+  _sioni.sprite_prefix = Characters.sprite_prefix(_active_pet)  # 곁의 펫 표정 접두어(시온이='sioni') — 트리 진입 전 지정(이슈 #6)
   _sioni.position = SIONI_FEET
   _stage.add_child(_sioni)
 
@@ -208,7 +208,7 @@ func _build() -> void:
   add_child(_bar)
 
   _bar_sion = ActionBar.new()
-  _bar_sion.configure(ActionBar.sion_actions())
+  _bar_sion.configure(ActionBar.pet_actions(Characters.buttons_key(_active_pet)))
   _bar_sion.action_chosen.connect(_on_action)
   _bar_sion.visible = false
   add_child(_bar_sion)
@@ -315,10 +315,10 @@ func _on_action(id: String) -> void:
   match id:
     "cheki":
       meters.add_affinity_main(_active_main, Balance.aff("cheki"))
-      _react(_okja_emotion("cheki", &"talk"))  # 버튼→감정 (buttons.json)
+      _react(_main_emotion("cheki", &"talk"))  # 버튼→감정 (buttons.json — 메인별 전용)
     "drink":
       meters.add_affinity_main(_active_main, Balance.aff("drink"))  # 선호 음료 보너스는 후속
-      _brew(_okja_emotion("drink", &"brew"))
+      _brew(_main_emotion("drink", &"brew"))
   _ticker.show_line(Dialogue.line(_dialogue_key(),id, meters.stage(), _nick()))
 
 
@@ -337,9 +337,9 @@ func _on_sion_action(id: String, can: bool) -> void:
   _ticker.show_line(Dialogue.pet_line(_pet_dialogue_key(), String(def.get("ticker", id))))
 
 
-## 시온이 버튼 정의 한 건을 id 로 찾는다(없으면 빈 사전). (buttons.json sion.actions)
+## 현재 펫의 버튼 정의 한 건을 id 로 찾는다(없으면 빈 사전). (buttons.json[buttons_key].actions — 펫별 전용)
 func _sion_action_def(id: String) -> Dictionary:
-  for a in ActionBar.sion_actions():
+  for a in ActionBar.pet_actions(Characters.buttons_key(_active_pet)):
     if String((a as Dictionary).get("id", "")) == id:
       return a
   return {}
@@ -355,19 +355,24 @@ func _pet_dialogue_key() -> String:
   return Characters.dialogue_key(_active_pet)
 
 
-## 옥자 버튼/터치 감정값 — buttons.json okja.emotion[key], 없으면 fallback. (StringName 정규화)
-func _okja_emotion(key: String, fallback: StringName) -> StringName:
-  var em: Dictionary = GameData.buttons().get("okja", {}).get("emotion", {})
+## 현재 메인의 버튼/터치 감정값 — buttons.json[buttons_key].emotion[key], 없으면 fallback. (StringName 정규화)
+## 메인별 전용(옥자=okja, 미호=miho) — Characters.buttons_key(_active_main) 로 풀 선택. (이슈 #6 버튼 감정 전용)
+func _main_emotion(key: String, fallback: StringName) -> StringName:
+  var em := _main_emotion_map()
   return StringName(em.get(key, fallback))
 
 
-## 옥자 터치 무작위 반응 표정 — buttons.json okja.emotion.touch 풀에서 하나. (없으면 shy/smile)
-func _okja_touch_emotion() -> StringName:
-  var em: Dictionary = GameData.buttons().get("okja", {}).get("emotion", {})
-  var pool: Array = em.get("touch", ["shy", "smile"])
+## 현재 메인의 터치 무작위 반응 표정 — buttons.json[buttons_key].emotion.touch 풀에서 하나. (없으면 shy/smile)
+func _main_touch_emotion() -> StringName:
+  var pool: Array = _main_emotion_map().get("touch", ["shy", "smile"])
   if pool.is_empty():
     return &"shy"
   return StringName(pool[randi() % pool.size()])
+
+
+## 현재 메인의 버튼 감정맵 — buttons.json[Characters.buttons_key(_active_main)].emotion.
+func _main_emotion_map() -> Dictionary:
+  return GameData.buttons().get(Characters.buttons_key(_active_main), {}).get("emotion", {})
 
 
 ## 음료 제조 연출 — 제조 표정 잠깐(기본 brew) → idle 복귀. 표정은 buttons.json okja.emotion.drink.
@@ -486,12 +491,12 @@ func _on_okja_touch() -> void:
   if gained <= 0:
     # 세션 터치 상한 — 더는 호감도 안 오르고 살짝 짜증 보이스
     Sfx.event(&"okja_touch_cap")  # → ADR 0004
-    _react(_okja_emotion("touch_cap", &"shy"))
+    _react(_main_emotion("touch_cap", &"shy"))
     _ticker.show_line(Dialogue.line(_dialogue_key(),"touch_cap", meters.stage(), _nick()))
     return
   # 터치 반응 — buttons.json okja.emotion.touch 풀에서 무작위(기본 부끄/웃음 번갈아)
   Sfx.event(&"okja_touch")  # → ADR 0004
-  _react(_okja_touch_emotion())
+  _react(_main_touch_emotion())
   _ticker.show_line(Dialogue.line(_dialogue_key(),"touch", meters.stage(), _nick()))
 
 
@@ -692,7 +697,7 @@ func swap_active(main_id: String, pet_id: String) -> void:
 
   _okja.set_character(main_id)  # 라이브 스탠딩 텍스처만 교체(트리/트윈 보존)
   if pet_changed:
-    _sioni.set_prefix(pet_id)   # 곁의 펫 라이브 스프라이트 교체(트리/트윈 보존) — 이슈 #6
+    _sioni.set_prefix(Characters.sprite_prefix(pet_id))   # 곁의 펫 라이브 스프라이트 교체(트리/트윈 보존) — 이슈 #6
   _update_roster_portrait()
   _hud.set_focus(main_id)       # 게이지·기분 표시를 새 메인으로
   _hud.refresh()

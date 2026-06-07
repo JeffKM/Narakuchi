@@ -10,18 +10,21 @@ const PET := "pet"
 
 # id → 정의. 삽입 순서 = 로스터/탭 표시 순서.
 #   kind            : main(교감·관계단계·기분) | pet(게이지만)
-#   dialogue/buttons: 보이스·버튼 데이터 키 (미호는 #4부터 전용 대사 miho / 버튼·표정 매핑은 okja 공유)
+#   dialogue/buttons: 보이스·버튼 데이터 키 (캐릭터별 전용 — 메인은 buttons[key].emotion, 펫은 buttons[key].actions)
+#                     ※ 메인 버튼 라벨·순서는 코드 흐름(talk/gift 분기)과 잠금 — okja.actions 단일 출처를 공유한다.
+#   sprite          : 라이브 스탠딩 표정 파일 접두어("{sprite}_{표정}.png"). 보통 id 와 같지만 시온이만 'sioni'.
+#                     (portrait 는 id 기준 — portrait_sion.png. 표정 스탠딩만 이 접두어로 매핑한다.)
 #   intro_event     : 온보딩/인트로 체키 이벤트 id (→ Events)
 #   accent          : 로스터/잠긴멤버 등 UI 강조 색(Palette) — 캐릭터 시그니처 톤
 #   tag             : 로스터 카드 한 줄 소개(펫은 관계 단계가 없어 이 문구를 부제로 쓴다)
 const REGISTRY := {
-  "okja": {"name": "옥자",   "kind": MAIN, "dialogue": "okja", "buttons": "okja", "intro_event": "mine",
+  "okja": {"name": "옥자",   "kind": MAIN, "dialogue": "okja", "buttons": "okja", "sprite": "okja", "intro_event": "mine",
     "accent": Palette.VIOLET,      "tag": "지옥의 마녀"},
-  "miho": {"name": "미호",   "kind": MAIN, "dialogue": "miho", "buttons": "okja", "intro_event": "mine",
+  "miho": {"name": "미호",   "kind": MAIN, "dialogue": "miho", "buttons": "miho", "sprite": "miho", "intro_event": "mine",
     "accent": Palette.CANDLE,      "tag": "백·노랑 구미호"},
-  "sion": {"name": "시온이", "kind": PET,  "dialogue": "sion", "buttons": "sion", "intro_event": "mine",
+  "sion": {"name": "시온이", "kind": PET,  "dialogue": "sion", "buttons": "sion", "sprite": "sioni", "intro_event": "mine",
     "accent": Palette.ACCENT_PINK, "tag": "곁의 흰 고양이"},
-  "gyujong": {"name": "규종이", "kind": PET, "dialogue": "gyujong", "buttons": "sion", "intro_event": "mine",
+  "gyujong": {"name": "규종이", "kind": PET, "dialogue": "gyujong", "buttons": "gyujong", "sprite": "gyujong", "intro_event": "mine",
     "accent": Palette.ACCENT_PINK, "tag": "미호의 까만 고양이"},
 }
 
@@ -57,6 +60,11 @@ static func dialogue_key(id: String) -> String:
 
 static func buttons_key(id: String) -> String:
   return String(get_def(id).get("buttons", id))
+
+
+## 라이브 스탠딩 표정 파일 접두어("{prefix}_{표정}.png"). 정의에 없으면 id 폴백(보통 id=접두어, 시온이만 'sioni').
+static func sprite_prefix(id: String) -> String:
+  return String(get_def(id).get("sprite", id))
 
 
 static func intro_event(id: String) -> String:
@@ -112,11 +120,12 @@ static func default_pet() -> String:
   return String(p[0]) if not p.is_empty() else "sion"
 
 
-## 라이브 스탠딩 표정 6종 경로(누끼 PNG) — id 로 파생: "{id}_{key}.png".
+## 라이브 스탠딩 표정 6종 경로(누끼 PNG) — sprite 접두어로 파생: "{sprite}_{key}.png".
 static func expressions(id: String) -> Dictionary:
   var out := {}
+  var prefix := sprite_prefix(id)
   for k in EXPRESSION_KEYS:
-    out[k] = "res://assets/sprites/%s_%s.png" % [id, k]
+    out[k] = "res://assets/sprites/%s_%s.png" % [prefix, k]
   return out
 
 

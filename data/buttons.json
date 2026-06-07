@@ -30,8 +30,53 @@
       "touch_cap": "sad"
     }
   },
+  "miho": {
+    "_doc": "미호(구미호) 버튼 감정 — 라벨·순서는 okja.actions 공유(잠금). emotion 만 전용. expr ∈ idle/smile/shy/sad/brew/talk.",
+    "emotion": {
+      "cheki": "smile",
+      "drink": "brew",
+      "touch": [
+        "shy",
+        "smile"
+      ],
+      "touch_cap": "sad"
+    }
+  },
   "sion": {
     "_doc": "시온이 4버튼. label·emotion·ticker(ticker.json sion 풀 키) 편집 대상. id·affinity(호감도 종류) 잠금. emotion ∈ idle/snack/play/pet. affinity: cheki(AFF_CHEKI) | sion(AFF_SION).",
+    "actions": [
+      {
+        "id": "cheki",
+        "label": "체키",
+        "emotion": "play",
+        "ticker": "cheki",
+        "affinity": "cheki"
+      },
+      {
+        "id": "snack",
+        "label": "간식",
+        "emotion": "snack",
+        "ticker": "snack",
+        "affinity": "sion"
+      },
+      {
+        "id": "play",
+        "label": "놀기",
+        "emotion": "play",
+        "ticker": "play",
+        "affinity": "sion"
+      },
+      {
+        "id": "pet",
+        "label": "쓰담",
+        "emotion": "pet",
+        "ticker": "pet",
+        "affinity": "sion"
+      }
+    ]
+  },
+  "gyujong": {
+    "_doc": "규종이(미호의 까만 고양이) 4버튼 — 시온이와 같은 틀. label·emotion·ticker(ticker.json gyujong 풀 키) 편집 대상. id·affinity(호감도 종류) 잠금. emotion ∈ idle/snack/play/pet.",
     "actions": [
       {
         "id": "cheki",
