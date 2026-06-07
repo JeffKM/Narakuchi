@@ -30,6 +30,10 @@ const BTN_COLS := {
   &"cancel": 436,
 }
 
+# 코너 스피커 토글(SFX on/off) — LCD 위 우상단 베젤 빈 어깨(계측 근사). (→ ADR 0004)
+const SPEAKER_POS := Vector2(426, 56)
+const SPEAKER_SIZE := Vector2(48, 42)
+
 # 물리 키 → 액션 매핑 (한 액션에 여러 키)
 const KEYMAP := {
   KEY_TAB: &"select", KEY_RIGHT: &"select", KEY_DOWN: &"select",
@@ -79,6 +83,9 @@ func _ready() -> void:
   for action in BTN_COLS:
     _make_button(action, BTN_COLS[action])
 
+  # ── 5) 코너 스피커 토글 (SFX on/off → flags.sfx_on, 세이브) ── (→ ADR 0004)
+  _make_speaker_toggle()
+
 
 ## 셸 내부 버튼 좌표에 투명 Button + 눌림 Panel 을 만든다.
 func _make_button(action: StringName, center_x: int) -> void:
@@ -107,6 +114,23 @@ func _make_button(action: StringName, center_x: int) -> void:
   p.modulate = Color(1, 1, 1, 0)
   add_child(p)
   _flashes[action] = p
+
+
+## 코너 스피커 토글 — 세이브 flags.sfx_on 을 켜고/끈다. 켤 때만 확인음(끄면 무음).
+func _make_speaker_toggle() -> void:
+  var sp := ShellSpeaker.new()
+  sp.position = SHELL_POS + SPEAKER_POS
+  sp.size = SPEAKER_SIZE
+  sp.setup(bool(SaveManager.get_value("flags.sfx_on", true)))
+  sp.sfx_toggled.connect(_on_sfx_toggled)
+  add_child(sp)
+
+
+func _on_sfx_toggled(on: bool) -> void:
+  SaveManager.set_value("flags.sfx_on", on)
+  SaveManager.save_game()
+  if on:
+    Sfx.event(&"confirm")  # 켠 직후 한 번 — 들리는지 즉시 확인
 
 
 ## 키보드 입력 → 액션 (터치는 Button.pressed 가 직접 _trigger 호출)

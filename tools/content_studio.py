@@ -28,6 +28,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 DATA_DIR = os.path.join(ROOT, "data")
 SPRITES_DIR = os.path.join(ROOT, "assets", "sprites")
+AUDIO_DIR = os.path.join(ROOT, "assets", "audio")
 
 FILES = {
     "ticker": "ticker.json",
@@ -35,7 +36,11 @@ FILES = {
     "gifts": "gifts.json",
     "buttons": "buttons.json",
     "balance": "balance.json",
+    "sound": "sound.json",
 }
+
+# 사운드 이벤트 카테고리(검증·UI 그룹 단일 출처 — sound.gd/ADR 0004 와 동기).
+SOUND_CATS = ["ui", "interaction", "reward", "transition"]
 
 # 게임 코드와 일치해야 하는 허용값(검증용 단일 출처 — okja.gd / sioni.gd EXPRESSIONS 와 동기).
 OKJA_EXPR = ["idle", "smile", "shy", "sad", "brew", "talk"]
@@ -63,6 +68,14 @@ def _load_gift_icons():
 
 
 GIFT_ICONS = _load_gift_icons()
+
+
+def _list_audio():
+    """assets/audio 의 .wav 파일명 목록(정렬) — 사운드 탭 드롭다운 단일 출처."""
+    try:
+        return sorted(f for f in os.listdir(AUDIO_DIR) if f.endswith(".wav"))
+    except OSError:
+        return []
 
 
 # ── 데이터 입출력 ────────────────────────────────────────────
@@ -190,6 +203,28 @@ def validate(db):
         if not is_int(aff.get(k)):
             errs.append(f"밸런스 '{k}' 는 정수여야 함")
 
+    # sound — 이벤트 바인딩 (→ ADR 0004). 이벤트 키/cat 은 코드 소유(여기선 추가/삭제·키변경 안 함).
+    #   file 은 빈 문자열(=cat 기본) 이거나 실재하는 wav 여야 한다. cat 은 허용값.
+    snd = db.get("sound", {})
+    audio = set(_list_audio())
+    defaults = snd.get("defaults", {})
+    for cat, fn in defaults.items():
+        if fn not in (None, "") and fn not in audio:
+            errs.append(f"사운드 기본음 '{cat}' 파일 없음: {fn}")
+    for eid, e in snd.get("events", {}).items():
+        if eid.startswith("_"):
+            continue
+        if not isinstance(e, dict):
+            errs.append(f"사운드 이벤트 '{eid}' 형식 오류")
+            continue
+        if e.get("cat") not in SOUND_CATS:
+            errs.append(f"사운드 이벤트 '{eid}' 카테고리 오류({e.get('cat')})")
+        fn = e.get("file", "")
+        if fn not in ("", None) and fn not in audio:
+            errs.append(f"사운드 이벤트 '{eid}' 파일 없음: {fn}")
+        if not isinstance(e.get("pitch", 1.0), (int, float)) or isinstance(e.get("pitch"), bool):
+            errs.append(f"사운드 이벤트 '{eid}' pitch 는 숫자여야 함")
+
     return errs
 
 
@@ -228,11 +263,15 @@ class Handler(BaseHTTPRequestHandler):
                     "giftTiers": GIFT_TIERS,
                     "giftIcons": GIFT_ICONS,
                     "maxChoices": MAX_CHOICES,
+                    "audioFiles": _list_audio(),
+                    "soundCats": SOUND_CATS,
                 },
             }
             self._send(200, json.dumps(payload, ensure_ascii=False))
         elif self.path.startswith("/sprite/"):
             self._serve_sprite(self.path[len("/sprite/"):])
+        elif self.path.startswith("/audio/"):
+            self._serve_audio(self.path[len("/audio/"):])
         else:
             self._send(404, json.dumps({"error": "not found"}))
 
@@ -245,6 +284,19 @@ class Handler(BaseHTTPRequestHandler):
             return
         with open(path, "rb") as f:
             self._send(200, f.read(), "image/png")
+
+    def _serve_audio(self, name):
+        # 경로 traversal 차단 — 영숫자/언더스코어/. 만, .wav 강제.
+        safe = "".join(c for c in name if c.isalnum() or c in "_.")
+        if not safe.endswith(".wav") or "/" in safe or ".." in safe:
+            self._send(404, b"", "audio/wav")
+            return
+        path = os.path.join(AUDIO_DIR, safe)
+        if not os.path.isfile(path):
+            self._send(404, b"", "audio/wav")
+            return
+        with open(path, "rb") as f:
+            self._send(200, f.read(), "audio/wav")
 
     def do_POST(self):
         if self.path != "/api/save":
@@ -369,7 +421,11 @@ const TABS = [
   ["gifts", "선물"],
   ["buttons", "버튼·감정"],
   ["balance", "밸런스"],
+  ["sound", "사운드"],
 ];
+const SOUND_CAT_LABEL = {
+  ui:"UI · 네비게이션", interaction:"교감 · 액션", reward:"보상 · 마일스톤", transition:"전환",
+};
 const SITU_LABEL = {
   enter:"입장/첫 방문", neglect:"방치 후 복귀", cheki:"체키 주문", drink:"음료 주문",
   talk:"대화 진입", gift:"선물 진입", touch:"옥자 터치", touch_cap:"터치 상한",
@@ -827,8 +883,85 @@ function renderBalance() {
     "대화·선물 선택지는 tier 만 고르고(대화/선물 탭), 실제 수치는 여기서 한 곳에 모은다."));
 }
 
+// ── 사운드 (→ ADR 0004) ──
+function playClip(file, pitch) {
+  if (!file) { setStatus("무음 (바인딩 파일 없음)", ""); return; }
+  const a = new Audio("/audio/" + file);
+  a.playbackRate = pitch || 1.0;  // 게임 pitch_scale 과 동일하게 속도+음높이 변함
+  a.play().catch(()=>setStatus("재생 실패: " + file, "err"));
+}
+
+function fileSelect(current, onChange, emptyLabel) {
+  const s = el("select", {style:"flex:1; min-width:0"});
+  s.append(el("option", {value:""}, emptyLabel || "(카테고리 기본음)"));
+  for (const f of (META.audioFiles||[])) {
+    const o = el("option", {value:f}, f);
+    if (f === current) o.selected = true;
+    s.append(o);
+  }
+  if (!current) s.value = "";
+  s.addEventListener("change", ()=>{ onChange(s.value); markDirty(); });
+  return s;
+}
+
+function gainInput(obj, key) {
+  const v = (obj[key] != null) ? obj[key] : 0;
+  const i = el("input", {type:"number", value:v, step:"0.5", title:"볼륨(dB)", style:"width:64px;flex:0 0 auto"});
+  i.addEventListener("input", ()=>{ const n=parseFloat(i.value); obj[key]= Number.isFinite(n)?n:0; markDirty(); });
+  return el("div", {style:"flex:0 0 auto;display:flex;align-items:center;gap:3px"}, [i, el("span",{class:"hint"},"dB")]);
+}
+
+function soundRow(id, e, snd) {
+  const muted = !!e.mute;
+  const resolved = () => e.mute ? "" : (e.file || snd.defaults[e.cat] || "");
+  const sel = fileSelect(e.file||"", v=>{ if (v) e.file=v; else delete e.file; });
+  sel.disabled = muted;
+  const pitch = el("input", {type:"number", value:(e.pitch!=null?e.pitch:1.0), step:"0.05", min:"0.1",
+    title:"피치", style:"width:62px;flex:0 0 auto"});
+  pitch.disabled = muted;
+  pitch.addEventListener("input", ()=>{ const n=parseFloat(pitch.value); e.pitch= Number.isFinite(n)?n:1.0; markDirty(); });
+  const play = el("button", {class:"x", title:"미리듣기", onclick:()=>playClip(resolved(), e.pitch||1.0)}, "▶");
+  const muteBtn = el("button", {class:"x", title:"음소거 토글",
+    style: muted?"color:var(--accent);border-color:var(--accent)":""}, muted?"🔇":"🔊");
+  muteBtn.addEventListener("click", ()=>{ e.mute = !e.mute; if(!e.mute) delete e.mute; markDirty(); render(); });
+  return el("div", {class:"row", style:"align-items:center;gap:8px"}, [
+    el("div", {style:"flex:0 0 128px;font-size:13px"}, e.label||id),
+    sel, pitch, play, muteBtn,
+  ]);
+}
+
+function renderSound() {
+  const main = document.getElementById("main");
+  const snd = DB.sound || {};
+  if (!snd.events) { main.append(el("div",{class:"err-list"},"sound.json 에 events 가 없습니다.")); return; }
+  snd.defaults = snd.defaults || {}; snd.gain = snd.gain || {};
+
+  main.append(el("div", {class:"hint", style:"margin-bottom:12px"},
+    "이벤트 키·카테고리는 코드 소유(추가/삭제 불가) — 파일·피치·음소거·기본음·볼륨만 조정한다. " +
+    "파일을 '(카테고리 기본음)' 으로 두면 그 카테고리 기본 소리가 난다(무음 방지). ▶ 로 들어보며 튜닝."));
+
+  const defCard = el("div", {class:"card"}, [ el("h3", {}, ["🔧 카테고리 기본음 · 볼륨", el("span",{class:"lock"},"defaults")]) ]);
+  for (const cat of (META.soundCats||[])) {
+    defCard.append(el("div", {class:"row", style:"align-items:center;gap:8px"}, [
+      el("div", {style:"flex:0 0 128px;font-size:13px"}, SOUND_CAT_LABEL[cat]||cat),
+      fileSelect(snd.defaults[cat]||"", v=>{ snd.defaults[cat]= v||null; }, "(없음=무음)"),
+      gainInput(snd.gain, cat),
+      el("button", {class:"x", title:"미리듣기", onclick:()=>playClip(snd.defaults[cat], 1.0)}, "▶"),
+    ]));
+  }
+  main.append(defCard);
+
+  for (const cat of (META.soundCats||[])) {
+    const ids = Object.keys(snd.events).filter(id=>!id.startsWith("_") && snd.events[id].cat===cat);
+    if (!ids.length) continue;
+    const card = el("div", {class:"card"}, [ el("h3", {}, [(SOUND_CAT_LABEL[cat]||cat)+" — 이벤트", el("span",{class:"lock"}, cat)]) ]);
+    for (const id of ids) card.append(soundRow(id, snd.events[id], snd));
+    main.append(card);
+  }
+}
+
 // ── 탭 전환/렌더 ──
-const RENDER = { okja:renderOkja, sion:renderSion, talk:renderTalk, gifts:renderGifts, buttons:renderButtons, balance:renderBalance };
+const RENDER = { okja:renderOkja, sion:renderSion, talk:renderTalk, gifts:renderGifts, buttons:renderButtons, balance:renderBalance, sound:renderSound };
 function render() {
   document.getElementById("main").innerHTML = "";
   RENDER[activeTab]();
