@@ -137,26 +137,26 @@
 
 부모 추적: **[#7](https://github.com/JeffKM/Narakuchi/issues/7)** (`gh issue view 7`)
 
-| 이슈 | 슬라이스 | 타입 | 차단 |
-|---|---|---|---|
-| [#1](https://github.com/JeffKM/Narakuchi/issues/1) | 🎨 미호 아트 에셋 생산 | HITL | — |
-| [#2](https://github.com/JeffKM/Narakuchi/issues/2) | 🧩 캐릭터 레지스트리 + 미호 라이브 (트레이서) | AFK | #1 |
-| [#3](https://github.com/JeffKM/Narakuchi/issues/3) | 🎴 로스터 선택 화면 | AFK | #2 |
-| [#4](https://github.com/JeffKM/Narakuchi/issues/4) | 💬 미호 완전 교감 파리티 + 반말 컷인 | AFK | #2, #1 |
-| [#5](https://github.com/JeffKM/Narakuchi/issues/5) | 📸 미호 인트로 체키 + 컬렉션북 탭 | AFK | #2, #1 |
-| [#6](https://github.com/JeffKM/Narakuchi/issues/6) | 🐈‍⬛ 펫 규종이 슬라이스 | AFK | #2, #3 + 규종이 아트 |
+| 이슈 | 슬라이스 | 타입 | 차단 | 상태 |
+|---|---|---|---|---|
+| [#1](https://github.com/JeffKM/Narakuchi/issues/1) | 🎨 미호 아트 에셋 생산 | HITL | — | ✅ 완료 |
+| [#2](https://github.com/JeffKM/Narakuchi/issues/2) | 🧩 캐릭터 레지스트리 + 미호 라이브 (트레이서) | AFK | #1 | ✅ 완료 (T30) |
+| [#3](https://github.com/JeffKM/Narakuchi/issues/3) | 🎴 로스터 선택 화면 | AFK | #2 | ✅ 완료 (T31) |
+| [#4](https://github.com/JeffKM/Narakuchi/issues/4) | 💬 미호 완전 교감 파리티 + 반말 컷인 | AFK | #2, #1 | ⬜ **다음** (차단 해소) |
+| [#5](https://github.com/JeffKM/Narakuchi/issues/5) | 📸 미호 인트로 체키 + 컬렉션북 탭 | AFK | #2, #1 | ⬜ 대기 (차단 해소) |
+| [#6](https://github.com/JeffKM/Narakuchi/issues/6) | 🐈‍⬛ 펫 규종이 슬라이스 | AFK | #2, #3 + 규종이 아트 | ⛔ 규종이 아트 대기 |
 
 **🧩 코드 트랙 (슬라이스마다 반복, 패턴은 첫 슬라이스에서 확립)**
 
 - [x] **T30** 캐릭터 일반화 토대 `(미호=#2)` — **완료(트레이서)**: `data/characters.gd` 레지스트리 신설(메인 옥자·미호 / 펫 시온이 — kind·표정경로·게이지풀·대사/버튼키·인트로이벤트). `SaveManager` 캐릭터 상태를 **레지스트리 주도**로(okja/sion 하드코딩 제거, 미호 블록·`flags.active_main` 추가) + **버전 범프 v1→v2 + 클린 리셋**. `Meters` 제네릭화(`add_affinity_main`/`consume_gauge_main`/`stage_of`/`_add_main`/`_post_affinity_main`/`_recover_mood(char)`, 기존 `*_okja`는 백호환 래퍼) + `stage()`·터치·방치는 active_main 기준. `Okja` 스탠딩이 `character` 로 임의 메인 렌더(표정=레지스트리 파생). `Hud` 게이지/기분이 active_main 기준. `cafe` 가 `active_main` 을 들고 제네릭 호출. `DebugTools` 키 8 = active_main 토글(미호 라이브 확인). 미호를 `mine` 이벤트 참여로. **검수**: 테스트 89+202+17 통과(미호 레지스트리 13단언 신규), verify_cheki_art 26레이어 회귀 OK, 헤드리스 부팅 무에러. **이연**: 대사는 미호=옥자 템플릿 공유(#4), 로스터 선택 UI·splash "고른 메인 맞이"(#3), 펫 일반화(#6).
-- [ ] **T31** 로스터 선택 화면 `(미호=#3)` — 온보딩(닉네임 다음)에서 첫 `active_main`+`active_pet` 선택 + 카페에서 재사용 토글로 활성 페어 교체. `onboarding.gd`의 옥자/`mine` 하드코딩 → 고른 메인이 맞이(템플릿 인사) + 그 메인의 인트로 체키.
+- [x] **T31** 로스터 선택 화면 `(미호=#3)` — **완료**: 재사용 오버레이 `scripts/ui/roster_screen.gd`(RosterScreen)로 메인+펫을 **자유 조합**으로 선택. 레지스트리 주도 카드(포트레이트·이름·관계단계/소개·accent) + 셸 3버튼 + 골드 하트 포커스. 온보딩(닉네임 다음)에서 첫 `active_main`+`active_pet` 선택 → **고른 메인이 맞이(템플릿 인사) + 그 메인의 인트로 체키**(`onboarding.gd` 옥자/`mine` 하드코딩 제거). 카페 **좌상단 진입 버튼 + `swap_active`** 런타임 교체(라이브 스탠딩 텍스처만 스왑, `okja.set_character`로 표정 6종 재로드·트리/트윈 보존). `save_manager`에 `flags.active_pet` 스키마 + `build_state` 지원, `debug_tools` 키 8 = 라이브 swap 경로. 시스템 95 통과(active_pet 스키마 + 로스터 결정 경로 회귀).
 - [ ] **T32** 컬렉션북 탭 일반화 `(미호 탭=#5 · 펫 섹션=#6)` — 메인 4 + 펫 5 = 9탭 "메인/펫" 섹션 그룹핑. 잠긴 탭 **3-상태 수명**(미빌드 실루엣 → 빌드+무료 → 빌드+♡게이트).
 - [ ] **T33+** 슬라이스 #1 미호 배선 `(라이브=#2 · 교감=#4 · 체키=#5 · 펫 규종이=#6)` → 이후 바나 → 멜(펫 2마리) — 각자 레지스트리 1항 + 에셋 + 대사 파일.
 - [ ] **T39(최후)** 해금 경제 — ♡ 화폐(데일리 교감 적립·HUD·세이브 필드) + 상점에서 확정 해금(펫 저렴). 잠긴 탭을 ♡게이트로 전환. *(이슈 미발행 — 전 캐릭터 추가 후)*
 
 **🎨 아트 트랙 (코드보다 항상 선행)**
 
-- [ ] 신규 메인 1명당: 표정 6장(idle/smile/shy/sad/brew/talk) + 초상 + 인트로(지뢰계) 체키 의상 1벌 → 이벤트 의상 점증 `(미호=#1)`
+- [~] 신규 메인 1명당: 표정 6장(idle/smile/shy/sad/brew/talk) + 초상 + 인트로(지뢰계) 체키 의상 1벌 → 이벤트 의상 점증 `(미호=#1)` — **미호 ✅ 완료**(표정6·초상·지뢰계 의상·체키 배경, SD 재수정), 바나·멜 대기
 - [ ] 신규 펫 1마리당: 반응 4컷(idle/간식/놀기/쓰담) + 초상 + 인트로 체키 베이크컷 `(규종이=#6 선행)`
 - [ ] 시그니처 음료 연출 컷(블러디 미드나잇·청운 에이드·미호 스파클링) `(미호 스파클링=#1)`
 
