@@ -22,11 +22,6 @@ const CARD_GAP := 14
 const POR_PX := 24          # 포트레이트 원본(도트)
 const POR_VIEW := 72        # 카드 안 표시 크기(정수 ×3 → Nearest 또렷)
 
-# 관계 단계 → 카드 부제 라벨(메인 전용). 펫은 단계가 없어 레지스트리 tag 를 부제로 쓴다.
-const STAGE_LABEL := {
-  "guest": "손님", "regular": "단골", "comfy": "편해진 사이", "close": "마음 연 사이",
-}
-
 var _mode := MODE_ONBOARDING
 var _sel_main := ""
 var _sel_pet := ""
@@ -64,7 +59,7 @@ func _ready() -> void:
 
   # 2) 제목
   var title := _make_label(Palette.CANDLE, Fonts.SIZE_TITLE)
-  title.text = "함께할 친구를 골라요" if _mode == MODE_ONBOARDING else "친구 바꾸기"
+  title.text = "함께할 친구를 골라요" if _mode == MODE_ONBOARDING else "교체"
   title.position = Vector2(0, 20)
   title.size = Vector2(LCD.x, 28)
   add_child(title)
@@ -79,7 +74,7 @@ func _ready() -> void:
 
   # 5) 결정 버튼
   _confirm = Button.new()
-  _confirm.text = "이 친구로 시작" if _mode == MODE_ONBOARDING else "이 친구로 바꾸기"
+  _confirm.text = "이 친구로 시작" if _mode == MODE_ONBOARDING else "교체하기"
   _confirm.size = Vector2(220, 44)
   _confirm.position = Vector2((LCD.x - 220) / 2.0, 404)
   UiTheme.style_button(_confirm)
@@ -187,7 +182,7 @@ func _build_card_row(ids: Array, store: Dictionary, group: String, y: int) -> vo
     store[id] = card
 
 
-## 카드 = 포트레이트 + 이름 + 부제를 담은 버튼(스타일박스로 패널처럼). 클릭=그 그룹 선택.
+## 카드 = 포트레이트 + 이름을 담은 버튼(스타일박스로 패널처럼). 클릭=그 그룹 선택.
 func _make_card(group: String, id: String) -> Button:
   var card := Button.new()
   card.focus_mode = Control.FOCUS_NONE
@@ -213,22 +208,7 @@ func _make_card(group: String, id: String) -> Button:
   name_lb.position = Vector2(2, 86)
   name_lb.size = Vector2(CARD.x - 4, 18)
   card.add_child(name_lb)
-
-  # 부제(메인=관계 단계 / 펫=한 줄 소개)
-  var sub_lb := _make_label(Characters.accent(id), Fonts.SIZE_SMALL)
-  sub_lb.text = _subtitle(group, id)
-  sub_lb.position = Vector2(2, 104)
-  sub_lb.size = Vector2(CARD.x - 4, 16)
-  card.add_child(sub_lb)
   return card
-
-
-## 카드 부제 — 메인은 현재 관계 단계 라벨, 펫은 레지스트리 한 줄 소개.
-func _subtitle(group: String, id: String) -> String:
-  if group == Characters.MAIN:
-    var aff := int(SaveManager.get_value("%s.affinity_total" % id, 0))
-    return String(STAGE_LABEL.get(Balance.relationship_stage(aff), "손님"))
-  return Characters.tag(id)
 
 
 ## 셸 커서 순환 대상 모으기: 메인 카드 → 펫 카드 → 결정 버튼.
