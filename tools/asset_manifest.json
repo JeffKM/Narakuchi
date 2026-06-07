@@ -508,6 +508,65 @@
       ]
     },
     {
+      "id": "A9",
+      "title": "A9 · 미호 (구미호 메이드, 슬라이스 #1)",
+      "items": [
+        {
+          "id": "miho_idle",
+          "label": "미호 기본(구미호 메이드룩)",
+          "preset": "okja",
+          "path": "assets/sprites/miho_idle.png"
+        },
+        {
+          "id": "miho_smile",
+          "label": "미호 웃음",
+          "preset": "okja",
+          "path": "assets/sprites/miho_smile.png"
+        },
+        {
+          "id": "miho_shy",
+          "label": "미호 부끄",
+          "preset": "okja",
+          "path": "assets/sprites/miho_shy.png"
+        },
+        {
+          "id": "miho_sad",
+          "label": "미호 시무룩",
+          "preset": "okja",
+          "path": "assets/sprites/miho_sad.png"
+        },
+        {
+          "id": "miho_brew",
+          "label": "미호 제조중(미호 스파클링)",
+          "preset": "okja",
+          "path": "assets/sprites/miho_brew.png"
+        },
+        {
+          "id": "miho_talk",
+          "label": "미호 말하기",
+          "preset": "okja",
+          "path": "assets/sprites/miho_talk.png"
+        },
+        {
+          "id": "portrait_miho",
+          "label": "탭 미니 초상 — 미호",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/portrait_miho.png"
+        },
+        {
+          "id": "miho_jirai",
+          "label": "미호 인트로(지뢰계) 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/miho_jirai.png"
+        }
+      ]
+    },
+    {
       "id": "S",
       "title": "셸 / UI / 공유",
       "items": [
