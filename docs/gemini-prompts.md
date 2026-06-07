@@ -13,6 +13,7 @@
 | 🔮 [**옥자**](./gemini-prompts-okja.md) | 공통 베이스 + SD 라이브 · 표정 6종 · 지뢰계 ★히어로 의상 · 이벤트 의상 4종(유치원·힙합·집사·크리스마스) · 옥자 후처리 |
 | 🐈 [**시온이**](./gemini-prompts-sion.md) | 펫 라이브(반응 4종) · 60px(A8-1) · 체키 의상(쿠로미풍·루돌프 배경 베이크) · 시온이 후처리 |
 | 🦊 [**미호**](./gemini-prompts-miho.md) | 구미호 메이드 SD 라이브 + 표정 6종 · 초상 · 인트로(지뢰계) 체키 의상 · 미호 후처리 — **이슈 [#1](https://github.com/JeffKM/Narakuchi/issues/1)** |
+| 🐈‍⬛ [**규종이**](./gemini-prompts-gyujong.md) | 미호의 까만 고양이 — 펫 반응 4종 · 초상 · 인트로(지뢰계) 베이크 체키 · 규종이 후처리(크로마 마젠타) — **이슈 [#6](https://github.com/JeffKM/Narakuchi/issues/6)** |
 
 ## 공통 규칙 (요약 — 상세는 [공통 파일](./gemini-prompts-common.md))
 

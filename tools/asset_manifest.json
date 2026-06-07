@@ -580,6 +580,78 @@
       ]
     },
     {
+      "id": "A10",
+      "title": "A10 · 규종이 (미호의 까만 고양이, 슬라이스 #6)",
+      "items": [
+        {
+          "id": "gyujong_idle",
+          "label": "규종이 idle (96px) — 크로마 마젠타(초록 눈)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "ff00ff",
+          "path": "assets/sprites/gyujong_idle.png"
+        },
+        {
+          "id": "gyujong_snack",
+          "label": "규종이 반응 — 간식 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "ff00ff",
+          "path": "assets/sprites/gyujong_snack.png"
+        },
+        {
+          "id": "gyujong_play",
+          "label": "규종이 반응 — 놀기 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "ff00ff",
+          "path": "assets/sprites/gyujong_play.png"
+        },
+        {
+          "id": "gyujong_pet",
+          "label": "규종이 반응 — 쓰담 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "ff00ff",
+          "path": "assets/sprites/gyujong_pet.png"
+        },
+        {
+          "id": "portrait_gyujong",
+          "label": "탭 미니 초상 — 규종이 (크로마 마젠타)",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "ff00ff",
+          "path": "assets/sprites/portrait_gyujong.png",
+          "center": true
+        },
+        {
+          "id": "photo_gyujong_jirai",
+          "label": "규종이 지뢰계 체키 사진(배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_gyujong_jirai.png"
+        }
+      ]
+    },
+    {
       "id": "S",
       "title": "셸 / UI / 공유",
       "items": [
