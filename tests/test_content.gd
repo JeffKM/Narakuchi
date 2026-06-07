@@ -12,6 +12,7 @@ func _init() -> void:
 func run_suite() -> void:
   _test_cheki_shards()
   _test_milestone_pick()
+  _test_milestone_miho()
   _test_dialogue_talk()
   _test_dialogue_gift()
   _test_dialogue_miho()
@@ -19,6 +20,7 @@ func run_suite() -> void:
   _test_build_state()
   _test_first_cheki_nickname()
   _test_book_smoke()
+  _test_miho_book_tab()
   _test_t21_expansion()
   _test_hud_attendance()
   _test_sound_binding()
@@ -72,6 +74,19 @@ func _test_milestone_pick() -> void:
   check(not got.is_empty(), "보상 칸 선택됨")
   check(String(got["character"]) == Events.OKJA, "조각 최다 칸(okja) 우선 선택")
   check(bool(got["upgraded"]), "조각 2+1 → 3 → 승급")
+
+
+# ── 마일스톤 보상 미호 파리티 (이슈 #5) ────────────────────
+# 출석 마일스톤 나비 조각이 옥자·시온이뿐 아니라 미호 보유 일반 칸도 후보로 삼는지(전 캐릭터 전수).
+# 미호를 메인으로 키워 미호 칸만 보유한 플레이어도 마일스톤 보상이 닿아야 한다(누락 방지).
+func _test_milestone_miho() -> void:
+  wipe()
+  Cheki.grant("miho", "mine")           # miho:mine 일반(조각 0)
+  Cheki.add_shards("miho", "mine", 2)   # 조각 2 → 승급 직전
+  var got := Cheki.grant_milestone_shards(1)
+  check(not got.is_empty(), "미호만 보유해도 마일스톤 보상 후보 있음")
+  check(String(got["character"]) == "miho", "미호 보유 일반 칸이 마일스톤 후보(파리티)")
+  check(bool(got["upgraded"]), "미호 조각 2+1 → 3 → 승급")
 
 
 # ── 대화 토막 (T11) ───────────────────────────────────────
@@ -279,6 +294,55 @@ func _test_book_smoke() -> void:
   b2.free()
 
 
+# ── 미호 컬렉션북 탭 잠금 해제 (이슈 #5) ───────────────────
+## 미호 탭이 실루엣 → 잠금 해제되어 실제 그리드(지뢰계)를 보여주고, 미보유 칸은 예고형 빈칸,
+## 보유 시 owned 칸으로 렌더되는지. 바나·멜은 여전히 잠겨 예고로 남는다(옥자·시온이 회귀는 _test_book_smoke).
+func _test_miho_book_tab() -> void:
+  wipe()
+  # TABS 계약: 미호 잠금 해제 + 바나·멜은 잠금 유지.
+  var locks := {}
+  for t in CollectionBook.TABS:
+    locks[String(t["id"])] = bool(t["locked"])
+  check(locks.get("miho", true) == false, "미호 탭 잠금 해제(locked=false)")
+  check(bool(locks.get("bana", false)) and bool(locks.get("mel", false)),
+    "바나·멜은 여전히 잠금(예고로 유지)")
+
+  var miho_i := -1
+  for i in CollectionBook.TABS.size():
+    if String(CollectionBook.TABS[i]["id"]) == "miho":
+      miho_i = i
+  check(miho_i >= 0, "미호 탭 존재")
+
+  # 미보유 상태로 탭 전환 → 미호 참여 이벤트만(비대칭 그리드 정상), 한정 슬롯 없음.
+  var book := CollectionBook.new()
+  add_child(book)  # 기본 active=옥자
+  book._on_tab(miho_i)
+  check(book._active_char == "miho", "미호 탭 전환 → active_char=miho")
+  var miho_evs := Events.events_for("miho")
+  check(book._slots.size() == miho_evs.size(),
+    "미호 그리드 = 참여 이벤트 %d칸(한정 슬롯 없음, got %d)" % [miho_evs.size(), book._slots.size()])
+  var mine_slot: ChekiSlot = null
+  for s in book._slots:
+    if s.event == "mine":
+      mine_slot = s
+  check(mine_slot != null and not mine_slot.is_owned(), "미보유 미호 지뢰계 = 빈칸")
+  check(mine_slot != null and mine_slot.state == ChekiSlot.STATE_EMPTY,
+    "미호 지뢰계 미보유 = empty(아트 준비됨 = 예고형 빈칸)")
+  book.free()
+
+  # 보유 시 owned 칸으로 렌더(미호 체키 grant → 새 책에서 확인).
+  Cheki.grant("miho", "mine")
+  var b2 := CollectionBook.new()
+  add_child(b2)
+  b2._on_tab(miho_i)
+  var owned := false
+  for s in b2._slots:
+    if s.event == "mine" and s.is_owned():
+      owned = true
+  check(owned, "미호 지뢰계 체키 보유 → owned 칸")
+  b2.free()
+
+
 # ── 잠긴 멤버 + 한정 슬롯 + 확장 슬라이드 (T21) ────────────
 ## 잠긴 탭 활성화 → 확장 슬라이드 발화, 옥자 그리드 끝 "한정" 슬롯 존재·탭 비모달.
 
@@ -297,9 +361,15 @@ func _test_t21_expansion() -> void:
   check(book._slots.size() == expected,
     "옥자 슬롯 = 이벤트 %d + 한정 1 = %d (got %d)" % [expected - 1, expected, book._slots.size()])
 
-  # 잠긴 탭(바나=index 2) 활성화 → 확장 슬라이드 발화.
+  # 첫 잠긴 탭(바나/멜) 활성화 → 확장 슬라이드 발화. 탭 순서 변경에 견디게 동적 탐색. (→ 이슈 #5 재배치)
+  var locked_i := -1
+  for i in CollectionBook.TABS.size():
+    if bool(CollectionBook.TABS[i]["locked"]):
+      locked_i = i
+      break
+  check(locked_i >= 0, "잠긴 탭이 최소 1개 존재(바나/멜)")
   check(book._slide == null, "초기엔 슬라이드 없음")
-  book._on_tab(2)
+  book._on_tab(locked_i)
   check(book._slide != null, "잠긴 탭 활성화 → 확장 슬라이드 발화")
   check(book._slide is ExpansionSlide, "슬라이드 타입 = ExpansionSlide")
   # 슬라이드 떠 있으면 셸 입력이 슬라이드로 위임됨(CANCEL 닫기 경로) — 크래시 없이 호출되는지.

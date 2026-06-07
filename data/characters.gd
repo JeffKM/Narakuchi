@@ -85,6 +85,11 @@ static func ids_of_kind(kind: String) -> Array:
   return out
 
 
+## 전체 캐릭터 id(메인+펫, 레지스트리 삽입 순서) — 체키 마일스톤 등 전수 순회용.
+static func all_ids() -> Array:
+  return REGISTRY.keys()
+
+
 static func mains() -> Array:
   return ids_of_kind(MAIN)
 

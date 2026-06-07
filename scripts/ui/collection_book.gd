@@ -9,7 +9,7 @@ extends Control
 ##   헤더(타이틀 + 진행도 카운터 + ✕) · 캐릭터 색인 탭 · 2열 그리드(ChekiSlot) · 힌트 · 장식 나비.
 ##   - 칸: ChekiSlot 가 owned/empty/locked/limited 렌더(미보유=표지 디밍+참). owned 탭 → CardDetail 모달.
 ##         옥자 그리드 끝 "한정" 슬롯 1칸 = 현장 한정 예고(컨셉/예정, 데모 해금 불가 — T21).
-##   - 탭: CharacterTab(초상 색인) — 옥자·시온이 + 잠긴 네임드 멤버 바나·멜·미호(실루엣+봉랍).
+##   - 탭: CharacterTab(초상 색인) — 옥자·미호·시온이(잠금 해제) + 잠긴 네임드 멤버 바나·멜(실루엣+봉랍).
 ##         잠긴 탭 OK/터치 → ExpansionSlide 예고(실루엣·이름·다음 업데이트·펫 확장 한 줄). (T21)
 ##   - 카운터: 활성 캐릭터 ◆◆◇◇◇ n/m (미래 포함 전체, 잠긴 핍 회색 — 콘텐츠 예고 후크).
 ## 입력(평면 링): SELECT=포커스 순환(탭+칸) · OK=활성(탭전환/모달열기) · CANCEL=책 닫기.
@@ -53,13 +53,15 @@ const PIP := Vector2(7, 10)
 const PIP_GAP := 9.0
 
 # 캐릭터 탭: id + 표시명 + locked + accent(잠긴 멤버 실루엣 구분색).
-# 잠긴 멤버(바나·멜·미호)는 코드 실루엣+봉랍으로 노출, OK/탭 → 확장 슬라이드 예고. (→ T21)
+# 잠긴 멤버(바나·멜)는 코드 실루엣+봉랍으로 노출, OK/탭 → 확장 슬라이드 예고. (→ T21)
+# 순서: 잠금 해제된 실 캐릭터(메인 옥자·미호 → 펫 시온이) 먼저, 잠긴 예고 멤버는 뒤로. (→ 이슈 #5)
+# 미호는 #5에서 실루엣 → 잠금 해제(실제 그리드). accent 는 locked 멤버 실루엣 색이라 미호엔 미사용.
 const TABS := [
   {"id": "okja", "name": "옥자", "locked": false, "accent": Palette.BURGUNDY},
+  {"id": "miho", "name": "미호", "locked": false, "accent": Palette.ACCENT_YELLOW},
   {"id": "sion", "name": "시온이", "locked": false, "accent": Palette.GREY_300},
   {"id": "bana", "name": "바나", "locked": true, "accent": Palette.VIOLET},
   {"id": "mel",  "name": "멜",   "locked": true, "accent": Palette.TEAL},
-  {"id": "miho", "name": "미호", "locked": true, "accent": Palette.ACCENT_YELLOW}, # 백·노랑 구미호룩 반영(기존 핑크에서 변경)
 ]
 
 var _active_char: String = "okja"

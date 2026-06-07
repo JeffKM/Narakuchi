@@ -135,7 +135,8 @@ static func grant_milestone_shards(amount: int) -> Dictionary:
   var best_char := ""
   var best_event := ""
   var best_shards := -1
-  for ch in [Events.OKJA, Events.SION]:
+  # 전 캐릭터 전수(옥자·미호·시온이 …) — 미호 메인 등 누구를 키워도 마일스톤 보상이 닿게. (→ 이슈 #5)
+  for ch in Characters.all_ids():
     for ev in Events.events_for(ch):
       if grade(ch, ev) == GRADE_COMMON:
         var s := int(record(ch, ev)["shards"])
