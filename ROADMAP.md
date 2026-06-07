@@ -148,7 +148,7 @@
 
 **🧩 코드 트랙 (슬라이스마다 반복, 패턴은 첫 슬라이스에서 확립)**
 
-- [ ] **T30** 캐릭터 일반화 토대 `(미호=#2)` — `data/characters.gd` 데이터 주도 레지스트리(메인·펫: id·스프라이트·시그니처음료·대사참조·체키이벤트). `SaveManager`를 character별 상태 **id-맵**으로(okja/sion 하드코딩 제거; 미호 슬라이스 #2는 **버전 범프 + 클린 리셋**으로 합의). `meters`(`add_affinity_*` 일반화)·`Balance.is_casual(character)`(임계 200/600/2000 공유, character별 `affinity_total`만)·`cafe` 디오라마를 레지스트리에서 읽게 전환.
+- [x] **T30** 캐릭터 일반화 토대 `(미호=#2)` — **완료(트레이서)**: `data/characters.gd` 레지스트리 신설(메인 옥자·미호 / 펫 시온이 — kind·표정경로·게이지풀·대사/버튼키·인트로이벤트). `SaveManager` 캐릭터 상태를 **레지스트리 주도**로(okja/sion 하드코딩 제거, 미호 블록·`flags.active_main` 추가) + **버전 범프 v1→v2 + 클린 리셋**. `Meters` 제네릭화(`add_affinity_main`/`consume_gauge_main`/`stage_of`/`_add_main`/`_post_affinity_main`/`_recover_mood(char)`, 기존 `*_okja`는 백호환 래퍼) + `stage()`·터치·방치는 active_main 기준. `Okja` 스탠딩이 `character` 로 임의 메인 렌더(표정=레지스트리 파생). `Hud` 게이지/기분이 active_main 기준. `cafe` 가 `active_main` 을 들고 제네릭 호출. `DebugTools` 키 8 = active_main 토글(미호 라이브 확인). 미호를 `mine` 이벤트 참여로. **검수**: 테스트 89+202+17 통과(미호 레지스트리 13단언 신규), verify_cheki_art 26레이어 회귀 OK, 헤드리스 부팅 무에러. **이연**: 대사는 미호=옥자 템플릿 공유(#4), 로스터 선택 UI·splash "고른 메인 맞이"(#3), 펫 일반화(#6).
 - [ ] **T31** 로스터 선택 화면 `(미호=#3)` — 온보딩(닉네임 다음)에서 첫 `active_main`+`active_pet` 선택 + 카페에서 재사용 토글로 활성 페어 교체. `onboarding.gd`의 옥자/`mine` 하드코딩 → 고른 메인이 맞이(템플릿 인사) + 그 메인의 인트로 체키.
 - [ ] **T32** 컬렉션북 탭 일반화 `(미호 탭=#5 · 펫 섹션=#6)` — 메인 4 + 펫 5 = 9탭 "메인/펫" 섹션 그룹핑. 잠긴 탭 **3-상태 수명**(미빌드 실루엣 → 빌드+무료 → 빌드+♡게이트).
 - [ ] **T33+** 슬라이스 #1 미호 배선 `(라이브=#2 · 교감=#4 · 체키=#5 · 펫 규종이=#6)` → 이후 바나 → 멜(펫 2마리) — 각자 레지스트리 1항 + 에셋 + 대사 파일.

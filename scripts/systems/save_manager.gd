@@ -12,7 +12,7 @@ extends Node
 ## 서버/계정 없음. 단일 슬롯. 스키마는 default_save() 가 단일 출처(SSOT).
 
 const SAVE_PATH := "user://narakuchi_save.json"
-const SAVE_VERSION := 1  # 스키마 버전 (마이그레이션 분기용)
+const SAVE_VERSION := 2  # 스키마 버전 (v2: 캐릭터 레지스트리 + active_main — T30/이슈 #2)
 
 ## 현재 게임 상태. 항상 default_save() 스키마를 만족한다고 가정해도 되도록 load 시 보정한다.
 var data: Dictionary = {}
@@ -30,24 +30,13 @@ func _ready() -> void:
 ## 새 게임 기본 세이브 스키마 — 모든 키의 단일 출처(SSOT).
 ## 기본 수치는 전부 Balance(data/balance.gd)에서 가져온다 (하드코딩 금지).
 func default_save() -> Dictionary:
-  return {
+  var d := {
     "version": SAVE_VERSION,
     "player": {
       "nickname": "",        # 온보딩에서 입력 (T06b)
       "coins": 0,
     },
-    "stamina": Balance.STAMINA_MAX,  # 옥자/시온이 공유, 매일 풀 충전
-    # 옥자: 메인 교감·수집 캐릭터
-    "okja": {
-      "affinity_total": 0,   # 누적 호감도 (관계 단계 판정용)
-      "gauge": 0,            # 현재 호감도 게이지 (가득 → 체키 1장)
-      "mood": "happy",       # happy | normal | sulky
-    },
-    # 시온이: 교감 가능한 펫 (옥자와 같은 시스템 복제)
-    "sion": {
-      "affinity_total": 0,
-      "gauge": 0,
-    },
+    "stamina": Balance.STAMINA_MAX,  # 캐릭터 공유, 매일 풀 충전
     # 보유 체키 (T12 → scripts/systems/cheki.gd). 키 "{character}:{event}" →
     #   {common:int 획득누적, butterfly:bool 나비승급, shards:int 나비조각,
     #    nickname:String 첫획득 닉 스냅샷, acquired_at:int 첫획득 epoch}  (→ ADR 0002·0003)
@@ -63,10 +52,19 @@ func default_save() -> Dictionary:
     },
     # 임의 플래그 (온보딩 완료, 튜토리얼 등)
     #   announced_stage = 마지막으로 '입장 연출'한 관계 단계. 단계 상승은 그 자리서 안 터지고
-    #   다음 입장(Cafe.start)에 1회만 발화 — 이 값으로 재발화를 막는다. (guest/regular/comfy/close)
-    "flags": {"announced_stage": "guest", "sfx_on": true},
+    #     다음 입장(Cafe.start)에 1회만 발화 — 이 값으로 재발화를 막는다. (guest/regular/comfy/close)
+    #   active_main = 현재 교감 중인 메인 id (로스터 선택 #3 전까지는 기본 메인). (T30/이슈 #2)
+    "flags": {"announced_stage": "guest", "sfx_on": true, "active_main": Characters.default_main()},
     "last_saved_unix": 0,    # 마지막 저장 시각 (epoch sec) — 기분 경과시간 계산용
   }
+  # 캐릭터별 상태(레지스트리 주도 — okja/sion/miho… 하드코딩 제거 → T30/이슈 #2).
+  #   메인: affinity_total(관계 단계 판정) + gauge(가득→체키) + mood. 펫: 게이지만(기분 없음).
+  for id in Characters.REGISTRY:
+    var c := {"affinity_total": 0, "gauge": 0}
+    if Characters.has_mood(id):
+      c["mood"] = "happy"  # happy | normal | sulky
+    d[id] = c
+  return d
 
 
 ## 세이브 불러오기. 파일이 없거나 손상되면 기본 세이브로 시작한다(앱이 죽지 않게).
@@ -127,8 +125,9 @@ func reset() -> void:
 ## 파라미터로 세이브 상태를 조립한다 — 테스트/개발 프리셋의 단일 상태 출처.
 ## default_save() 스키마 위에 주어진 키만 '의미 단위'로 덮어쓴다. 내러티브 시드(매직넘버)가
 ## 아니라 호출자가 의도를 명시한다. 게임 로직(relationship_stage/컷인)과 독립적으로 상태만 만든다.
-## 지원 키: nickname, coins, onboarded, announced_stage,
+## 지원 키: nickname, coins, onboarded, announced_stage, active_main,
 ##   okja_affinity(정확값) | okja_stage(단계 임계값), okja_gauge, okja_mood,
+##   miho_affinity, miho_gauge, miho_mood,
 ##   sion_affinity, sion_gauge, attendance_streak, attendance_last_date.
 func build_state(opts: Dictionary = {}) -> Dictionary:
   var d := default_save()
@@ -140,6 +139,8 @@ func build_state(opts: Dictionary = {}) -> Dictionary:
     d["flags"]["onboarded"] = bool(opts["onboarded"])
   if opts.has("announced_stage"):
     d["flags"]["announced_stage"] = String(opts["announced_stage"])
+  if opts.has("active_main"):
+    d["flags"]["active_main"] = String(opts["active_main"])
   # 옥자 호감도: 정확값(okja_affinity) 우선, 없으면 단계(okja_stage)의 임계값.
   if opts.has("okja_affinity"):
     d["okja"]["affinity_total"] = int(opts["okja_affinity"])
@@ -149,6 +150,15 @@ func build_state(opts: Dictionary = {}) -> Dictionary:
     d["okja"]["gauge"] = int(opts["okja_gauge"])
   if opts.has("okja_mood"):
     d["okja"]["mood"] = String(opts["okja_mood"])
+  # 미호(메인) — 옥자와 동형. 정확값(miho_affinity) 우선, 없으면 단계(miho_stage).
+  if opts.has("miho_affinity"):
+    d["miho"]["affinity_total"] = int(opts["miho_affinity"])
+  elif opts.has("miho_stage"):
+    d["miho"]["affinity_total"] = Balance.stage_threshold(String(opts["miho_stage"]))
+  if opts.has("miho_gauge"):
+    d["miho"]["gauge"] = int(opts["miho_gauge"])
+  if opts.has("miho_mood"):
+    d["miho"]["mood"] = String(opts["miho_mood"])
   if opts.has("sion_affinity"):
     d["sion"]["affinity_total"] = int(opts["sion_affinity"])
   if opts.has("sion_gauge"):
@@ -226,10 +236,10 @@ func _migrate(loaded_data: Dictionary) -> Dictionary:
   var v := int(loaded_data.get("version", 0))
   if v == SAVE_VERSION:
     return loaded_data
-  # 예시: v0 → v1 마이그레이션은 여기에. 현재는 버전만 갱신.
-  push_warning("[Save] 세이브 버전 %d → %d 마이그레이션" % [v, SAVE_VERSION])
-  loaded_data["version"] = SAVE_VERSION
-  return loaded_data
+  # v1 이하(캐릭터 레지스트리 도입 전) → 클린 리셋. (미호 슬라이스 #2 합의 2026-06-07)
+  #   active_main·캐릭터 id-맵 도입으로 구 스키마와 비호환이라 새 게임으로 시작한다.
+  push_warning("[Save] 세이브 v%d → v%d: 캐릭터 레지스트리 도입으로 클린 리셋" % [v, SAVE_VERSION])
+  return default_save()
 
 
 ## 로드한 세이브에 빠진 키를 기본값으로 채워 넣는다(앱 업데이트로 키가 늘어난 경우 대비).

@@ -1,6 +1,10 @@
 class_name Okja
 extends Node2D
-## 옥자 표정 스왑 스탠딩. (→ ADR 0001 / ROADMAP T07)
+## 라이브 메인 스탠딩 — 표정 스왑. (→ ADR 0001 / ROADMAP T07 · 일반화 T30)
+##
+## ⚠️ 클래스명 Okja 는 역사적 이름이다. T30(캐릭터 레지스트리)부터 이 스탠딩은
+##    `character` 로 지정한 **임의의 메인**(옥자/미호…)을 렌더한다 — 표정 경로는
+##    Characters.expressions(character) 에서 파생. (이름 리네임은 후속 정리)
 ##
 ## - 얼굴 + 팔 자세가 다른 6장을 **하드컷**으로 통째 교체한다.
 ##   (크로스페이드 금지: 팔 자세가 달라 반투명 겹침=고스팅·팔레트 밖 중간색.)
@@ -9,18 +13,13 @@ extends Node2D
 ## - 리워드: **hop(폴짝)** — 별도 그림 없이 `smile`을 재사용해 통 통 튀어오른다.
 ##
 ## 노드 원점 = **발밑(하단 중앙)**. 스케일/홉이 바닥에 붙은 듯 보이도록 피벗을 발에 둔다.
-## 배치 예) okja.position = Vector2(166, 452)  # LCD(333×480) 바닥 중앙
+## 배치 예) standing.position = Vector2(166, 452)  # LCD(333×480) 바닥 중앙
+## 사용)   var s := OkjaScript.new(); s.character = "miho"; add_child(s)  # _ready 전에 지정
 
-const EXPRESSIONS := {
-  &"idle":  "res://assets/sprites/okja_idle.png",
-  &"smile": "res://assets/sprites/okja_smile.png",
-  &"shy":   "res://assets/sprites/okja_shy.png",
-  &"sad":   "res://assets/sprites/okja_sad.png",
-  &"brew":  "res://assets/sprites/okja_brew.png",
-  &"talk":  "res://assets/sprites/okja_talk.png",
-}
 const SPR_SIZE := Vector2(128, 288)
 
+# 어떤 메인을 렌더할지. _ready(add_child) 전에 지정한다. (기본 = 옥자)
+var character := "okja"
 var current: StringName = &"idle"
 
 var _sprite: Sprite2D
@@ -30,8 +29,9 @@ var _react: Tween                 # 정착/홉(일시 트윈) — 새로 시작 
 
 
 func _ready() -> void:
-  for k in EXPRESSIONS:
-    _textures[k] = load(EXPRESSIONS[k])
+  var exprs := Characters.expressions(character)  # {idle: path, ...} — id 로 파생
+  for k in exprs:
+    _textures[k] = load(exprs[k])
 
   _sprite = Sprite2D.new()
   _sprite.centered = false

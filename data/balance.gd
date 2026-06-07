@@ -23,6 +23,7 @@ const _AFF_GIFT_DEFAULT := {"match": 20, "sion": 25, "plain": 10}
 
 # ── 게이지 → 체키 ─────────────────────────────
 const GAUGE_OKJA := 300          # 옥자 호감도 게이지 풀 = 체키 1장
+const GAUGE_MIHO := 300          # 미호 게이지 풀 = 체키 1장 (메인, T30)
 const GAUGE_SION := 200          # 시온이 게이지 풀 = 체키 1장
 
 # ── 관계 단계 (누적 옥자 호감도) ────────────────

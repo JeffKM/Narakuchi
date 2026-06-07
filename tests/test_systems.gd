@@ -31,6 +31,8 @@ func run_suite() -> void:
   _test_stamina_daily_refill()
   # 케이던스(밸런스 확인)
   _test_progression_cadence()
+  # F 캐릭터 레지스트리 + 미호 라이브 (T30 / 이슈 #2)
+  _test_character_registry()
 
 
 # 새 미터를 만들어 프레임 안에서 1회 begin_session 한다(테스트 후 free).
@@ -327,6 +329,51 @@ func _test_progression_cadence() -> void:
 
 ## 목표 단계에 도달하기까지 걸린 '일수'. high=알찬 교감(상한)/false=무난(하한).
 ## 매일: 23h 간격으로 새 날 진입(시무룩 회피) → 스태미나 예산만큼 교감 → 호감도 누적.
+# ════════════════════════════════════════════════════════════
+#  F. 캐릭터 레지스트리 + 미호 라이브 (T30 / 이슈 #2 트레이서)
+# ════════════════════════════════════════════════════════════
+
+## 레지스트리 구성 + 미호가 제네릭 미터/체키 경로를 그대로 타는지(옥자와 격리).
+func _test_character_registry() -> void:
+  # 레지스트리: 메인 2(옥자·미호) + 펫 1(시온이). 게이지 풀은 Balance 단일 출처.
+  check(Characters.mains() == ["okja", "miho"], "메인 = 옥자·미호")
+  check(Characters.pets() == ["sion"], "펫 = 시온이")
+  check(Characters.has_mood("miho") and not Characters.has_mood("sion"),
+    "메인만 기분 보유(미호 O, 시온이 X)")
+  check(Characters.gauge_full("miho") == Balance.GAUGE_MIHO, "미호 게이지 풀 = Balance.GAUGE_MIHO")
+
+  # 세이브 스키마: 미호 블록(기분 포함) + 기본 active_main = 옥자.
+  wipe()
+  var d := SaveManager.default_save()
+  check(d.has("miho") and d["miho"].has("mood"), "default_save 에 미호 블록(기분 포함)")
+  check(String(d["flags"]["active_main"]) == "okja", "기본 active_main = 옥자")
+
+  # 제네릭 미터: 미호 호감도 누적 → 게이지 풀에서 gauge_full(\"miho\") 발화. 옥자와 격리.
+  var m := Meters.new()
+  var emitted := {"id": ""}
+  m.gauge_full.connect(func(c: String) -> void: emitted["id"] = c)
+  m.add_affinity_main("miho", Balance.GAUGE_MIHO)
+  check(emitted["id"] == "miho", "미호 게이지 풀 → gauge_full(\"miho\")")
+  check(int(SaveManager.get_value("miho.gauge", -1)) == Balance.GAUGE_MIHO, "미호 게이지 = 풀값")
+  check(int(SaveManager.get_value("okja.gauge", -1)) == 0, "옥자 게이지는 불변(캐릭터 격리)")
+  m.free()
+
+  # active_main=미호 면 인자 없는 stage() 가 미호 단계를 가리킨다(stage_of 는 캐릭터별 독립).
+  SaveManager.set_value("flags.active_main", "miho")
+  SaveManager.set_value("miho.affinity_total", Balance.REL_REGULAR)
+  var m2 := Meters.new()
+  check(m2.stage() == "regular", "active_main=미호: stage() = 미호 단계")
+  check(m2.stage_of("okja") == "guest", "stage_of(okja) 는 독립")
+  m2.free()
+
+  # 체키: 미호의 오늘 체키 = 지뢰계, grant 가 미호 슬롯에 적립.
+  wipe()
+  check(Cheki.pick_today("miho") == "mine", "미호 오늘의 체키 = 지뢰계(mine)")
+  var res := Cheki.grant("miho", "mine")
+  check(String(res.get("character", "")) == "miho" and Cheki.owned("miho", "mine"),
+    "미호 지뢰계 체키 grant → 보유")
+
+
 func _days_to_stage(target: String, high: bool) -> int:
   wipe()
   Clock.set_day("2026-01-01")

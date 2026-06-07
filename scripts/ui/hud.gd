@@ -91,13 +91,14 @@ func refresh() -> void:
     _info.text = "기력 %d/%d   코인 %d" % [stamina, Balance.STAMINA_MAX, coins]
     return
 
-  # 옥자: 게이지 + 기분
-  var gauge := int(SaveManager.get_value("okja.gauge", 0))
-  var ratio := clampf(float(gauge) / float(Balance.GAUGE_OKJA), 0.0, 1.0)
+  # 메인(옥자·미호…): 게이지 + 기분. _focus = active_main id. (T30)
+  var full := Characters.gauge_full(_focus)
+  var gauge := int(SaveManager.get_value("%s.gauge" % _focus, 0))
+  var ratio := clampf(float(gauge) / float(full), 0.0, 1.0)
   _gauge_fill.size.x = round(GAUGE_W * ratio)
-  _gauge_text.text = "옥자 호감도 %d/%d" % [gauge, Balance.GAUGE_OKJA]
+  _gauge_text.text = "%s 호감도 %d/%d" % [Characters.display_name(_focus), gauge, full]
 
-  var mood := String(SaveManager.get_value("okja.mood", Meters.MOOD_HAPPY))
+  var mood := String(SaveManager.get_value("%s.mood" % _focus, Meters.MOOD_HAPPY))
   _info.text = "%s   기력 %d/%d   코인 %d" % [
     MOOD_LABEL.get(mood, mood), stamina, Balance.STAMINA_MAX, coins]
 

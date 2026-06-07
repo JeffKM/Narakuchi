@@ -40,9 +40,10 @@ const MODE_OKJA := "okja"
 const MODE_SION := "sion"
 
 var meters: Meters
-var _stage: Node2D        # 줌 대상 디오라마 컨테이너(배경+옥자+시온이+가구/터치). HUD·바·티커는 바깥 고정. (T26/T27)
+var _active_main: String = "okja"  # 현재 교감 중인 메인 id (flags.active_main — 로스터 선택 #3 전까지 기본). T30
+var _stage: Node2D        # 줌 대상 디오라마 컨테이너(배경+메인+시온이+가구/터치). HUD·바·티커는 바깥 고정. (T26/T27)
 var _zoom_tw: Tween       # 시온이 줌 푸시/복귀 트윈(중복 시 이전 것 취소)
-var _okja: Okja
+var _okja: Okja           # 라이브 메인 스탠딩(active_main 을 렌더 — 옥자/미호…). 변수명은 역사적.
 var _sioni: Sioni
 var _binder: Sprite2D     # 좌측 캐비닛 위 체키북 바인더(탭 → 컬렉션북, T29)
 var _hud: Hud
@@ -145,7 +146,10 @@ func _active_bar() -> ActionBar:
 # ── 화면 구성 ─────────────────────────────────────────────
 
 func _build() -> void:
-  # 0) 줌 대상 디오라마 컨테이너 (배경+옥자+시온이+가구/터치). HUD·바·티커는 self 직속(줌 제외). (T26)
+  # 현재 교감 중인 메인 (로스터 선택 #3 전까지 기본 메인). 라이브 스탠딩·HUD·호감도의 대상.
+  _active_main = String(SaveManager.get_value("flags.active_main", Characters.default_main()))
+
+  # 0) 줌 대상 디오라마 컨테이너 (배경+메인+시온이+가구/터치). HUD·바·티커는 self 직속(줌 제외). (T26)
   _stage = Node2D.new()
   add_child(_stage)
 
@@ -156,8 +160,9 @@ func _build() -> void:
   bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
   _stage.add_child(bg)
 
-  # 2) 라이브 옥자 (중앙 전신)
+  # 2) 라이브 메인 (중앙 전신) — active_main 을 렌더(표정 경로는 레지스트리에서 파생).
   _okja = OkjaScript.new()
+  _okja.character = _active_main  # _ready(add_child) 전에 지정
   _okja.position = OKJA_FEET
   _stage.add_child(_okja)
 
@@ -180,9 +185,10 @@ func _build() -> void:
   # 3b) 바인더 터치 영역 (T29) — 바인더 위 투명 버튼
   _add_binder_touch()
 
-  # 4) HUD (상단, 줌 제외)
+  # 4) HUD (상단, 줌 제외) — 게이지/기분 표시 대상을 active_main 으로.
   _hud = Hud.new()
   add_child(_hud)
+  _hud.set_focus(_active_main)
 
   # 5) 4버튼 액션 바 (T09 옥자 + T15 시온이) — 같은 자리, 모드에 따라 토글.
   _bar = ActionBar.new()
@@ -296,10 +302,10 @@ func _on_action(id: String) -> void:
   meters.spend_stamina()  # 주문음은 ActionBar._choose 가 id 기준으로 발화 (T18)
   match id:
     "cheki":
-      meters.add_affinity_okja(Balance.aff("cheki"))
+      meters.add_affinity_main(_active_main, Balance.aff("cheki"))
       _react(_okja_emotion("cheki", &"talk"))  # 버튼→감정 (buttons.json)
     "drink":
-      meters.add_affinity_okja(Balance.aff("drink"))  # 선호 음료 보너스는 후속
+      meters.add_affinity_main(_active_main, Balance.aff("drink"))  # 선호 음료 보너스는 후속
       _brew(_okja_emotion("drink", &"brew"))
   _ticker.show_line(Dialogue.okja_line(id, meters.stage(), _nick()))
 
@@ -378,7 +384,7 @@ func _on_talk_chosen(choice: Dictionary) -> void:
   # tier 별 선택음 (good=살짝 밝게 / plain=평범) → ADR 0004
   Sfx.event(&"talk_pick_good" if String(choice.get("tier", "plain")) == "good" else &"talk_pick_plain")
   meters.spend_stamina()
-  meters.add_affinity_okja(Balance.aff_talk(String(choice.get("tier", "plain"))))
+  meters.add_affinity_main(_active_main, Balance.aff_talk(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"talk"))
   _ticker.show_line(String(choice.get("reply", "")))  # 옥자 대답은 하단 티커(보이스 단일 채널)
 
@@ -391,7 +397,7 @@ func _on_gift_chosen(choice: Dictionary) -> void:
     "sion": Sfx.event(&"gift_sion")
     _: Sfx.event(&"gift_plain")
   meters.spend_stamina()
-  meters.add_affinity_okja(Balance.aff_gift(String(choice.get("tier", "plain"))))
+  meters.add_affinity_main(_active_main, Balance.aff_gift(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"shy"))
   _ticker.show_line(String(choice.get("reply", "")))  # 옥자 대답은 하단 티커(보이스 단일 채널)
 
@@ -498,7 +504,7 @@ func _exit_sion_mode() -> void:
   _mode = MODE_OKJA
   _bar_sion.visible = false
   _bar.visible = true
-  _hud.set_focus(MODE_OKJA)
+  _hud.set_focus(_active_main)
   _reset_stage()  # 1x 풀 디오라마 복귀 (T27)
   _to_idle()
   _ticker.show_line(Dialogue.okja_line("idle", meters.stage(), _nick()))
@@ -548,7 +554,7 @@ func _on_gauge_full(character: String) -> void:
     _sioni.hop()
     _ticker.show_line(Dialogue.sion_line())
   else:
-    meters.consume_gauge_okja()
+    meters.consume_gauge_main(character)
     _okja.hop()  # smile 재사용 폴짝 (리워드 순간 → ADR 0001/T07)
     _ticker.show_line(Dialogue.okja_line("cheki_get", meters.stage(), _nick()))
 
@@ -593,7 +599,8 @@ func debug_grant_cheki(character := Events.OKJA) -> void:
   if character == Events.SION:
     SaveManager.set_value("sion.gauge", Balance.GAUGE_SION)  # 게이지 풀(연출·HUD 일관성)
   else:
-    SaveManager.set_value("okja.gauge", Balance.GAUGE_OKJA)
+    character = _active_main  # 메인 키 4 = 현재 교감 중인 메인
+    SaveManager.set_value("%s.gauge" % character, Characters.gauge_full(character))
   _hud.refresh()
   _on_gauge_full(character)  # 정규 획득 경로 그대로 — 그랜트 + 소진 + 리빌
 

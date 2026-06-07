@@ -14,6 +14,9 @@
 ## 공통 베이스 (미호 SD) ★라이브 스탠딩용
 
 > 옥자와 동일하게 **SD(1:3~1:4)** 로 간다 — 다마고치 LCD에서 표정 6종이 읽히려면 머리를 키워야 한다(→ 옥자 SD 근거). 여우 귀·꼬리는 SD에서 실루엣 포인트가 되니 **또렷하고 크게**.
+> **🔑 프레임 충전 = 옥자와 동일 스케일(중요)**: 라이브 스탠딩은 **머리가 상단 가장자리, 발이 하단 가장자리에 닿게 프레임을 꽉 채워야** 교감화면에서 옥자와 크기가 맞는다(옥자 idle = 높이 충전 ~96%, 발 바닥여백 0). 1차 생성본은 충전 59%·발이 53px 떠서 옥자보다 작게 나왔다 — 재생성 시 이 점을 사수한다.
+> **🔑 img2img 팁**: 출력 프레이밍은 **레퍼런스 프레이밍을 따라간다.** `miho_ref.png` 를 **머리끝~발끝이 세로로 꽉 차게 미리 크롭**해서 첨부하면 출력도 꽉 찬다(여백 많은 원본 그대로 넣으면 또 작게 나옴). 텍스트 지시만으론 약하니 레퍼 크롭이 가장 확실한 레버다.
+> **🔑 검수**: 생성 후 `tools/.venv/bin/python -c "from PIL import Image; a=Image.open('assets/sprites/miho_idle.png').split()[3].getbbox(); print('충전', (a[3]-a[1])/288*100, '바닥여백', 288-a[3])"` 로 **높이 충전 ~95%↑ · 바닥여백 0~수px** 확인. 미달이면 레퍼를 더 꽉 크롭해 재생성.
 
 ```
 Convert the attached photo into a CUTE CHIBI / SD pixel art sprite, full body, front-facing standing pose.
@@ -30,8 +33,10 @@ Base outfit: a Korean traditional gumiho look — a WHITE hanbok-style top (jeog
 Style: 8-bit pixel sprite / dot art, limited palette, hard pixel edges, NO anti-aliasing, NO gradients, flat shading.
 Color mood: bright fox-spirit palette — clean WHITE top, warm YELLOW / gold skirt & accents, black hair,
             vermilion lip accent; optional faint blue will-o'-wisp (dokkaebi-bul) spirit flames floating beside her.
-Framing: full body centered, big head near top, short legs near bottom, tall vertical 4:9 portrait ratio,
-         even margins, consistent crop across all expressions.
+Framing: full body centered, FILL THE FRAME — the character spans the FULL height, top of the HEAD near the TOP edge
+         and the FEET resting on the very BOTTOM edge (only a thin even margin left & right, NO large empty space
+         above the head or below the feet — she must NOT float). Aim for ~95% vertical fill, the SAME on-screen scale
+         as a tall standing okja. Tall vertical 4:9 portrait ratio, consistent crop across all expressions.
          Lower body and short legs IDENTICAL across all expressions — only the FACE and ARM pose change.
 Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
 ```
@@ -42,6 +47,8 @@ Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow o
 no text, no watermark, no signature, no multiple characters, no cropped limbs, no cropped tail,
 no realistic body proportions, no long thin legs, no adult tall figure, no tiny face,
 no baby-only infantile style (keep her cute fox-spirit charm),
+no small figure with large empty margins, no floating character above the bottom edge,
+no excessive headroom or footroom (head near top, feet on the bottom edge — fill the frame),
 no human ears alongside the fox ears (fox ears only), no cat ears (these are FOX ears),
 no witch hat (that is Okja — Miho is a gumiho fox), no missing fox ears, no missing tail,
 no dark gothic maid dress (her look is a WHITE & YELLOW gumiho), no pink-dominant outfit, no blonde hair (hair is BLACK),

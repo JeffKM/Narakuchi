@@ -63,9 +63,11 @@ func begin_session() -> void:
   was_neglected = bool(eval["was_neglected"])
   pending_milestone = {}
 
-  # 1) 기분: 방치였으면 시무룩
+  # 1) 기분: 방치였으면 교감 중인 메인이 시무룩 (펫은 기분 없음)
   if was_neglected:
-    SaveManager.set_value("okja.mood", MOOD_SULKY)
+    var main := _active_main()
+    if Characters.has_mood(main):
+      SaveManager.set_value("%s.mood" % main, MOOD_SULKY)
 
   # 2) 일일 회복: 날짜가 바뀌었으면 스태미나 풀 충전 + 세션 누적값 리셋 + 출석 갱신
   if bool(eval["is_new_day"]):
@@ -81,9 +83,20 @@ func begin_session() -> void:
   changed.emit()
 
 
-## 관계 단계 문자열 ("guest"|"regular"|"comfy"|"close").
+## 현재 active_main 의 관계 단계 ("guest"|"regular"|"comfy"|"close").
+## 인자 없는 호출은 교감 중인 메인을 가리킨다(기본 okja → 옥자 동작·테스트 불변).
 func stage() -> String:
-  return Balance.relationship_stage(int(SaveManager.get_value("okja.affinity_total", 0)))
+  return stage_of(_active_main())
+
+
+## 특정 캐릭터의 관계 단계. (메인만 의미 있음 — 펫은 단계 없음)
+func stage_of(character: String) -> String:
+  return Balance.relationship_stage(int(SaveManager.get_value("%s.affinity_total" % character, 0)))
+
+
+## 현재 교감 중인 메인 id. (로스터 선택 #3 전까지 기본 메인 — T30/이슈 #2)
+func _active_main() -> String:
+  return String(SaveManager.get_value("flags.active_main", Characters.default_main()))
 
 
 ## 출석 진행 상태(표시용, 읽기전용) — 컬렉션북/HUD 의 "출석 N일 · 다음 보상까지 D일" 표기에 쓴다. (T14)
@@ -119,25 +132,35 @@ func spend_stamina() -> void:
 
 # ── 호감도 (4버튼 교감) ────────────────────────────────────
 
-## 옥자 호감도 획득(4버튼 액션). 시무룩이면 −20% 보정, 게이지 클램프, 단계/풀 판정.
-## 반환값: 실제로 더해진 호감도(연출용).
-func add_affinity_okja(base: int) -> int:
+## 메인 호감도 획득(4버튼 액션). 시무룩이면 −20% 보정, 게이지 클램프, 단계/풀 판정.
+## 모든 메인(옥자·미호…)이 공유하는 제네릭 경로(T30). 반환값: 실제로 더해진 호감도(연출용).
+func add_affinity_main(character: String, base: int) -> int:
   var amount := base
-  if String(SaveManager.get_value("okja.mood", MOOD_HAPPY)) == MOOD_SULKY:
+  if String(SaveManager.get_value("%s.mood" % character, MOOD_HAPPY)) == MOOD_SULKY:
     amount = int(round(float(base) * (1.0 - Balance.MOOD_PENALTY_RATE)))
 
-  var before_stage := stage()
-  _add_okja(amount)
-  _recover_mood()  # 교감하면 기분이 한 단계 회복
-  _post_affinity(before_stage)
+  var before_stage := stage_of(character)
+  _add_main(character, amount)
+  _recover_mood(character)  # 교감하면 기분이 한 단계 회복
+  _post_affinity_main(character, before_stage)
   return amount
 
 
-## 게이지를 비운다(0). "오늘의 체키" 획득 후 호출 — 안 비우면 매 액션마다 gauge_full 재발화.
-func consume_gauge_okja() -> void:
-  SaveManager.set_value("okja.gauge", 0)
+## 옥자 호감도 획득 — 백호환 래퍼(테스트/기존 호출부). 제네릭 경로로 위임.
+func add_affinity_okja(base: int) -> int:
+  return add_affinity_main("okja", base)
+
+
+## 메인 게이지를 비운다(0). "오늘의 체키" 획득 후 호출 — 안 비우면 매 액션마다 gauge_full 재발화.
+func consume_gauge_main(character: String) -> void:
+  SaveManager.set_value("%s.gauge" % character, 0)
   SaveManager.save_game()
   changed.emit()
+
+
+## 옥자 게이지 비우기 — 백호환 래퍼.
+func consume_gauge_okja() -> void:
+  consume_gauge_main("okja")
 
 
 ## 시온이 호감도 획득(간식/놀기/쓰담/체키). 시온이는 펫이라 기분·관계 단계 없음(게이지만).
@@ -161,8 +184,9 @@ func consume_gauge_sion() -> void:
   changed.emit()
 
 
-## 옥자 터치 호감도(무료, 세션 상한). 상한 도달 시 0 반환.
+## active_main 터치 호감도(무료, 세션 상한). 상한 도달 시 0 반환. (기분 회복은 없음 — 터치는 가벼운 교감)
 func add_touch_affinity() -> int:
+  var character := _active_main()
   var used := int(SaveManager.get_value("session.touch_affinity", 0))
   var cap := Balance.aff("touch_session_cap")
   if used >= cap:
@@ -170,39 +194,41 @@ func add_touch_affinity() -> int:
   var amount := mini(Balance.aff("touch"), cap - used)
   SaveManager.set_value("session.touch_affinity", used + amount)
 
-  var before_stage := stage()
-  _add_okja(amount)
-  _post_affinity(before_stage)
+  var before_stage := stage_of(character)
+  _add_main(character, amount)
+  _post_affinity_main(character, before_stage)
   return amount
 
 
 # ── 내부 헬퍼 ─────────────────────────────────────────────
 
-## 누적 호감도 + 게이지에 amount 를 더한다(게이지는 풀에서 클램프).
-func _add_okja(amount: int) -> void:
-  var total := int(SaveManager.get_value("okja.affinity_total", 0)) + amount
-  var gauge := int(SaveManager.get_value("okja.gauge", 0)) + amount
-  SaveManager.set_value("okja.affinity_total", total)
-  SaveManager.set_value("okja.gauge", mini(gauge, Balance.GAUGE_OKJA))
+## 누적 호감도 + 게이지에 amount 를 더한다(게이지는 그 캐릭터의 풀에서 클램프).
+func _add_main(character: String, amount: int) -> void:
+  var total := int(SaveManager.get_value("%s.affinity_total" % character, 0)) + amount
+  var gauge := int(SaveManager.get_value("%s.gauge" % character, 0)) + amount
+  SaveManager.set_value("%s.affinity_total" % character, total)
+  SaveManager.set_value("%s.gauge" % character, mini(gauge, Characters.gauge_full(character)))
 
 
 ## 호감도 가산 후 공통 처리: 단계 상승 통지 · 게이지 풀 통지 · 저장 · 갱신.
-func _post_affinity(before_stage: String) -> void:
-  var after_stage := stage()
+func _post_affinity_main(character: String, before_stage: String) -> void:
+  var after_stage := stage_of(character)
   if after_stage != before_stage:
     stage_changed.emit(after_stage)
-  if int(SaveManager.get_value("okja.gauge", 0)) >= Balance.GAUGE_OKJA:
-    gauge_full.emit(Events.OKJA)
+  if int(SaveManager.get_value("%s.gauge" % character, 0)) >= Characters.gauge_full(character):
+    gauge_full.emit(character)
   SaveManager.save_game()
   changed.emit()
 
 
-## 기분을 한 단계 끌어올린다(sulky → normal → happy).
-func _recover_mood() -> void:
-  var cur := String(SaveManager.get_value("okja.mood", MOOD_HAPPY))
+## 캐릭터 기분을 한 단계 끌어올린다(sulky → normal → happy). 펫은 기분 없음 → 무시.
+func _recover_mood(character: String) -> void:
+  if not Characters.has_mood(character):
+    return
+  var cur := String(SaveManager.get_value("%s.mood" % character, MOOD_HAPPY))
   var idx := _MOOD_ORDER.find(cur)
   if idx >= 0 and idx < _MOOD_ORDER.size() - 1:
-    SaveManager.set_value("okja.mood", _MOOD_ORDER[idx + 1])
+    SaveManager.set_value("%s.mood" % character, _MOOD_ORDER[idx + 1])
 
 
 ## 출석/연속출석 갱신. 어제 방문이면 streak+1, 아니면 1로 리셋(벌점 없음). 그날 코인 +1.
