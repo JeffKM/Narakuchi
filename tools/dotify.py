@@ -198,7 +198,8 @@ def audit(img, target_w, target_h, pal, lcd, check_fill=False):
     lines.append(("  ✅ " if cond else "  ❌ ") + msg)
 
   chk((w, h) == (target_w, target_h), f"치수 {w}×{h} (목표 {target_w}×{target_h})")
-  chk(len(uniq) <= 32, f"고유 색 {len(uniq)}개 (≤32)")
+  # 색 개수 한계는 마스터 팔레트(단일 출처)를 추종 — 파스텔핑크·바나 퍼플/네이비 램프로 32→44색 확장됨.
+  chk(len(uniq) <= len(pal), f"고유 색 {len(uniq)}개 (≤{len(pal)})")
   chk(len(off) == 0, f"팔레트 외 색 {len(off)}개 (=0)")
   chk(semi == 0, f"반투명 픽셀 {semi}개 (=0, 도트는 0/255만)")
   if check_fill:

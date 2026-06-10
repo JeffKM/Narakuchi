@@ -10,7 +10,7 @@ func _initialize() -> void:
   for ev in Events.LIST:
     if not Events.cheki_art_ready(ev):
       continue
-    for ch in [Events.OKJA, Events.SION]:
+    for ch in Characters.all_ids():
       if not bool(Events.LIST[ev].get(ch, false)):
         continue
       # ChekiCard.setup 분기 그대로 재현: 베이크 컷 우선, 없으면 배경+의상 3겹.
