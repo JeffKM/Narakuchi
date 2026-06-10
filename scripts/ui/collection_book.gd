@@ -9,10 +9,10 @@ extends Control
 ##   헤더(타이틀 + 진행도 카운터 + ✕) · 캐릭터 색인 탭 · 2열 그리드(ChekiSlot) · 힌트 · 장식 나비.
 ##   - 칸: ChekiSlot 가 owned/empty/locked/limited 렌더(미보유=표지 디밍+참). owned 탭 → CardDetail 모달.
 ##         옥자 그리드 끝 "한정" 슬롯 1칸 = 현장 한정 예고(컨셉/예정, 데모 해금 불가 — T21).
-##   - 탭: CharacterTab(초상 색인) — 옥자·미호·시온이(잠금 해제) + 잠긴 네임드 멤버 바나·멜(실루엣+봉랍).
-##         잠긴 탭 OK/터치 → ExpansionSlide 예고(실루엣·이름·다음 업데이트·펫 확장 한 줄). (T21)
+##   - 탭: 좌측 GroupChip(메인/펫 토글) + 그 뒤 현재 그룹의 CharacterTab(초상 색인, 레지스트리 파생).
+##         그룹 칩 누르면 그 그룹의 마지막 본 캐릭터로 즉시 전환(_last_main/_last_pet). 9명이 한 줄에 안 들어가 분리.
 ##   - 카운터: 활성 캐릭터 ◆◆◇◇◇ n/m (미래 포함 전체, 잠긴 핍 회색 — 콘텐츠 예고 후크).
-## 입력(평면 링): SELECT=포커스 순환(탭+칸) · OK=활성(탭전환/모달열기) · CANCEL=책 닫기.
+## 입력(평면 링): SELECT=포커스 순환(그룹 칩+탭+칸) · OK=활성(그룹/탭 전환·모달 열기) · CANCEL=책 닫기.
 ##   터치가 주 입력(탭/칸 직접 터치), 3버튼은 보조. _detail 떠 있으면 그쪽으로 위임.
 ##
 ## 가죽 프레임(book_frame_leather) + 불투명 크림 속지(book_page_parchment 종이결) 연결됨.
@@ -52,43 +52,47 @@ const V_SEP := 16
 const PIP := Vector2(7, 10)
 const PIP_GAP := 9.0
 
-# 캐릭터 탭: id + 표시명 + locked + accent(잠긴 멤버 실루엣 구분색).
-# 잠긴 멤버는 코드 실루엣+봉랍으로 노출, OK/탭 → 확장 슬라이드 예고. (→ T21) — 현재 데모는 전원 해제.
-# 순서/섹션: 메인(옥자·미호·바나·멜) → 펫(시온이·규종이·코코·선아·수아). 섹션 경계엔 시각 갭. (→ 이슈 #5/#6/#10/#11/#14)
-# 미호는 #5, 규종이는 #6, 바나는 #10, 코코는 #11, 선아·수아는 멜 펫 슬라이스, 멜은 #14 본배선에서 메인 섹션 해제(실제 그리드). accent 는 locked 멤버 실루엣 색이라 해제 멤버엔 미사용.
-# section: "main"|"pet"|"locked" — _build_tabs 가 섹션이 바뀌는 자리에 SECTION_GAP 을 끼워 메인/펫 묶음을 시각 분리.
-const TABS := [
-  {"id": "okja", "name": "옥자", "locked": false, "section": "main", "accent": Palette.BURGUNDY},
-  {"id": "miho", "name": "미호", "locked": false, "section": "main", "accent": Palette.ACCENT_YELLOW},
-  {"id": "bana", "name": "바나", "locked": false, "section": "main", "accent": Palette.VIOLET},
-  {"id": "mel",  "name": "멜",   "locked": false, "section": "main", "accent": Palette.TEAL},
-  {"id": "sion", "name": "시온이", "locked": false, "section": "pet", "accent": Palette.GREY_300},
-  {"id": "gyujong", "name": "규종이", "locked": false, "section": "pet", "accent": Palette.ACCENT_PINK},
-  {"id": "coco", "name": "코코", "locked": false, "section": "pet", "accent": Palette.PURPLE},
-  {"id": "suna", "name": "선아", "locked": false, "section": "pet", "accent": Palette.TEAL},
-  {"id": "sua",  "name": "수아", "locked": false, "section": "pet", "accent": Palette.TEAL},
+# 그룹 토글(메인/펫) — 탭 줄 좌측 세그먼트. 캐릭터 탭은 레지스트리(Characters)에서 그룹별로 파생(단일 출처).
+#   메인=교감·관계단계·기분 보유 / 펫=게이지만. 새 캐릭터는 characters.gd 만 고치면 여기 자동 반영.
+#   그룹 칩을 누르면 그 그룹의 "마지막 본 캐릭터"로 즉시 전환(_last_main/_last_pet, C1-b).
+#   (구 TABS 하드코딩 배열 + section 갭 + locked 예고 분기 폐기 → 메인/펫 탭 분리 2026-06-10)
+const GROUPS := [
+  {"kind": Characters.MAIN, "label": "메인"},
+  {"kind": Characters.PET, "label": "펫"},
 ]
-const SECTION_GAP := 9.0  # 메인/펫/잠금 섹션 사이 추가 간격(탭 묶음 시각 분리, 이슈 #6)
+const CHIP_GAP := 5.0   # 그룹 칩(메인/펫) 사이 간격
+const GROUP_GAP := 8.0  # 그룹 칩 묶음과 캐릭터 탭 묶음 사이 간격
 
+var _active_group: String = Characters.MAIN  # 현재 보는 그룹(메인/펫)
 var _active_char: String = "okja"
-var _tabs: Array = []            # CharacterTab (TABS 순서)
+var _last_main: String = "okja"  # 그룹 복귀용 — 마지막 본 메인 (C1-b, _ready 에서 레지스트리 기본값)
+var _last_pet: String = "sion"   # 그룹 복귀용 — 마지막 본 펫
+var _group_chips: Array = []     # GroupChip (GROUPS 순서)
+var _tabs: Array = []            # 현재 그룹 CharacterTab
+var _tab_ids: Array = []         # _tabs[i] 대응 캐릭터 id (현재 그룹 순서)
 var _slots: Array = []           # 현재 캐릭터 ChekiSlot
-var _focus: Array = []           # 평면 링: {kind:"tab"|"slot", i:int}
+var _focus: Array = []           # 평면 링: {kind:"group"|"tab"|"slot", i:int}
 var _focus_index: int = 0
 
 var _scroll: ScrollContainer
 var _grid: GridContainer
+var _shelf: Control              # 탭 선반(골드 룰) — 그룹 전환 후 항상 칩/탭 위로 올린다
 var _hint: Label
 var _counter: Control            # 진행도 핍+숫자 홀더(재구성)
 var _char_label: Label           # 헤더 "· 옥자" — 활성 캐릭터명(탭 초상-only 대체 방향감)
 var _detail: CardDetail
-var _slide: ExpansionSlide       # 잠긴 멤버 확장 슬라이드(열려 있으면 셸 입력을 여기로)
 
 
 func _ready() -> void:
   size = LCD
   mouse_filter = Control.MOUSE_FILTER_STOP  # 뒤(카페) 입력 차단
   clip_contents = true  # 오버스캔된 가죽 프레임의 검은 외곽 띠를 LCD 밖으로 잘라낸다
+
+  # 그룹별 기본/마지막-본 캐릭터는 레지스트리 단일 출처에서(첫 진입 메인=옥자·펫=시온이).
+  _last_main = Characters.default_main()
+  _last_pet = Characters.default_pet()
+  _active_group = Characters.MAIN
+  _active_char = _last_main
 
   # 레이어 순서(뒤→앞): 크림 속지(전면) → 가죽 프레임(테두리, 위) → 헤더/탭/그리드.
   # 속지를 화면 전체에 깔고 가죽을 그 위에 얹어, 가죽 투명 창으로만 속지가 드러나게 한다.
@@ -115,9 +119,6 @@ func _ready() -> void:
 # ── 입력 (cafe → 여기 → _detail) ──────────────────────────
 
 func handle_shell_action(action: StringName) -> void:
-  if _slide != null:
-    _slide.handle_shell_action(action)
-    return
   if _detail != null:
     _detail.handle_shell_action(action)
     return
@@ -236,34 +237,69 @@ func _build_header() -> void:
   add_child(close)
 
 
+## 탭 줄 구성 — 좌측 그룹 칩(메인/펫) + 그 뒤 현재 그룹의 캐릭터 탭(레지스트리 파생).
+## 선반(골드 룰)은 한 번만 깔고, 캐릭터 탭은 그룹 전환마다 _build_char_tabs 가 재생성한다.
 func _build_tabs() -> void:
-  # 그리드 좌단(GRID_X)에 정렬 — 탭과 카드 열이 한 수직선에서 시작.
-  # 섹션(메인/펫/잠금)이 바뀌는 자리에 SECTION_GAP 을 끼워 메인/펫 묶음을 시각 분리(이슈 #6).
+  _build_group_chips()
+  _build_char_tabs()
+  _build_tab_shelf()
+
+
+## 그룹 칩 2개(메인/펫) — 탭 줄 좌단(GRID_X)에 고정. 한 번만 생성(그룹 전환에도 불변).
+func _build_group_chips() -> void:
   var x := float(GRID_X)
-  var prev_section := ""
-  for i in TABS.size():
-    var t: Dictionary = TABS[i]
-    var section := String(t.get("section", ""))
-    if prev_section != "" and section != prev_section:
-      x += SECTION_GAP
-    prev_section = section
+  for i in GROUPS.size():
+    var g: Dictionary = GROUPS[i]
+    var chip := GroupChip.new()
+    chip.setup(String(g["label"]))
+    chip.position = Vector2(x, 38)
+    var kind := String(g["kind"])
+    chip.pressed.connect(func() -> void: _on_group(kind))
+    add_child(chip)
+    _group_chips.append(chip)
+    x += GroupChip.CHIP.x + CHIP_GAP
+
+
+## 캐릭터 탭 줄 시작 x — 그룹 칩 묶음(2칩 + 칩 간격) 뒤 GROUP_GAP.
+func _char_tabs_x() -> float:
+  return float(GRID_X) + GroupChip.CHIP.x * 2.0 + CHIP_GAP + GROUP_GAP
+
+
+## 현재 그룹의 캐릭터 탭 재생성(레지스트리 그룹별 id 순서). 그룹 전환마다 호출.
+## 재생성된 탭은 트리 최상단에 add 되므로, 선반이 있으면 다시 위로 올려 둥근 하단 솔기를 덮는다.
+func _build_char_tabs() -> void:
+  for t in _tabs:
+    t.queue_free()
+  _tabs.clear()
+  _tab_ids.clear()
+
+  var ids: Array = Characters.mains() if _active_group == Characters.MAIN else Characters.pets()
+  var x := _char_tabs_x()
+  for i in ids.size():
+    var id := String(ids[i])
     var tab := CharacterTab.new()
-    tab.setup(String(t["id"]), String(t["name"]), bool(t["locked"]),
-      Color(t.get("accent", Palette.GREY_500)))
+    tab.setup(id, Characters.display_name(id), false, Characters.accent(id))
     tab.position = Vector2(x, 38)
     var idx := i
     tab.pressed.connect(func() -> void: _on_tab(idx))
     add_child(tab)
     _tabs.append(tab)
+    _tab_ids.append(id)
     x += CharacterTab.TAB.x + 6.0
-  _build_tab_shelf()
+
+  if _shelf != null:
+    _shelf.move_to_front()  # 전환으로 새로 add 된 탭들 위로 선반 복귀
+  _refresh_group_marks()
   _refresh_tab_marks()
 
 
 ## 탭 선반 — 탭 행 바로 밑에 깔리는 가로 골드 룰(베벨). 탭 하단(y68)과 살짝 겹쳐(y65~68)
 ## "선반에 꽂힌 색인 혀"로 보이게 한다 → 탭이 크림 위에 붕 뜨는 느낌·아래 빈 포켓감 제거.
-## 탭보다 뒤에 추가하지 않고 위에 얹어 탭의 둥근 하단 솔기를 가린다.
+## 룰들을 _shelf 컨테이너에 담아, 그룹 전환으로 탭이 재생성돼도 move_to_front 로 위에 유지한다.
 func _build_tab_shelf() -> void:
+  _shelf = Control.new()
+  _shelf.mouse_filter = Control.MOUSE_FILTER_IGNORE
+  add_child(_shelf)
   var x := float(GRID_X) - 2.0
   var w := float(GRID_W) + 4.0
   var y := 65.0
@@ -272,14 +308,14 @@ func _build_tab_shelf() -> void:
   _add_rule(x, y + 2.0, w, 1.0, Palette.GOLD_DARK) # 아래 그림자
 
 
-## 가로 룰 1개 — 입력 무시 ColorRect.
+## 가로 룰 1개 — 입력 무시 ColorRect. 선반 컨테이너(_shelf)에 담는다.
 func _add_rule(x: float, y: float, w: float, h: float, color: Color) -> void:
   var r := ColorRect.new()
   r.color = color
   r.position = Vector2(x, y)
   r.size = Vector2(w, h)
   r.mouse_filter = Control.MOUSE_FILTER_IGNORE
-  add_child(r)
+  _shelf.add_child(r)
 
 
 func _build_grid_container() -> void:
@@ -451,6 +487,11 @@ func _populate(character: String) -> void:
   _slots.clear()
 
   _active_char = character
+  # 그룹 복귀(C1-b)용 — 마지막 본 캐릭터를 그룹별로 기억. _populate 는 모든 전환의 단일 경로.
+  if Characters.is_main(character):
+    _last_main = character
+  else:
+    _last_pet = character
   for ev in Events.events_for(character):
     var slot := ChekiSlot.new()
     slot.setup(character, ev)
@@ -474,39 +515,51 @@ func _populate(character: String) -> void:
 func _update_title() -> void:
   if _char_label == null:
     return
-  var name := ""
-  for t in TABS:
-    if String(t["id"]) == _active_char:
-      name = String(t["name"])
-      break
+  var name := Characters.display_name(_active_char)
   _char_label.text = ("· " + name) if not name.is_empty() else ""
 
 
 # ── 탭 ───────────────────────────────────────────────────
 
 func _on_tab(tab_index: int) -> void:
-  var t: Dictionary = TABS[tab_index]
-  if bool(t["locked"]):
-    _open_slide(t)               # 잠긴 멤버 → 확장 슬라이드 예고
-    _focus_to_tab(tab_index)
-    return
-  if String(t["id"]) == _active_char:
+  var id := String(_tab_ids[tab_index])
+  if id == _active_char:
     _focus_to_tab(tab_index)
     return
   Sfx.event(&"tab_switch")  # 캐릭터 탭 전환 → ADR 0004
-  _populate(String(t["id"]))
+  _populate(id)
   _rebuild_focus()
   _focus_index = _first_slot_focus_index()
   _apply_focus()
   _update_counter()
 
 
-## 활성 캐릭터 탭 강조.
+## 그룹 토글 — 같은 그룹이면 칩에 포커스만, 다른 그룹이면 마지막 본 캐릭터로 즉시 전환(C1·C1-b).
+## 탭 줄(현재 그룹 캐릭터)·그리드·헤더·카운터를 한 번에 그 그룹으로 갈아끼워 불일치 구간이 없다.
+func _on_group(kind: String) -> void:
+  if kind == _active_group:
+    _focus_to_group(kind)
+    return
+  Sfx.event(&"tab_switch")  # 그룹 전환 → ADR 0004
+  _active_group = kind
+  _build_char_tabs()  # 현재 그룹 탭 재생성 + 그룹/탭 강조 갱신
+  _populate(_last_main if kind == Characters.MAIN else _last_pet)
+  _rebuild_focus()
+  _focus_index = _first_slot_focus_index()
+  _apply_focus()
+  _update_counter()
+
+
+## 활성 캐릭터 탭 강조(현재 그룹 탭만 존재).
 func _refresh_tab_marks() -> void:
   for i in _tabs.size():
-    var t: Dictionary = TABS[i]
-    var active := not bool(t["locked"]) and String(t["id"]) == _active_char
-    _tabs[i].set_active(active)
+    _tabs[i].set_active(String(_tab_ids[i]) == _active_char)
+
+
+## 활성 그룹 칩 강조.
+func _refresh_group_marks() -> void:
+  for i in _group_chips.size():
+    _group_chips[i].set_active(String(GROUPS[i]["kind"]) == _active_group)
 
 
 # ── 칸 ───────────────────────────────────────────────────
@@ -554,27 +607,13 @@ func _on_detail_closed() -> void:
   _detail = null
 
 
-## 잠긴 멤버 확장 슬라이드 열기 — 실루엣·이름·예고 문구(파치먼트 톤). CANCEL/바깥 탭 닫기.
-func _open_slide(member: Dictionary) -> void:
-  if _slide != null:
-    return
-  Sfx.event(&"popup_open")  # 잠긴 멤버 예고 슬라이드 열기 → ADR 0004
-  _slide = ExpansionSlide.new()
-  _slide.setup(String(member["name"]), Color(member.get("accent", Palette.GREY_500)))
-  _slide.closed.connect(_on_slide_closed)
-  add_child(_slide)  # 맨 위
-
-
-func _on_slide_closed() -> void:
-  Sfx.event(&"popup_close")  # 예고 슬라이드 닫힘 → ADR 0004 (디테일은 자체 cancel 음)
-  _slide = null
-
-
 # ── 평면 링 포커스 ────────────────────────────────────────
 
-## 포커스 링 재구성 = 탭 전체 + 현재 캐릭터 칸 전체.
+## 포커스 링 재구성 = 그룹 칩 + 현재 그룹 탭 + 현재 캐릭터 칸 (공간 순서: 위→아래).
 func _rebuild_focus() -> void:
   _focus.clear()
+  for i in _group_chips.size():
+    _focus.append({"kind": "group", "i": i})
   for i in _tabs.size():
     _focus.append({"kind": "tab", "i": i})
   for i in _slots.size():
@@ -589,19 +628,21 @@ func _move_focus(dir: int) -> void:
   _apply_focus()
 
 
-## 현재 포커스 활성화 — 탭이면 전환, 칸이면 열기.
+## 현재 포커스 활성화 — 그룹 칩이면 그룹 전환, 탭이면 캐릭터 전환, 칸이면 열기.
 func _activate_focused() -> void:
   if _focus.is_empty():
     return
   var f: Dictionary = _focus[_focus_index]
-  if String(f["kind"]) == "tab":
-    _on_tab(int(f["i"]))
-  else:
-    _open_slot(_slots[int(f["i"])])
+  match String(f["kind"]):
+    "group": _on_group(String(GROUPS[int(f["i"])]["kind"]))
+    "tab": _on_tab(int(f["i"]))
+    "slot": _open_slot(_slots[int(f["i"])])
 
 
 ## 모든 하이라이트 끄고 현재만 켠다. 칸이면 스크롤로 보이게.
 func _apply_focus() -> void:
+  for chip in _group_chips:
+    chip.set_focused(false)
   for tab in _tabs:
     tab.set_focused(false)
   for s in _slots:
@@ -609,12 +650,13 @@ func _apply_focus() -> void:
   if _focus.is_empty():
     return
   var f: Dictionary = _focus[_focus_index]
-  if String(f["kind"]) == "tab":
-    _tabs[int(f["i"])].set_focused(true)
-  else:
-    var slot: ChekiSlot = _slots[int(f["i"])]
-    slot.set_focused(true)
-    _scroll.ensure_control_visible(slot)
+  match String(f["kind"]):
+    "group": _group_chips[int(f["i"])].set_focused(true)
+    "tab": _tabs[int(f["i"])].set_focused(true)
+    "slot":
+      var slot: ChekiSlot = _slots[int(f["i"])]
+      slot.set_focused(true)
+      _scroll.ensure_control_visible(slot)
 
 
 func _first_slot_focus_index() -> int:
@@ -639,6 +681,16 @@ func _focus_to_tab(tab_index: int) -> void:
   for i in _focus.size():
     var f: Dictionary = _focus[i]
     if String(f["kind"]) == "tab" and int(f["i"]) == tab_index:
+      _focus_index = i
+      _apply_focus()
+      return
+
+
+## 이미 활성인 그룹 칩을 다시 누르면 그 칩으로 포커스만 옮긴다(전환 없음).
+func _focus_to_group(kind: String) -> void:
+  for i in _focus.size():
+    var f: Dictionary = _focus[i]
+    if String(f["kind"]) == "group" and String(GROUPS[int(f["i"])]["kind"]) == kind:
       _focus_index = i
       _apply_focus()
       return
