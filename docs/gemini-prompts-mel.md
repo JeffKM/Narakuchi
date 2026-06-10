@@ -197,6 +197,60 @@ Color mood: gothic jirai-kei night — deep navy/black sky, electric RED & magen
 
 ---
 
+## 멜 유치원 의상 체키 (`mel_kinder`)
+
+> **유치원 데이** — 옥자와 한 세트(전원 같은 원아복 코디). **체키 카드용 정적 아트**(포즈·헤어 변주 자유). **창백한 피부·볼 빨간 점·빨간 입술 3개는 의상이 바뀌어도 유지**(멜 강시 식별 표식 = 핵심 정체성).
+> **🔑 코디 가이드(실물 레퍼 확정 — `_src/mel_kinder_ref.png`)**: 머스타드/옐로 **와이드브림 버킷햇**(흰 꽃 클립) + 흰 **피터팬 라운드 카라**의 **하늘색(라이트 블루) 퍼프소매 원피스**(앞 단추) + 가슴 **빨강 명찰** + 사선으로 멘 **노란 크로스백** + **다크 낮은 트윈테일**(노란 리본/스크런치) + 흰 무릎양말 + 손목시계. 무릎 꿇은 포즈, 한 손 모자챙. 미호·바나와 같은 유치원 세트지만 멜은 **하늘색 원피스**로 구분 + 멜다움으로 이마 **작은 노란 부적 스티커**(귀엽게·무섭지 않게).
+
+```
+[Attach: 1 = mel_idle.png (confirmed SD dot, face & proportion lock), 2 = _src/mel_kinder_ref.png (kindergarten outfit + pose lock)]
+Keep image 1's FACE and Mel's identity MAKEUP MARKS: faintly PALE cool-toned skin, small round RED dots on both cheeks, RED lips,
+same SD chibi proportions (head:body ≈ 1:3~1:4) — KEEP these even though the outfit changes.
+RESTYLE her into the KINDERGARTEN-DAY coordinate from image 2 — a cute preschool-pupil look (childlike, age-safe):
+- Hair: dark hair in low TWIN-TAILS tied with YELLOW ribbons / scrunchies, straight fringe.
+- Headwear: a MUSTARD / golden-YELLOW wide-brim BUCKET HAT with a tiny white flower clip; add a small cute YELLOW TALISMAN (paper charm) sticker on the forehead as a playful jiangshi nod.
+- Top: a LIGHT-BLUE (sky blue) long-puff-sleeve smock DRESS with a big WHITE rounded PETER-PAN COLLAR and a button placket.
+- Badge: a small RED rounded NAME TAG on the chest.
+- Bag: a YELLOW cross-body messenger BAG worn diagonally.
+- Accessories: a small wristwatch.
+- Pose (KEEP from image 2): kneeling / sitting on her knees, ONE hand lightly touching the hat brim, calm cute look.
+- Shoes: WHITE knee socks and small WHITE shoes.
+- Expression: calm innocent face.
+Style: polished 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients,
+       rich 2-3 tone dot shading (highlight/midtone/shadow) on hair, pale skin and the light-blue dress; NOT flat single-tone.
+       Keep her clearly the SAME Mel (pale skin + red cheek dots + red lips intact), just dressed as a sweet kindergartener.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom,
+         tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+네거티브(공통 + 추가): `no different face, no missing red cheek dots, no missing red lips, no missing pale skin, no fox/cat ears, no witch hat (it's a yellow bucket hat), no jiangshi court robe & hat (fully replaced by the light-blue kindergarten dress), no scary zombie / horror look, no green skin, no over-mature outfit (keep it childlike & age-safe), no cropped feet, no flat single-tone coloring.`
+
+> 🃏 **체키 합성 레이어**: 멜 유치원 체키 = `mel_kinder`(누끼) + **멜 전용 배경 `bg_cheki_mel_kinder`**(아래) + 이벤트 공통 `frame_kinder`(→ [공통 파일](./gemini-prompts-common.md)). 저장: `assets/sprites/mel_kinder.png`.
+
+---
+
+## 멜 유치원 체키 사진 배경 (`bg_cheki_mel_kinder`)
+
+> **베이스 = [공통 파일](./gemini-prompts-common.md)의 "체키 사진 배경"**(규격 `120×180` 완전 불투명, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케). **유치원 데이 공통 톤 = 크레용·무지개·파스텔 유치원**(옥자 배경과 한 세트). **멜의 스팟 = 악기·실로폰이 있는 음악놀이 코너**(살짝의 변주만 — 같은 유치원).
+
+```
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a bright cheerful KINDERGARTEN MUSIC corner.
+NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
+(a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
+Scene: a sunny preschool music corner — pastel walls with a big crayon-drawn RAINBOW, fluffy clouds and a yellow sun, a colorful
+      XYLOPHONE, little drums and tambourines on shelves along the sides, paper bunting / flags strung overhead, soft round BOKEH light orbs.
+Depth: rainbow, bunting and shelves along the TOP and the two SIDE edges; the CENTER is a softer, blurrier pastel haze so a standing
+      character reads clearly; the LOWER-CENTER (character's feet area) stays calmer — a soft play-mat floor.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh as clusters of flat pixel dots.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
+Color mood: warm bright nursery — cream walls, pastel rainbow (red-orange-yellow-green-blue-purple), sky blue, sunny yellow, candy pink.
+```
+
+> 네거티브는 [공통 파일](./gemini-prompts-common.md)의 배경 네거티브 그대로(특히 **캐릭터·마스코트 없는 순수 풍경**). 저장: `assets/sprites/bg_cheki_mel_kinder.png`.
+
+---
+
 ## 색 보정 재생성 (raw 없이 색만 개선 — 정체성·포즈 유지)
 
 > 첫 `mel_idle` 의 청록 소매·치마가 탁했고(틸 미드톤 부재) **raw(인덱싱 전 풀컬러)가 없을 때**의 복구 루트. 빈손 재생성은 정체성·구도를 잃으니, **확정된 `mel_idle.png` 자체를 레퍼로 첨부**해 얼굴·포즈·의상·구도는 그대로 두고 **셰이딩만 풍부하게** 다시 받는다. 받은 raw 를 보강된 45색 팔레트로 `dotify` 재인덱싱.
@@ -245,6 +299,13 @@ tools/.venv/bin/python tools/dotify.py mel_jirai_raw.png \
 # 멜 전용 지뢰계 체키 배경 (120×180 완전 불투명 — 누끼 X, 크로마 X)
 tools/.venv/bin/python tools/dotify.py bg_cheki_mel_jirai_raw.png \
   --size 120x180 --out assets/sprites/bg_cheki_mel_jirai.png
+
+# 멜 유치원 체키 의상 (128×288 — 체키 카드용 정적 아트, 볼 빨간 점·빨간 입술·창백 피부 유지)
+tools/.venv/bin/python tools/dotify.py mel_kinder_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/mel_kinder.png
+# 멜 전용 유치원 체키 배경 (120×180 완전 불투명 — 누끼 X, 크로마 X)
+tools/.venv/bin/python tools/dotify.py bg_cheki_mel_kinder_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_mel_kinder.png
 
 # 멜 탭 미니 초상 (권장: mel_idle 얼굴 크롭본을 입력으로)
 tools/.venv/bin/python tools/dotify.py portrait_mel_raw.png \

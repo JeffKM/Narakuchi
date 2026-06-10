@@ -180,6 +180,60 @@ Color mood: gothic jirai-kei night — deep navy/black sky, electric PURPLE & vi
 
 ---
 
+## 바나 유치원 의상 체키 (`bana_kinder`)
+
+> **유치원 데이** — 옥자와 한 세트(전원 같은 원아복 코디). **체키 카드용 정적 아트**(포즈·헤어 변주 자유). **창백한 피부·루비 눈·작은 송곳니는 의상이 바뀌어도 유지**(바나 핵심 정체성).
+> **🔑 코디 가이드(실물 레퍼 확정 — `_src/bana_kinder_ref.png`)**: 머스타드/옐로 **와이드브림 버킷햇** + 흰 **피터팬 라운드 카라**의 **핑크 퍼프소매 셔츠**(가슴 **빨강 명찰**) + 그 위에 **라벤더(보라) 멜빵 점프스커트** + 사선으로 멘 **보라 크로스백**(초록 공룡 인형) + **블론드 낮은 트윈테일**(핑크 퐁퐁 헤어볼) + 은색 체인 목걸이 + 흰 무릎양말. **V(피스) 셀카 포즈**. 미호·멜과 같은 유치원 세트지만 바나는 **핑크 셔츠 + 라벤더 멜빵스커트 + 보라 백·공룡 인형**으로 구분. 송곳니 보이는 해맑은 미소.
+
+```
+[Attach: 1 = bana_idle.png (confirmed SD dot, identity lock), 2 = _src/bana_kinder_ref.png (kindergarten outfit + pose lock)]
+Keep image 1's character IDENTITY: same face, same VAMPIRE look (PALE skin, RUBY-red eyes, tiny cute FANGS),
+same SD chibi proportions (head:body ≈ 1:3~1:4), and KEEP these even in the new outfit.
+RESTYLE her into the KINDERGARTEN-DAY coordinate from image 2 — a cute preschool-pupil look (childlike, age-safe):
+- Hair: platinum BLONDE hair in low TWIN-TAILS with fluffy PINK POM-POM hair-ties, straight fringe.
+- Headwear: a MUSTARD / golden-YELLOW wide-brim BUCKET HAT.
+- Top: a PINK long-puff-sleeve shirt with a big WHITE rounded PETER-PAN COLLAR; a small RED rounded NAME TAG on the chest.
+- Bottom: a LAVENDER / PURPLE suspender (jumper) SKIRT worn over the shirt.
+- Bag: a PURPLE cross-body BAG worn diagonally, with a little GREEN DINOSAUR plush peeking out.
+- Accessories: a thin silver CHAIN necklace.
+- Pose (KEEP from image 2): one hand raised making a cute V / peace sign near the face, big ruby eyes, confident cute look.
+- Shoes: WHITE knee socks and small WHITE shoes.
+- Expression: bright cute face, happy smile with the tiny FANGS showing.
+Style: polished 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients,
+       rich 2-3 tone dot shading (highlight/midtone/shadow) on hair, pale skin, pink shirt and lavender skirt; NOT flat single-tone.
+       Keep her clearly the SAME Bana (pale skin + ruby eyes + tiny fangs intact), just dressed as a sweet kindergartener.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom,
+         tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+네거티브(공통 + 추가): `no different face, no missing fangs, no missing pale skin, no fox/cat ears, no witch hat (it's a yellow bucket hat), no vampire maid outfit (fully replaced by the pink kindergarten shirt + lavender suspender skirt), no over-mature outfit (keep it childlike & age-safe), no huge bat wings, no cropped feet, no flat single-tone coloring.`
+
+> 🃏 **체키 합성 레이어**: 바나 유치원 체키 = `bana_kinder`(누끼) + **바나 전용 배경 `bg_cheki_bana_kinder`**(아래) + 이벤트 공통 `frame_kinder`(→ [공통 파일](./gemini-prompts-common.md)). 저장: `assets/sprites/bana_kinder.png`.
+
+---
+
+## 바나 유치원 체키 사진 배경 (`bg_cheki_bana_kinder`)
+
+> **베이스 = [공통 파일](./gemini-prompts-common.md)의 "체키 사진 배경"**(규격 `120×180` 완전 불투명, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케). **유치원 데이 공통 톤 = 크레용·무지개·파스텔 유치원**(옥자 배경과 한 세트). **바나의 스팟 = 이젤·그림이 걸린 미술놀이 코너**(살짝의 변주만 — 같은 유치원).
+
+```
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a bright cheerful KINDERGARTEN ART corner.
+NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
+(a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
+Scene: a sunny preschool art corner — pastel walls with a big crayon-drawn RAINBOW, fluffy clouds and a yellow sun, small EASELS
+      with children's paintings, shelves of paint pots and crayons along the sides, paper bunting / flags strung overhead, soft round BOKEH light orbs.
+Depth: rainbow, bunting and easels along the TOP and the two SIDE edges; the CENTER is a softer, blurrier pastel haze so a standing
+      character reads clearly; the LOWER-CENTER (character's feet area) stays calmer — a soft play-mat floor.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh as clusters of flat pixel dots.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
+Color mood: warm bright nursery — cream walls, pastel rainbow (red-orange-yellow-green-blue-purple), sky blue, sunny yellow, candy pink.
+```
+
+> 네거티브는 [공통 파일](./gemini-prompts-common.md)의 배경 네거티브 그대로(특히 **캐릭터·마스코트 없는 순수 풍경**). 저장: `assets/sprites/bg_cheki_bana_kinder.png`.
+
+---
+
 ## 후처리 연결 (바나 — 받은 PNG → 규격 에셋)
 
 > 바나 스탠딩은 옥자·미호와 같은 캔버스(`preset okja` = 128×288)를 쓴다. 캐릭터 레지스트리(`data/characters.gd`)가 `bana_*` 경로를 읽는다(코드 배선은 아트 확정 후).
@@ -197,6 +251,13 @@ tools/.venv/bin/python tools/dotify.py bana_jirai_raw.png \
 # 바나 전용 지뢰계 체키 배경 (120×180 완전 불투명 — 누끼 X, 크로마 X)
 tools/.venv/bin/python tools/dotify.py bg_cheki_bana_jirai_raw.png \
   --size 120x180 --out assets/sprites/bg_cheki_bana_jirai.png
+
+# 바나 유치원 체키 의상 (128×288 — 체키 카드용 정적 아트, 송곳니·창백한 피부 유지)
+tools/.venv/bin/python tools/dotify.py bana_kinder_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/bana_kinder.png
+# 바나 전용 유치원 체키 배경 (120×180 완전 불투명 — 누끼 X, 크로마 X)
+tools/.venv/bin/python tools/dotify.py bg_cheki_bana_kinder_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_bana_kinder.png
 
 # 바나 탭 미니 초상 (권장: bana_idle 얼굴 크롭본을 입력으로)
 tools/.venv/bin/python tools/dotify.py portrait_bana_raw.png \

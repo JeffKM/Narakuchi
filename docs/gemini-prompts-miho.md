@@ -186,6 +186,61 @@ Color mood: warm festival night — deep navy/black sky, glowing lantern RED, wa
 
 ---
 
+## 미호 유치원 의상 체키 (`miho_kinder`)
+
+> **유치원 데이** — 옥자와 한 세트(전원 같은 원아복 코디). **체키 카드용 정적 아트**(포즈·헤어 변주 자유). **여우 귀·꼬리는 의상이 바뀌어도 유지**(미호 핵심 정체성).
+> **🔑 코디 가이드(실물 레퍼 확정 — `_src/miho_kinder_ref.png`)**: 머스타드/옐로 **와이드브림 버킷햇** + 흰 **피터팬 라운드 카라**의 **핑크 퍼프소매 원피스**(앞 리본 단추) + 가슴 **빨강 명찰** + 사선으로 멘 **노란 크로스백**(작은 곰 인형 + 빨강 리본 매달림) + 빨강 **하트 귀걸이** + 허리 은색 나비 장식. 헤어는 **긴 생머리 다운**(양손으로 머리 잡은 포즈). 멜·바나와 같은 유치원 세트지만 미호는 **핑크 원피스 + 노란 백 + 곰 인형**으로 구분.
+
+```
+[Attach: 1 = miho_idle.png (confirmed SD dot, identity lock), 2 = _src/miho_kinder_ref.png (kindergarten outfit + pose lock)]
+Keep image 1's character IDENTITY: same face, same warm gumiho fox look (WHITE fox ears, whisker makeup, red under-eye accent),
+keep Miho's OWN hair color from image 1, same SD chibi proportions (head:body ≈ 1:3~1:4),
+and KEEP her WHITE FOX EARS and big FLUFFY WHITE FOX TAIL (these stay even in the new outfit).
+RESTYLE her into the KINDERGARTEN-DAY coordinate from image 2 — a cute preschool-pupil look (childlike, age-safe):
+- Hair: long straight hair worn DOWN with a straight fringe, soft and childlike.
+- Headwear: a MUSTARD / golden-YELLOW wide-brim BUCKET HAT, placed so the WHITE FOX EARS still show.
+- Top: a PINK long-puff-sleeve smock DRESS with a big WHITE rounded PETER-PAN COLLAR and small RIBBON-bow buttons down the front.
+- Badge: a small RED / pink rounded NAME TAG on the chest.
+- Bag: a YELLOW cross-body messenger BAG worn diagonally, with a little BEAR plush and a RED ribbon dangling from it.
+- Accessories: RED heart-shaped EARRINGS; a small silver butterfly clasp at the waist.
+- Pose (KEEP from image 2): both hands lightly holding her own long hair strands beside her face, calm cute look.
+- Shoes: WHITE knee socks and small WHITE shoes.
+- Expression: calm, slightly pouty-cute innocent face.
+Style: polished 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients,
+       rich 2-3 tone dot shading (highlight/midtone/shadow) on hair, skin, pink dress and tail; NOT flat single-tone.
+       Keep her clearly the SAME Miho (fox ears + tail intact), just dressed as a sweet kindergartener.
+Framing: FULL body centered (head to shoes all visible, tail not cropped), big head near top, feet near bottom,
+         tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+네거티브(공통 + 추가): `no different face, no missing fox ears, no cropped or hidden tail, no cat ears, no witch hat (it's a yellow bucket hat), no maid outfit (fully replaced by the pink kindergarten dress), no over-mature outfit (keep it childlike & age-safe), no sunglasses, no cropped feet, no flat single-tone coloring.`
+
+> 🃏 **체키 합성 레이어**: 미호 유치원 체키 = `miho_kinder`(누끼) + **미호 전용 배경 `bg_cheki_miho_kinder`**(아래) + 이벤트 공통 `frame_kinder`(→ [공통 파일](./gemini-prompts-common.md)). 저장: `assets/sprites/miho_kinder.png`.
+
+---
+
+## 미호 유치원 체키 사진 배경 (`bg_cheki_miho_kinder`)
+
+> **베이스 = [공통 파일](./gemini-prompts-common.md)의 "체키 사진 배경"**(규격 `120×180` 완전 불투명, 누끼 X·크로마 X, 중앙·하단 발치 비움, 도트 보케). **유치원 데이 공통 톤 = 크레용·무지개·파스텔 유치원**(옥자 배경과 한 세트). **미호의 스팟 = 블록·미끄럼틀이 있는 놀이방 코너**(살짝의 변주만 — 같은 유치원).
+
+```
+Pixel art / dot art BACKGROUND scenery for a photo (cheki) snapshot — a bright cheerful KINDERGARTEN PLAYROOM corner.
+NO character, NO frame, NO border, NO text in any readable language. A real LOCATION backdrop that fills the WHOLE image edge-to-edge
+(a cut-out character will be composited standing IN FRONT of it later), tall vertical portrait, aspect ratio 120:180 (2:3).
+Scene: a sunny preschool play corner — pastel walls with a big crayon-drawn RAINBOW, fluffy clouds and a yellow sun, colorful
+      building BLOCKS, a small SLIDE and toy shelves along the sides, paper bunting / flags strung overhead, soft round BOKEH light orbs.
+Depth: rainbow, bunting and shelves along the TOP and the two SIDE edges; the CENTER is a softer, blurrier pastel haze so a standing
+      character reads clearly; the LOWER-CENTER (character's feet area) stays calmer — a soft play-mat floor.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, chunky pixels, NO anti-aliasing, NO smooth gradients, flat shading; bokeh as clusters of flat pixel dots.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green anywhere.
+Color mood: warm bright nursery — cream walls, pastel rainbow (red-orange-yellow-green-blue-purple), sky blue, sunny yellow, candy pink.
+```
+
+> 네거티브는 [공통 파일](./gemini-prompts-common.md)의 배경 네거티브 그대로(특히 **캐릭터·마스코트 없는 순수 풍경**). 저장: `assets/sprites/bg_cheki_miho_kinder.png`.
+
+---
+
 ## 후처리 연결 (미호 — 받은 PNG → 규격 에셋)
 
 > 미호 스탠딩은 옥자와 같은 캔버스(`preset okja` = 128×288)를 쓴다. 캐릭터 레지스트리(#2)가 `miho_*` 경로를 읽는다.
@@ -203,6 +258,13 @@ tools/.venv/bin/python tools/dotify.py miho_jirai_raw.png \
 # 미호 전용 지뢰계 체키 배경 (120×180 완전 불투명 — 누끼 X, 크로마 X)
 tools/.venv/bin/python tools/dotify.py bg_cheki_miho_jirai_raw.png \
   --size 120x180 --out assets/sprites/bg_cheki_miho_jirai.png
+
+# 미호 유치원 체키 의상 (128×288 — 체키 카드용 정적 아트, 여우 귀·꼬리 유지)
+tools/.venv/bin/python tools/dotify.py miho_kinder_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/miho_kinder.png
+# 미호 전용 유치원 체키 배경 (120×180 완전 불투명 — 누끼 X, 크로마 X)
+tools/.venv/bin/python tools/dotify.py bg_cheki_miho_kinder_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_miho_kinder.png
 
 # 미호 탭 미니 초상 (권장: miho_idle 얼굴 크롭본을 입력으로)
 tools/.venv/bin/python tools/dotify.py portrait_miho_raw.png \

@@ -580,6 +580,22 @@
           ],
           "transparent": false,
           "path": "assets/sprites/bg_cheki_miho_jirai.png"
+        },
+        {
+          "id": "miho_kinder",
+          "label": "미호 유치원 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/miho_kinder.png"
+        },
+        {
+          "id": "bg_cheki_miho_kinder",
+          "label": "체키 사진 배경 — 유치원 (미호)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_miho_kinder.png"
         }
       ]
     },
@@ -736,6 +752,22 @@
           ],
           "transparent": false,
           "path": "assets/sprites/bg_cheki_bana_jirai.png"
+        },
+        {
+          "id": "bana_kinder",
+          "label": "바나 유치원 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/bana_kinder.png"
+        },
+        {
+          "id": "bg_cheki_bana_kinder",
+          "label": "체키 사진 배경 — 유치원 (바나)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_bana_kinder.png"
         }
       ]
     },
@@ -892,6 +924,22 @@
           ],
           "transparent": false,
           "path": "assets/sprites/bg_cheki_mel_jirai.png"
+        },
+        {
+          "id": "mel_kinder",
+          "label": "멜 유치원 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/mel_kinder.png"
+        },
+        {
+          "id": "bg_cheki_mel_kinder",
+          "label": "체키 사진 배경 — 유치원 (멜)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_mel_kinder.png"
         }
       ]
     },

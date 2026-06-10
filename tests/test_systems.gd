@@ -468,6 +468,9 @@ func _test_gyujong_pet() -> void:
   # 체키: 규종이 오늘 체키 = 지뢰계(아트 준비됨), grant 가 규종이 슬롯에 적립.
   wipe()
   check(Events.events_for("gyujong") == ["mine", "xmas"], "규종이 보유 이벤트 = 지뢰계·크리스마스")
+  check(Events.events_for("miho") == ["mine", "kinder"], "미호 보유 이벤트 = 지뢰계·유치원")
+  check(Events.events_for("bana") == ["mine", "kinder"], "바나 보유 이벤트 = 지뢰계·유치원")
+  check(Events.events_for("mel") == ["mine", "kinder"], "멜 보유 이벤트 = 지뢰계·유치원")
   check(Cheki.pick_today("gyujong") == "mine", "규종이 오늘의 체키 = 지뢰계(mine)")
   var res := Cheki.grant("gyujong", "mine")
   check(String(res.get("character", "")) == "gyujong" and Cheki.owned("gyujong", "mine"),
