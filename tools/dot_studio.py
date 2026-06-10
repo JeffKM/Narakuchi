@@ -9,8 +9,8 @@ pixelartvillage 스타일의 인터랙티브 워크플로:
 추가 의존성 없음 — 파이썬 표준 라이브러리 http.server + pillow/numpy(이미 설치됨).
 
 실행:
-  tools/.venv/bin/python tools/dot_studio.py          # 브라우저 자동 오픈
-  tools/.venv/bin/python tools/dot_studio.py --port 8800 --no-browser
+  tools/.venv/bin/python tools/dot_studio.py          # 브라우저 자동 오픈(127.0.0.1:8765)
+  tools/.venv/bin/python tools/dot_studio.py --port 8775 --no-browser
 """
 import argparse
 import base64
@@ -192,13 +192,21 @@ def process(params):
   apply_palette = bool(params.get("apply_palette", True))
   pal = parse_palette(params.get("palette"))  # 스튜디오에서 편집한 팔레트(없으면 파일)
 
+  # 충전(fill): preset 이 FILL_PRESETS(okja·sioni — 라이브 스탠딩/펫)면 기본 ON.
+  #   캐릭터를 캔버스에 꽉 채워(높이충전·하단정렬) 옥자 idle 과 같은 스케일로 정합한다.
+  #   payload 의 fill 키로 명시 override 가능(중앙 정렬 center 가 켜지면 dotify 내부에서 그쪽이 우선).
+  preset = params.get("preset")
+  fill_default = bool(preset and preset != "custom" and preset in dotify.FILL_PRESETS)
+  fill = bool(params.get("fill", fill_default))
+  center = bool(params.get("center"))
+
   out = dotify.dotify_image(
     im, tw, th, transparent or chroma is not None, lcd,
     alpha_thr=alpha_thr, chroma=chroma, chroma_tol=chroma_tol,
     apply_palette=apply_palette, palette=pal,
-    center=bool(params.get("center")),
+    fill=fill, center=center,
   )
-  ok, lines = dotify.audit(out, tw, th, pal if pal is not None else dotify.load_palette(), lcd)
+  ok, lines = dotify.audit(out, tw, th, pal if pal is not None else dotify.load_palette(), lcd, check_fill=fill)
   return {
     "result": image_to_data_url(out),
     "dims": [tw, th],
@@ -456,6 +464,8 @@ PAGE = r"""<!DOCTYPE html>
       <label class="chk" style="margin-top:8px">
         <input type="checkbox" id="apply_palette" checked> 32색 팔레트 적용</label>
       <label class="chk" style="margin-top:8px">
+        <input type="checkbox" id="fill"> 자동 충전 (라이브 — 콘텐츠 크롭 후 높이충전·하단정렬, 옥자 스케일 정합)</label>
+      <label class="chk" style="margin-top:8px">
         <input type="checkbox" id="center"> 중앙 정렬 (초상 — 콘텐츠 크롭 후 사방 균등 여백)</label>
       <label style="margin-top:10px">미리보기 배율 <span class="val" id="scalev">3×</span>
         <input type="range" id="scale" min="1" max="6" value="3"></label>
@@ -544,6 +554,8 @@ function selectSlot(id) {
   const ch = it.chroma ? ('#' + String(it.chroma).replace(/^#/, '')) : null;
   $('chroma_on').checked = !!ch;
   if (ch) { $('chroma').value = ch; $('chroma_hex').value = ch; }
+  // 라이브 스탠딩/펫 슬롯(preset okja·sioni)은 "자동 충전"을 자동 ON — 옥자 스케일 정합(떠있음·작게나옴 방지)
+  $('fill').checked = ['okja', 'sioni'].includes(it.preset);
   // 초상 슬롯(center:true)은 "중앙 정렬"을 자동 ON — 좌우 잘림(여백 0) 방지
   $('center').checked = !!it.center;
   $('savePath').value = it.path;
@@ -618,7 +630,7 @@ $('chroma').oninput = () => { $('chroma_hex').value = $('chroma').value; render(
 $('chroma_hex').oninput = () => { if (/^#?[0-9a-fA-F]{6}$/.test($('chroma_hex').value)) {
   $('chroma').value = $('chroma_hex').value.startsWith('#') ? $('chroma_hex').value : '#'+$('chroma_hex').value; render(); } };
 
-['preset','width','height','transparent','chroma_on','chroma_tol','alpha_thr','apply_palette','center','scale']
+['preset','width','height','transparent','chroma_on','chroma_tol','alpha_thr','apply_palette','fill','center','scale']
   .forEach(id => $(id).addEventListener('input', () => { syncUI(); render(); }));
 
 function params() {
@@ -628,7 +640,8 @@ function params() {
     transparent: $('transparent').checked,
     chroma_on: $('chroma_on').checked, chroma: $('chroma_hex').value,
     chroma_tol: +$('chroma_tol').value, alpha_thr: +$('alpha_thr').value,
-    apply_palette: $('apply_palette').checked, center: $('center').checked, palette: palette,
+    apply_palette: $('apply_palette').checked,
+    fill: $('fill').checked, center: $('center').checked, palette: palette,
   };
 }
 
