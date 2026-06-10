@@ -74,6 +74,14 @@ func _ready() -> void:
 ##   - comfy(600) 도달: 반말 전환 컷인이 입장 인사를 대신함
 ##   - close(2000) 도달: 전용 연출 없음 — 평소 입장 인사(후속에 컷인 추가 가능)
 func start() -> void:
+  # 온보딩에서 고른 메인·펫을 반영한다. Cafe 는 생성 시점(_ready→_build)에 flags 를 읽지만,
+  # 첫 접속이면 그땐 온보딩 전이라 기본값(옥자/시온이)으로 build 된다. flags 는 온보딩이 확정하므로
+  # 세션 시작 시 저장값으로 한 번 더 맞춘다(announce=false — 입장 인사는 아래 start 로직이 담당).
+  swap_active(
+    String(SaveManager.get_value("flags.active_main", _active_main)),
+    String(SaveManager.get_value("flags.active_pet", _active_pet)),
+    false)
+
   # 입장 효과음 — 새 하루면 day_advance, 아니면 scene_enter (begin_session 전에 새날 판정). (→ ADR 0004)
   var is_new_day := bool(Meters.evaluate_session().get("is_new_day", false))
   Sfx.event(&"day_advance" if is_new_day else &"scene_enter")
@@ -740,7 +748,9 @@ func _on_roster_confirmed(main_id: String, pet_id: String) -> void:
 
 ## 활성 메인·펫을 교체하고 화면을 새 메인으로 갈아끼운다. (저장 + 라이브 스탠딩 텍스처 스왑)
 ## 시온이 교감 모드였으면 먼저 옥자 모드로 복귀해 줌·바·HUD 를 정돈한 뒤 교체한다.
-func swap_active(main_id: String, pet_id: String) -> void:
+## announce=false 면 입장 인사/효과음을 생략한다 — start() 가 자기 입장 연출을 따로 내므로,
+## 온보딩 직후 세션 시작 시 저장된 active 메인·펫을 반영할 때(중복 인사 방지) 쓴다.
+func swap_active(main_id: String, pet_id: String, announce := true) -> void:
   if _mode == MODE_SION:
     _exit_sion_mode()
   var changed := main_id != _active_main
@@ -757,7 +767,7 @@ func swap_active(main_id: String, pet_id: String) -> void:
   _update_roster_portrait()
   _hud.set_focus(main_id)       # 게이지·기분 표시를 새 메인으로
   _hud.refresh()
-  if changed:
+  if changed and announce:
     # 새 메인이 그 관계 단계에 맞춰 맞이한다(메인 바뀌면 인사도 바뀐 결).
     Sfx.event(&"scene_enter")
     _to_idle()
