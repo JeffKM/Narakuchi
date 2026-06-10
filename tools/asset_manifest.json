@@ -652,6 +652,148 @@
       ]
     },
     {
+      "id": "A11",
+      "title": "A11 · 바나 (뱀파이어 메이드, 확장 슬라이스)",
+      "items": [
+        {
+          "id": "bana_idle",
+          "label": "바나 기본(뱀파이어 메이드)",
+          "preset": "okja",
+          "path": "assets/sprites/bana_idle.png"
+        },
+        {
+          "id": "bana_smile",
+          "label": "바나 웃음",
+          "preset": "okja",
+          "path": "assets/sprites/bana_smile.png"
+        },
+        {
+          "id": "bana_shy",
+          "label": "바나 부끄",
+          "preset": "okja",
+          "path": "assets/sprites/bana_shy.png"
+        },
+        {
+          "id": "bana_sad",
+          "label": "바나 시무룩",
+          "preset": "okja",
+          "path": "assets/sprites/bana_sad.png"
+        },
+        {
+          "id": "bana_brew",
+          "label": "바나 제조중(블러디 미드나잇)",
+          "preset": "okja",
+          "path": "assets/sprites/bana_brew.png"
+        },
+        {
+          "id": "bana_talk",
+          "label": "바나 말하기",
+          "preset": "okja",
+          "path": "assets/sprites/bana_talk.png"
+        },
+        {
+          "id": "portrait_bana",
+          "label": "탭 미니 초상 — 바나",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/portrait_bana.png",
+          "center": true
+        },
+        {
+          "id": "bana_jirai",
+          "label": "바나 인트로(지뢰계) 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/bana_jirai.png"
+        },
+        {
+          "id": "bg_cheki_bana_jirai",
+          "label": "체키 사진 배경 — 지뢰계 (바나)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_bana_jirai.png"
+        }
+      ]
+    },
+    {
+      "id": "A12",
+      "title": "A12 · 코코 (바나의 까만 고양이, 확장 슬라이스)",
+      "items": [
+        {
+          "id": "coco_idle",
+          "label": "코코 idle (96px) — 올블랙·노란 눈(크로마 그린)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/coco_idle.png"
+        },
+        {
+          "id": "coco_snack",
+          "label": "코코 반응 — 간식 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/coco_snack.png"
+        },
+        {
+          "id": "coco_play",
+          "label": "코코 반응 — 놀기 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/coco_play.png"
+        },
+        {
+          "id": "coco_pet",
+          "label": "코코 반응 — 쓰담 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/coco_pet.png"
+        },
+        {
+          "id": "portrait_coco",
+          "label": "탭 미니 초상 — 코코",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/portrait_coco.png",
+          "center": true
+        },
+        {
+          "id": "photo_coco_jirai",
+          "label": "코코 지뢰계 체키 사진(배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_coco_jirai.png"
+        }
+      ]
+    },
+    {
       "id": "S",
       "title": "셸 / UI / 공유",
       "items": [
