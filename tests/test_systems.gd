@@ -339,12 +339,17 @@ func _test_progression_cadence() -> void:
 
 ## 레지스트리 구성 + 미호가 제네릭 미터/체키 경로를 그대로 타는지(옥자와 격리).
 func _test_character_registry() -> void:
-  # 레지스트리: 메인 3(옥자·미호·바나) + 펫 3(시온이·규종이·코코). 게이지 풀은 Balance 단일 출처.
-  check(Characters.mains() == ["okja", "miho", "bana"], "메인 = 옥자·미호·바나")
-  check(Characters.pets() == ["sion", "gyujong", "coco"], "펫 = 시온이·규종이·코코")
+  # 레지스트리: 메인 4(옥자·미호·바나·멜) + 펫 5(시온이·규종이·코코·선아·수아). 게이지 풀은 Balance 단일 출처.
+  # 멜은 라이브(로스터·교감) 선행 배선(idle 확인) — 표정·체키 아트(#13)·전용 대사(#14)는 후속.
+  # 선아(갈색 푸들)·수아(베이지 닥스훈트)는 멜 펫 슬라이스에서 idle 확정 + 전용 버튼/티커 배선(수아=선아 미러).
+  check(Characters.mains() == ["okja", "miho", "bana", "mel"], "메인 = 옥자·미호·바나·멜")
+  check(Characters.pets() == ["sion", "gyujong", "coco", "suna", "sua"], "펫 = 시온이·규종이·코코·선아·수아")
+  check(Characters.gauge_full("suna") == Balance.GAUGE_SUNA, "선아 게이지 풀 = Balance.GAUGE_SUNA")
+  check(Characters.gauge_full("sua") == Balance.GAUGE_SUA, "수아 게이지 풀 = Balance.GAUGE_SUA")
   check(Characters.has_mood("miho") and not Characters.has_mood("sion"),
     "메인만 기분 보유(미호 O, 시온이 X)")
   check(Characters.gauge_full("miho") == Balance.GAUGE_MIHO, "미호 게이지 풀 = Balance.GAUGE_MIHO")
+  check(Characters.gauge_full("mel") == Balance.GAUGE_MEL, "멜 게이지 풀 = Balance.GAUGE_MEL")
 
   # 세이브 스키마: 미호 블록(기분 포함) + 기본 active_main = 옥자.
   wipe()

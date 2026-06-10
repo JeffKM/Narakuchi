@@ -152,5 +152,71 @@
         "affinity": "sion"
       }
     ]
+  },
+  "suna": {
+    "_doc": "선아(멜의 갈색 푸들) 4버튼 — 시온이·규종이·코코와 같은 틀. label·emotion·ticker(ticker.json suna 풀 키) 편집 대상. id·affinity 잠금. emotion ∈ idle/snack/play/pet.",
+    "actions": [
+      {
+        "id": "cheki",
+        "label": "체키",
+        "emotion": "play",
+        "ticker": "cheki",
+        "affinity": "cheki"
+      },
+      {
+        "id": "snack",
+        "label": "간식",
+        "emotion": "snack",
+        "ticker": "snack",
+        "affinity": "sion"
+      },
+      {
+        "id": "play",
+        "label": "놀기",
+        "emotion": "play",
+        "ticker": "play",
+        "affinity": "sion"
+      },
+      {
+        "id": "pet",
+        "label": "쓰담",
+        "emotion": "pet",
+        "ticker": "pet",
+        "affinity": "sion"
+      }
+    ]
+  },
+  "sua": {
+    "_doc": "수아(멜의 베이지 닥스훈트) 4버튼 — 선아 미러(시온이·규종이·코코와 같은 틀). label·emotion·ticker(ticker.json sua 풀 키) 편집 대상. id·affinity 잠금. emotion ∈ idle/snack/play/pet.",
+    "actions": [
+      {
+        "id": "cheki",
+        "label": "체키",
+        "emotion": "play",
+        "ticker": "cheki",
+        "affinity": "cheki"
+      },
+      {
+        "id": "snack",
+        "label": "간식",
+        "emotion": "snack",
+        "ticker": "snack",
+        "affinity": "sion"
+      },
+      {
+        "id": "play",
+        "label": "놀기",
+        "emotion": "play",
+        "ticker": "play",
+        "affinity": "sion"
+      },
+      {
+        "id": "pet",
+        "label": "쓰담",
+        "emotion": "pet",
+        "ticker": "pet",
+        "affinity": "sion"
+      }
+    ]
   }
 }

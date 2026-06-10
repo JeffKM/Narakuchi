@@ -307,6 +307,8 @@ func _test_miho_book_tab() -> void:
   check(locks.get("miho", true) == false, "미호 탭 잠금 해제(locked=false)")
   check(locks.get("bana", true) == false, "바나 탭 잠금 해제(locked=false, #10)")
   check(locks.get("coco", true) == false, "코코 탭 잠금 해제(locked=false, #11)")
+  check(locks.get("suna", true) == false, "선아 탭 잠금 해제(locked=false, 펫 슬라이스)")
+  check(locks.get("sua", true) == false, "수아 탭 잠금 해제(locked=false, 선아 미러)")
   check(bool(locks.get("mel", false)),
     "멜은 여전히 잠금(예고로 유지)")
 

@@ -11,9 +11,8 @@ signal closed
 
 const LCD := Vector2(333, 480)
 const CARD := Vector2(220, 280)
-# 펫 확장은 슬라이드 문구로만 예고(탭 없음). 선아·수아=강아지 → 중립 표현.
-# (규종이는 #6, 코코는 #11에서 펫 탭으로 합류 → 예고 목록에서 제외. → CONTEXT.md 펫 로스터 / T21 합의)
-const PET_LINE := "그리고 곁을 지킬 친구들 — 선아·수아"
+# 펫 예고 문구는 펫 전원(규종이 #6·코코 #11·선아·수아) 정식 탭 합류로 소멸 — 이제 슬라이드는 잠긴 메인(멜)만 예고한다.
+# (→ CONTEXT.md 펫 로스터 / T21 합의. 추후 새 미래 펫이 생기면 PET_LINE 류 한 줄을 여기 되살린다.)
 
 var _name: String = ""
 var _accent: Color = Palette.VIOLET
@@ -115,21 +114,7 @@ func _build_card() -> void:
   tease.size = Vector2(CARD.x - 16, 20)
   card.add_child(tease)
 
-  # 구분 룰(골드)
-  var rule := ColorRect.new()
-  rule.color = Palette.GOLD_DARK
-  rule.position = Vector2(40, 202)
-  rule.size = Vector2(CARD.x - 80, 1)
-  rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-  card.add_child(rule)
-
-  # 펫 확장 한 줄(작게, 줄바꿈 허용)
-  var pets := _make_label(Fonts.SIZE_SMALL, Palette.WOOD)
-  pets.text = PET_LINE
-  pets.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-  pets.position = Vector2(14, 212)
-  pets.size = Vector2(CARD.x - 28, 36)
-  card.add_child(pets)
+  # (펫 예고 한 줄은 펫 전원 정식 탭 합류로 제거 — 위 const 주석 참조)
 
   # 닫기 힌트
   var hint := _make_label(Fonts.SIZE_SMALL, Palette.GREY_300)
