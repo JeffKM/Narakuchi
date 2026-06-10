@@ -508,7 +508,7 @@
         }
       ],
       "reveal": "앞으로도 잘 부탁드려요, {nick}님.",
-      "badge": "✦ 단골 등극 ✦"
+      "badge": "★ 단골 등극 ★"
     },
     "comfy": {
       "lines": [
@@ -526,7 +526,7 @@
         }
       ],
       "reveal": "이제부터 반말할게, {nick}.",
-      "badge": "✦ 반말 해금 ✦"
+      "badge": "★ 반말 해금 ★"
     }
   },
   "miho_cutin": {
@@ -546,7 +546,7 @@
         }
       ],
       "reveal": "앞으로도 자주 와주실 거죠, {nick}님?",
-      "badge": "✦ 단골 등극 ✦"
+      "badge": "★ 단골 등극 ★"
     },
     "comfy": {
       "lines": [
@@ -564,7 +564,7 @@
         }
       ],
       "reveal": "이제부터 반말할게, {nick}.",
-      "badge": "✦ 반말 해금 ✦"
+      "badge": "★ 반말 해금 ★"
     }
   },
   "bana_cutin": {
@@ -584,7 +584,7 @@
         }
       ],
       "reveal": "앞으로도 자주 와주실 거죠, {nick}님?",
-      "badge": "✦ 단골 등극 ✦"
+      "badge": "★ 단골 등극 ★"
     },
     "comfy": {
       "lines": [
@@ -602,7 +602,7 @@
         }
       ],
       "reveal": "이제부터 반말할게, {nick}.",
-      "badge": "✦ 반말 해금 ✦"
+      "badge": "★ 반말 해금 ★"
     }
   },
   "mel_cutin": {
@@ -622,7 +622,7 @@
         }
       ],
       "reveal": "앞으로도 자주 와주실 거죠, {nick}님?",
-      "badge": "✦ 단골 등극 ✦"
+      "badge": "★ 단골 등극 ★"
     },
     "comfy": {
       "lines": [
@@ -640,7 +640,7 @@
         }
       ],
       "reveal": "이제부터 반말할게, {nick}.",
-      "badge": "✦ 반말 해금 ✦"
+      "badge": "★ 반말 해금 ★"
     }
   },
   "_sion_doc": "펫 버튼별 티커 풀(단계 구분 없음). 키는 버튼 id(cheki/snack/play/pet)와 generic idle. _on_sion_action 이 버튼 id로 풀 선택, 없으면 idle 폴백. 풀은 펫의 dialogue_key(Characters)로 분기 — 시온이=sion, 규종이=gyujong.",

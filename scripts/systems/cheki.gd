@@ -72,6 +72,26 @@ static func pick_today(character: String) -> String:
   return candidates[0]
 
 
+## 이 캐릭터의 체키를 다 모았나(데모 완료 판정) — 아트 준비된 보유 이벤트가 "전부 나비".
+## 후보가 하나도 없으면(아트 미준비 등) false — 잘못된 완료 처리 방지.
+static func is_complete(character: String) -> bool:
+  var any := false
+  for ev in Events.LIST:
+    if bool(Events.LIST[ev].get(character, false)) and Events.cheki_art_ready(ev):
+      any = true
+      if grade(character, ev) != GRADE_BUTTERFLY:
+        return false
+  return any
+
+
+## 전 캐릭터(9명)의 체키를 전부 나비까지 모았나 — 데모 "전체 완성" 1회 축하 판정.
+static func is_all_complete() -> bool:
+  for ch in Characters.all_ids():
+    if not is_complete(ch):
+      return false
+  return true
+
+
 ## 체키 1장 지급. 미보유 → 일반 신규, 중복 → 나비 조각(+승급 판정). 저장까지 한다.
 ## 반환(획득 연출 T13/T18 용):
 ##   { character, event, grade(획득 후), was_new:bool(첫 획득),

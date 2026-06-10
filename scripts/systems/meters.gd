@@ -201,9 +201,10 @@ func add_touch_affinity() -> int:
   var character := _active_main()
   var used := int(SaveManager.get_value("session.touch_affinity", 0))
   var cap := Balance.aff("touch_session_cap")
-  if used >= cap:
+  # 데모(Balance.DEMO)에선 세션 터치 캡 없음 — 무제한 교감(쓰담도 계속 호감도 가산).
+  if not Balance.DEMO and used >= cap:
     return 0
-  var amount := mini(Balance.aff("touch"), cap - used)
+  var amount := Balance.aff("touch") if Balance.DEMO else mini(Balance.aff("touch"), cap - used)
   SaveManager.set_value("session.touch_affinity", used + amount)
 
   var before_stage := stage_of(character)

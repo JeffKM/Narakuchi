@@ -229,7 +229,7 @@ func _build_header() -> void:
   add_child(_counter)
 
   var close := Button.new()
-  close.text = "✕"
+  close.text = "×"  # U+00D7 — 갈무리 지원(✕ U+2715 는 글리프 없어 두부)
   UiTheme.style_button(close)
   close.position = Vector2(LCD.x - 38, 6)
   close.size = Vector2(28, 24)

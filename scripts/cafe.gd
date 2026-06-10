@@ -74,6 +74,14 @@ func _ready() -> void:
 ##   - comfy(600) 도달: 반말 전환 컷인이 입장 인사를 대신함
 ##   - close(2000) 도달: 전용 연출 없음 — 평소 입장 인사(후속에 컷인 추가 가능)
 func start() -> void:
+  # 온보딩에서 고른 메인·펫을 반영한다. Cafe 는 생성 시점(_ready→_build)에 flags 를 읽지만,
+  # 첫 접속이면 그땐 온보딩 전이라 기본값(옥자/시온이)으로 build 된다. flags 는 온보딩이 확정하므로
+  # 세션 시작 시 저장값으로 한 번 더 맞춘다(announce=false — 입장 인사는 아래 start 로직이 담당).
+  swap_active(
+    String(SaveManager.get_value("flags.active_main", _active_main)),
+    String(SaveManager.get_value("flags.active_pet", _active_pet)),
+    false)
+
   # 입장 효과음 — 새 하루면 day_advance, 아니면 scene_enter (begin_session 전에 새날 판정). (→ ADR 0004)
   var is_new_day := bool(Meters.evaluate_session().get("is_new_day", false))
   Sfx.event(&"day_advance" if is_new_day else &"scene_enter")
@@ -106,7 +114,7 @@ func _show_milestone_reward(ms: Dictionary) -> void:
   var streak := int(ms.get("streak", 0))
   var reward: Dictionary = ms.get("reward", {})
   _reveal = ChekiReveal.new()
-  _reveal.setup(reward, "✦ %d일 연속 출석! ✦" % streak)
+  _reveal.setup(reward, "★ %d일 연속 출석! ★" % streak)
   _reveal.closed.connect(_on_reveal_closed)
   add_child(_reveal)  # 맨 위(HUD·액션바 덮음)
 
@@ -285,14 +293,22 @@ func _make_touch(pos: Vector2, size: Vector2) -> Button:
 
 # ── 4버튼 교감 (T09 옥자 / T15 시온이) ─────────────────────
 
+## 스태미나 1회 소모 — 데모(Balance.DEMO)에선 무제한이라 소모하지 않는다. (호출부 단일화)
+func _spend_stamina() -> void:
+  if Balance.DEMO:
+    return
+  meters.spend_stamina()
+
+
 func _on_action(id: String) -> void:
   # 스태미나(옥자/시온이 공유) 게이트 — 소진 시 호감도는 안 오름(오늘 종료, 벌 없음).
-  var can := meters.can_act()
+  # 데모(Balance.DEMO)에선 스태미나 무제한 — 항상 행동 가능.
+  var can := Balance.DEMO or meters.can_act()
 
   # 시온이(펫): 감정 반응은 기력과 무관하게 항상 보여준다(벌 없는 설계). 호감도만 게이트.
   if _mode == MODE_SION:
     if can:
-      meters.spend_stamina()
+      _spend_stamina()
     _on_sion_action(id, can)
     return
 
@@ -311,11 +327,15 @@ func _on_action(id: String) -> void:
       _open_gift()
       return
 
-  meters.spend_stamina()  # 주문음은 ActionBar._choose 가 id 기준으로 발화 (T18)
+  _spend_stamina()  # 주문음은 ActionBar._choose 가 id 기준으로 발화 (T18)
   match id:
     "cheki":
       meters.add_affinity_main(_active_main, Balance.aff("cheki"))
       _react(_main_emotion("cheki", &"talk"))  # 버튼→감정 (buttons.json — 메인별 전용)
+      if Balance.DEMO:
+        # 데모: 체키 버튼이 메인 체키를 직접 지급(게이지 무관). 리빌/완료 안내가 메시지 담당.
+        _grant_cheki_now(_active_main)
+        return
     "drink":
       meters.add_affinity_main(_active_main, Balance.aff("drink"))  # 선호 음료 보너스는 후속
       _brew(_main_emotion("drink", &"brew"))
@@ -335,6 +355,9 @@ func _on_sion_action(id: String, can: bool) -> void:
   # 버튼별 감정 반응(항상) + 버튼별 티커 풀(활성 펫 전용 풀)
   _react_sion(StringName(def.get("emotion", "play")))
   _ticker.show_line(Dialogue.pet_line(_pet_dialogue_key(), String(def.get("ticker", id))))
+  # 데모: '체키' 버튼이면 펫 체키를 직접 지급(게이지 무관) — 리빌/완료 안내가 위 티커를 덮어 메시지 담당.
+  if Balance.DEMO and id == "cheki":
+    _grant_cheki_now(_active_pet)
 
 
 ## 현재 펫의 버튼 정의 한 건을 id 로 찾는다(없으면 빈 사전). (buttons.json[buttons_key].actions — 펫별 전용)
@@ -410,7 +433,7 @@ func _open_gift() -> void:
 func _on_talk_chosen(choice: Dictionary) -> void:
   # tier 별 선택음 (good=살짝 밝게 / plain=평범) → ADR 0004
   Sfx.event(&"talk_pick_good" if String(choice.get("tier", "plain")) == "good" else &"talk_pick_plain")
-  meters.spend_stamina()
+  _spend_stamina()
   meters.add_affinity_main(_active_main, Balance.aff_talk(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"talk"))
   _ticker.show_line(String(choice.get("reply", "")))  # 옥자 대답은 하단 티커(보이스 단일 채널)
@@ -423,7 +446,7 @@ func _on_gift_chosen(choice: Dictionary) -> void:
     "match": Sfx.event(&"gift_match")
     "sion": Sfx.event(&"gift_sion")
     _: Sfx.event(&"gift_plain")
-  meters.spend_stamina()
+  _spend_stamina()
   meters.add_affinity_main(_active_main, Balance.aff_gift(String(choice.get("tier", "plain"))))
   _react(choice.get("expr", &"shy"))
   _ticker.show_line(String(choice.get("reply", "")))  # 옥자 대답은 하단 티커(보이스 단일 채널)
@@ -572,6 +595,15 @@ func _tween_stage(scale_to: Vector2, pos_to: Vector2) -> void:
 func _on_gauge_full(character: String) -> void:
   if _reveal != null:
     return
+  # 데모: 체키는 버튼 직결 — 게이지는 가득 차면 비워 순환만(살아있는 바 피드백), 자동 지급 없음.
+  if Balance.DEMO:
+    if Characters.is_main(character):
+      meters.consume_gauge_main(character)
+      _okja.hop()
+    else:
+      meters.consume_gauge_pet(character)
+      _sioni.hop()
+    return
   Sfx.event(&"gauge_full")  # 게이지 가득 차오름 완료음 (→ ADR 0004)
   var event := Cheki.pick_today(character)
   var result := Cheki.grant(character, event)
@@ -588,6 +620,38 @@ func _on_gauge_full(character: String) -> void:
 
   _reveal = ChekiReveal.new()
   _reveal.setup(result)
+  _reveal.closed.connect(_on_reveal_closed)
+  add_child(_reveal)  # 맨 위(마지막 자식) → HUD·액션바 덮음
+
+
+## 데모 — 체키 버튼 직결 지급(게이지 무관). 메인/펫 공용.
+## 이미 그 캐릭터를 나비까지 다 모았으면 지급 없이 안내 티커만(공용 문구).
+## 새로 지급해 9명 전원이 완성되는 순간이면, 그 리빌에 1회 축하 배너(headline)를 얹는다.
+func _grant_cheki_now(character: String) -> void:
+  if _reveal != null:
+    return
+  if Cheki.is_complete(character):
+    # 줄 체키 없음 — 호감도는 위에서 이미 가산됨. 캐릭터 완료 안내만.
+    _ticker.show_line(Balance.DEMO_CHARACTER_DONE_LINE)
+    return
+
+  var event := Cheki.pick_today(character)
+  var result := Cheki.grant(character, event)
+
+  # 이번 지급으로 9명 전원이 완성됐고 아직 축하 안 했으면 → 1회 축하 배너.
+  var headline := ""
+  if Cheki.is_all_complete() and not bool(SaveManager.get_value("flags.demo_all_complete", false)):
+    SaveManager.set_value("flags.demo_all_complete", true)
+    SaveManager.save_game()
+    headline = Balance.DEMO_ALL_COMPLETE_LINE
+
+  if Characters.is_main(character):
+    _okja.hop()
+  else:
+    _sioni.hop()
+
+  _reveal = ChekiReveal.new()
+  _reveal.setup(result, headline)
   _reveal.closed.connect(_on_reveal_closed)
   add_child(_reveal)  # 맨 위(마지막 자식) → HUD·액션바 덮음
 
@@ -684,7 +748,9 @@ func _on_roster_confirmed(main_id: String, pet_id: String) -> void:
 
 ## 활성 메인·펫을 교체하고 화면을 새 메인으로 갈아끼운다. (저장 + 라이브 스탠딩 텍스처 스왑)
 ## 시온이 교감 모드였으면 먼저 옥자 모드로 복귀해 줌·바·HUD 를 정돈한 뒤 교체한다.
-func swap_active(main_id: String, pet_id: String) -> void:
+## announce=false 면 입장 인사/효과음을 생략한다 — start() 가 자기 입장 연출을 따로 내므로,
+## 온보딩 직후 세션 시작 시 저장된 active 메인·펫을 반영할 때(중복 인사 방지) 쓴다.
+func swap_active(main_id: String, pet_id: String, announce := true) -> void:
   if _mode == MODE_SION:
     _exit_sion_mode()
   var changed := main_id != _active_main
@@ -701,7 +767,7 @@ func swap_active(main_id: String, pet_id: String) -> void:
   _update_roster_portrait()
   _hud.set_focus(main_id)       # 게이지·기분 표시를 새 메인으로
   _hud.refresh()
-  if changed:
+  if changed and announce:
     # 새 메인이 그 관계 단계에 맞춰 맞이한다(메인 바뀌면 인사도 바뀐 결).
     Sfx.event(&"scene_enter")
     _to_idle()

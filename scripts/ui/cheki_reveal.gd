@@ -210,7 +210,7 @@ func _spawn_butterflies() -> void:
   var center := Vector2(LCD.x / 2.0, LCD.y / 2.0 - 12)
   for i in range(7):
     var p := Label.new()
-    p.text = "✦" if (i % 2 == 0) else "❀"
+    p.text = "★" if (i % 2 == 0) else "♡"  # 갈무리 지원 글자(✦·❀ 는 글리프 없어 두부)
     p.add_theme_font_size_override("font_size", Fonts.SIZE_BODY)
     p.add_theme_color_override("font_color", Palette.GOLD)
     p.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -229,7 +229,7 @@ func _spawn_butterflies() -> void:
 func _caption_text() -> String:
   var ev := Events.event_name(String(_result["event"]))
   if bool(_result.get("upgraded", false)):
-    return "✦ %s 체키, 나비로 승급! ✦" % ev
+    return "★ %s 체키, 나비로 승급! ★" % ev
   if bool(_result.get("was_new", false)):
     return "첫 %s 체키를 받았어요!" % ev
   var s := int(_result.get("shards", 0))
