@@ -806,6 +806,228 @@
       ]
     },
     {
+      "id": "A13",
+      "title": "A13 · 멜 (강시 메이드, 확장 슬라이스)",
+      "items": [
+        {
+          "id": "mel_idle",
+          "label": "멜 기본(강시 메이드)",
+          "preset": "okja",
+          "path": "assets/sprites/mel_idle.png"
+        },
+        {
+          "id": "mel_smile",
+          "label": "멜 웃음",
+          "preset": "okja",
+          "path": "assets/sprites/mel_smile.png"
+        },
+        {
+          "id": "mel_shy",
+          "label": "멜 부끄",
+          "preset": "okja",
+          "path": "assets/sprites/mel_shy.png"
+        },
+        {
+          "id": "mel_sad",
+          "label": "멜 시무룩",
+          "preset": "okja",
+          "path": "assets/sprites/mel_sad.png"
+        },
+        {
+          "id": "mel_brew",
+          "label": "멜 제조중(청운 에이드)",
+          "preset": "okja",
+          "path": "assets/sprites/mel_brew.png"
+        },
+        {
+          "id": "mel_talk",
+          "label": "멜 말하기",
+          "preset": "okja",
+          "path": "assets/sprites/mel_talk.png"
+        },
+        {
+          "id": "portrait_mel",
+          "label": "탭 미니 초상 — 멜",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/portrait_mel.png",
+          "center": true
+        },
+        {
+          "id": "mel_jirai",
+          "label": "멜 인트로(지뢰계) 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/mel_jirai.png"
+        },
+        {
+          "id": "bg_cheki_mel_jirai",
+          "label": "체키 사진 배경 — 지뢰계 (멜)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_mel_jirai.png"
+        }
+      ]
+    },
+    {
+      "id": "A14",
+      "title": "A14 · 선아 (멜의 갈색 푸들, 확장 슬라이스)",
+      "items": [
+        {
+          "id": "suna_idle",
+          "label": "선아 idle (96px) — 갈색 곱슬 푸들(크로마 그린)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/suna_idle.png",
+          "fill": true
+        },
+        {
+          "id": "suna_snack",
+          "label": "선아 반응 — 간식 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/suna_snack.png",
+          "fill": true
+        },
+        {
+          "id": "suna_play",
+          "label": "선아 반응 — 놀기 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/suna_play.png",
+          "fill": true
+        },
+        {
+          "id": "suna_pet",
+          "label": "선아 반응 — 쓰담 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/suna_pet.png",
+          "fill": true
+        },
+        {
+          "id": "portrait_suna",
+          "label": "탭 미니 초상 — 선아",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/portrait_suna.png",
+          "center": true
+        },
+        {
+          "id": "photo_suna_jirai",
+          "label": "선아 지뢰계 체키 사진(배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_suna_jirai.png"
+        }
+      ]
+    },
+    {
+      "id": "A15",
+      "title": "A15 · 수아 (멜의 베이지 닥스훈트, 확장 슬라이스)",
+      "items": [
+        {
+          "id": "sua_idle",
+          "label": "수아 idle (96px) — 베이지 장모 닥스훈트(크로마 그린)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sua_idle.png",
+          "fill": true
+        },
+        {
+          "id": "sua_snack",
+          "label": "수아 반응 — 간식 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sua_snack.png",
+          "fill": true
+        },
+        {
+          "id": "sua_play",
+          "label": "수아 반응 — 놀기 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sua_play.png",
+          "fill": true
+        },
+        {
+          "id": "sua_pet",
+          "label": "수아 반응 — 쓰담 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sua_pet.png",
+          "fill": true
+        },
+        {
+          "id": "portrait_sua",
+          "label": "탭 미니 초상 — 수아",
+          "size": [
+            24,
+            24
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/portrait_sua.png",
+          "center": true
+        },
+        {
+          "id": "photo_sua_jirai",
+          "label": "수아 지뢰계 체키 사진(배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_sua_jirai.png"
+        }
+      ]
+    },
+    {
       "id": "S",
       "title": "셸 / UI / 공유",
       "items": [
