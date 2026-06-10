@@ -656,6 +656,16 @@
           ],
           "transparent": false,
           "path": "assets/sprites/photo_gyujong_jirai.png"
+        },
+        {
+          "id": "photo_gyujong_xmas",
+          "label": "규종이 크리스마스 체키 사진(호두까기 병정·배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_gyujong_xmas.png"
         }
       ]
     },
@@ -802,6 +812,16 @@
           ],
           "transparent": false,
           "path": "assets/sprites/photo_coco_jirai.png"
+        },
+        {
+          "id": "photo_coco_xmas",
+          "label": "코코 크리스마스 체키 사진(트리 토퍼 별·밤하늘 천사·배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_coco_xmas.png"
         }
       ]
     },
@@ -948,6 +968,16 @@
           ],
           "transparent": false,
           "path": "assets/sprites/photo_suna_jirai.png"
+        },
+        {
+          "id": "photo_suna_xmas",
+          "label": "선아 크리스마스 체키 사진(진저브레드 쿠키·배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_suna_xmas.png"
         }
       ]
     },
@@ -1024,6 +1054,16 @@
           ],
           "transparent": false,
           "path": "assets/sprites/photo_sua_jirai.png"
+        },
+        {
+          "id": "photo_sua_xmas",
+          "label": "수아 크리스마스 체키 사진(캔디케인·배경 포함 베이크)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/photo_sua_xmas.png"
         }
       ]
     },

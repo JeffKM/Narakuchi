@@ -135,6 +135,49 @@ no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render
 
 ---
 
+## 규종이 크리스마스 체키 (베이크 컷 1벌)
+
+> 규종이의 **크리스마스(xmas) 데이 체키** — `Events.cheki_photo_path("gyujong","xmas")` = **`photo_gyujong_xmas.png`**. 펫 베이크 컷 모델이라 의상+배경을 한 장으로 다시 굽는다(지뢰계 선례와 동일 파이프라인). `data/events.gd`의 xmas 행에 `"gyujong": true` 플래그가 켜져 있어야 컬렉션북에 칸이 뜬다(이번 작업에서 켬).
+> **🔑 규격(시온이·규종이 지뢰계 체키와 동일)**: **카드 풀사이즈 `120×180`(2:3) 완전 불투명**(누끼 X·크로마 X). 고양이 **전신이 잘리지 않게** 화면 안에 두고, 발치(하단 중앙)는 비교적 비워 캐릭터가 읽히게, 풍경 디테일은 위·옆으로 민다.
+> **🔑 컨셉 = 호두까기 인형 병정(Nutcracker soldier)**: 옥자(산타)·시온이(루돌프)와 겹치지 않는 규종이만의 크리스마스 아키타입 — **도도·격식 있는 턱시도 고양이**라 병정 제복(빨강·금)이 흑백 정체성과 자연스럽게 맞는다. 빳빳한 차렷 포즈로 나무 장난감 병정 같은 격식.
+> **🔑 워크플로우**: 확정된 `gyujong_idle`(정체성 락) + **`_src/gyujong_xmas_ref.png`**(호두까기 병정 의상 레퍼, 있으면)를 첨부해 "이 까만 고양이에게 이 병정 코디를 입혀 **이 크리스마스 장난감 가게 쇼윈도 앞에서 찍은 한 장**으로". **흰 얼룩(블레이즈)·초록 눈은 의상이 바뀌어도 유지.**
+
+```
+[Attach: 1 = gyujong_idle.png (confirmed cat, identity lock), 2 = _src/gyujong_xmas_ref.png (nutcracker-soldier costume reference, if available)]
+ONE baked PHOTO (cheki snapshot): a NUTCRACKER-SOLDIER costumed BLACK / tuxedo cat standing at attention in front of a CHRISTMAS TOY-SHOP WINDOW. Tall vertical portrait, aspect ratio 120:180 (2:3), image filled edge-to-edge.
+Keep image 1's CAT identity: the SAME CHUBBY round BLACK / tuxedo cat with her EXACT markings
+(mostly BLACK head/ears/back/tail; WHITE only on the muzzle/chest and a WHITE BLAZE up between the eyes; small pink nose, GREEN eyes), same face — peeking out from under the tall hat.
+Costume — dress it as a cute NUTCRACKER SOLDIER (toy-soldier charm, age-safe):
+- a tall BLACK & GOLD shako / busby hat with a small WHITE feather plume and a gold chin strap,
+- a bright RED soldier jacket with GOLD epaulettes, a double row of GOLD buttons and gold brandenburg cord trim, a small navy/white collar,
+- tiny white-gloved front paws, a STIFF at-attention pose like a wooden toy. Clearly the SAME tuxedo cat, just costumed.
+Background (baked in): a cozy CHRISTMAS TOY-SHOP WINDOW / little stage — rows of wooden NUTCRACKER dolls, wind-up toys and stacked wrapped PRESENTS, a gold STAR garland and warm string lights, a glowing display-case;
+  detailed along the TOP and SIDES, a softer bokeh haze in the CENTER, a calm toy-shelf floor at the bottom.
+Composition: the FULL cat (whole body, NOT cropped) stands in the lower-center IN FRONT of the scenery, reading clearly against the blurrier center; even margins.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading; bokeh & lights as clusters of flat stepped pixels.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green or magenta anywhere.
+Color mood: festive nutcracker — soldier RED & GOLD, navy accents, warm amber display light, pine green and a white feather; the black-and-white tuxedo cat pops in the middle.
+```
+
+### 네거티브 (규종이 크리스마스 체키)
+
+```
+no human, no person, no second character (no Miho in frame), no text, no watermark, no logo, no QR code,
+no readable signage, no real words, no brand name,
+no NEON night street, no pastel-pink scene (this is a warm CHRISTMAS TOY-SHOP window),
+no photo frame, no card border, no polaroid edge (frames are separate overlay layers — this pet cheki is a baked photo),
+no mostly-white cat (Gyujong is BLACK / tuxedo with a white blaze + green eyes), no missing white blaze, no hidden face under the hat,
+no Santa suit (that is Okja), no reindeer antlers (that is Sion), no cropped cat (the whole body must be inside the frame),
+no chroma green, no chroma magenta, no transparency, no empty/hollow area (this layer is FULLY OPAQUE),
+no busy/cluttered center blocking the cat, no flat repeating pattern wall (the background is a SCENE),
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render, no lens blur photo.
+```
+
+> ⚠️ **검수 포인트**: ① 까만 턱시도 정체성(흰 블레이즈·초록 눈)이 **병정 모자/제복 안에서** 또렷한지 ② **`120×180`(2:3) 완전 불투명**(투명·크로마 한 픽셀도 없어야) ③ 고양이 **전신이 안 잘리고** 중앙에 읽히는지(발치 비움), 배경은 **평면 패턴이 아닌 장난감 가게 쇼윈도 풍경**인지 ④ 간판이 **읽히는 글자·브랜드명이 아닌** 추상 글로우인지 ⑤ 마스터 팔레트 인덱싱 — ⚠️ **빨강·금·네이비·파인그린** 커버가 충분한지 확인(부족하면 인덱싱에서 뭉개짐 → 필요 시 보강 검토). 저장: `assets/sprites/photo_gyujong_xmas.png`.
+> 🃏 **프레임 짝**: 펫 베이크 컷에도 `cheki_card`가 이벤트 공통 프레임을 덧씌운다. 일반 = `frame_standard`(크라프트/세피아), **나비 승급** 시 `frame_xmas`(눈·리스) — 병정 빨강·금과 톤이 잘 맞는다.
+
+---
+
 ## 후처리 연결 (규종이 — 받은 PNG → 규격 에셋)
 
 ```bash
@@ -151,6 +194,10 @@ tools/.venv/bin/python tools/dotify.py gyujong_pet_raw.png \
 # 규종이 인트로 지뢰계 체키 (배경 포함 베이크 — 120×180 불투명, 누끼 X·크로마 X)
 tools/.venv/bin/python tools/dotify.py photo_gyujong_jirai_raw.png \
   --size 120x180 --out assets/sprites/photo_gyujong_jirai.png
+
+# 규종이 크리스마스 체키 (호두까기 병정 — 배경 포함 베이크, 120×180 불투명)
+tools/.venv/bin/python tools/dotify.py photo_gyujong_xmas_raw.png \
+  --size 120x180 --out assets/sprites/photo_gyujong_xmas.png
 
 # 규종이 탭 미니 초상 (권장: gyujong_idle 얼굴 크롭본을 입력으로 — 초상 슬롯 중앙 정렬 자동)
 tools/.venv/bin/python tools/dotify.py portrait_gyujong_raw.png \

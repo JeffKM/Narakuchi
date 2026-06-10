@@ -132,6 +132,49 @@ no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render
 
 ---
 
+## 선아 크리스마스 체키 (베이크 컷 1벌)
+
+> 선아의 **크리스마스(xmas) 데이 체키** — `Events.cheki_photo_path("suna","xmas")` = **`photo_suna_xmas.png`**. 펫 베이크 컷 모델이라 의상+배경을 한 장으로 다시 굽는다(지뢰계 선례와 동일). `data/events.gd`의 xmas 행에 `"suna": true` 플래그가 켜져 있어야 컬렉션북 칸이 뜬다(이번 작업에서 켬).
+> **🔑 규격(선아 지뢰계 체키와 동일)**: **카드 풀사이즈 `120×180`(2:3) 완전 불투명**(누끼 X·크로마 X). 강아지 **전신이 잘리지 않게** 화면 안에 두고, 발치(하단 중앙)는 비교적 비워 캐릭터가 읽히게, 풍경 디테일은 위·옆으로 민다.
+> **🔑 컨셉 = 진저브레드 쿠키(Gingerbread)**: 옥자(산타)·시온이(루돌프)와 겹치지 않는 선아만의 크리스마스 아키타입 — **카라멜/갈색 곱슬털 = 쿠키 반죽**이라는 선아의 정체성을 그대로 살린다. 곱슬 가장자리에 흰 아이싱을 두른 해맑은 진저브레드 강아지. 짝꿍 수아(캔디케인)와 달콤한 한 쌍.
+> **🔑 워크플로우**: 확정된 `suna_idle`(정체성 락) + **`_src/suna_xmas_ref.png`**(진저브레드 의상 레퍼, 있으면)를 첨부해 "이 갈색 푸들을 진저브레드 쿠키처럼 꾸며 **이 진저브레드 하우스 베이커리 앞에서 찍은 한 장**으로". **카라멜 곱슬·갈색 눈은 의상이 바뀌어도 유지.**
+
+```
+[Attach: 1 = suna_idle.png (confirmed dog, identity lock), 2 = _src/suna_xmas_ref.png (gingerbread-cookie costume reference, if available)]
+ONE baked PHOTO (cheki snapshot): a GINGERBREAD-COOKIE costumed CARAMEL-BROWN curly POODLE standing in front of a cozy GINGERBREAD-HOUSE BAKERY. Tall vertical portrait, aspect ratio 120:180 (2:3), image filled edge-to-edge.
+Keep image 1's DOG identity: the SAME fluffy CARAMEL / golden-BROWN curly poodle with her EXACT look
+(curly brown fur everywhere, round curly top-knot; big BROWN eyes, small dark nose), same face — the warm brown curls read like gingerbread dough.
+Costume — decorate her as a cute GINGERBREAD COOKIE (age-safe, sweet):
+- WHITE icing ZIGZAG trim piped along the edges of her curls (ears, chest, legs), round RED & GREEN gumdrop buttons down the front, little icing-heart cheeks,
+- a tiny SANTA HAT or an icing BOW on the head, a happy tongue peeking out. Clearly the SAME caramel poodle, just decorated like a cookie.
+Background (baked in): a cozy GINGERBREAD-HOUSE BAKERY / candy village — a candy-roof gingerbread house with white-icing eaves, PEPPERMINT-stick posts, shelves of cookies and a warm OVEN glow, gently floating powdered-sugar snow and string lights;
+  detailed along the TOP and SIDES, a softer bokeh haze in the CENTER, a calm bakery floor at the bottom.
+Composition: the FULL dog (whole body, NOT cropped) stands in the lower-center IN FRONT of the scenery, reading clearly against the blurrier center; even margins.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading; bokeh & lights as clusters of flat stepped pixels. The brown poodle keeps warm highlights so the curly texture reads.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green or magenta anywhere.
+Color mood: warm gingerbread bakery — toasty cookie BROWN, white icing, red & green gumdrops, caramel and cream, warm oven amber.
+```
+
+### 네거티브 (선아 크리스마스 체키)
+
+```
+no human, no person, no second character (no Mel in frame), no text, no watermark, no logo, no QR code,
+no readable signage, no real words, no brand name,
+no NIGHT neon street, no teal chinatown scene (this is a warm GINGERBREAD BAKERY), no pastel-pink scene,
+no photo frame, no card border, no polaroid edge (frames are separate overlay layers — this pet cheki is a baked photo),
+no dachshund long body/ears (Suna is a curly POODLE), no straight fur, no white/cream coat (CARAMEL BROWN), no cat,
+no Santa suit (that is Okja), no reindeer antlers (that is Sion),
+no flat brown blob dog (keep warm highlights so the curls read), no cropped dog (the whole body must be inside the frame),
+no chroma green, no chroma magenta, no transparency, no empty/hollow area (this layer is FULLY OPAQUE),
+no busy/cluttered center blocking the dog, no flat repeating pattern wall (the background is a SCENE),
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render, no lens blur photo.
+```
+
+> ⚠️ **검수 포인트**: ① 카라멜 곱슬 정체성(둥근 곱슬·갈색 눈)이 **아이싱 장식 아래에서** 또렷한지(곱슬 푸들이지 닥스훈트로 빠지지 않게) ② **`120×180`(2:3) 완전 불투명** ③ 강아지 **전신이 안 잘리고** 중앙에 읽히는지(발치 비움), 배경은 **평면 패턴이 아닌 진저브레드 베이커리 풍경**인지 ④ 마스터 팔레트 인덱싱 — ⚠️ **따뜻한 갈색·캐러멜·아이싱 흰색·빨강/초록 검드롭** 커버가 충분한지 확인. 저장: `assets/sprites/photo_suna_xmas.png`.
+> 🃏 **프레임 짝**: 일반 = `frame_standard`, **나비 승급** 시 `frame_xmas`(눈·리스) — 따뜻한 쿠키 갈색·빨강/초록과 톤이 잘 맞는다.
+
+---
+
 ## 후처리 연결 (선아 — 받은 PNG → 규격 에셋)
 
 ```bash
@@ -148,6 +191,10 @@ tools/.venv/bin/python tools/dotify.py suna_pet_raw.png \
 # 선아 인트로 지뢰계 체키 (배경 포함 베이크 — 120×180 불투명, 누끼 X·크로마 X)
 tools/.venv/bin/python tools/dotify.py photo_suna_jirai_raw.png \
   --size 120x180 --out assets/sprites/photo_suna_jirai.png
+
+# 선아 크리스마스 체키 (진저브레드 쿠키 — 배경 포함 베이크, 120×180 불투명)
+tools/.venv/bin/python tools/dotify.py photo_suna_xmas_raw.png \
+  --size 120x180 --out assets/sprites/photo_suna_xmas.png
 
 # 선아 탭 미니 초상 (권장: suna_idle 얼굴 크롭본을 입력으로 — 초상 슬롯 중앙 정렬 자동)
 tools/.venv/bin/python tools/dotify.py portrait_suna_raw.png \

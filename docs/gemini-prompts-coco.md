@@ -135,6 +135,49 @@ no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render
 
 ---
 
+## 코코 크리스마스 체키 (베이크 컷 1벌)
+
+> 코코의 **크리스마스(xmas) 데이 체키** — `Events.cheki_photo_path("coco","xmas")` = **`photo_coco_xmas.png`**. 펫 베이크 컷 모델이라 의상+배경을 한 장으로 다시 굽는다(지뢰계 선례와 동일). `data/events.gd`의 xmas 행에 `"coco": true` 플래그가 켜져 있어야 컬렉션북 칸이 뜬다(이번 작업에서 켬).
+> **🔑 규격(코코 지뢰계 체키와 동일)**: **카드 풀사이즈 `120×180`(2:3) 완전 불투명**(누끼 X·크로마 X). 고양이 **전신이 잘리지 않게** 화면 안에 두고, 발치(하단 중앙)는 비교적 비워 캐릭터가 읽히게, 풍경 디테일은 위·옆으로 민다.
+> **🔑 컨셉 = 트리 토퍼 별 / 밤하늘 천사**: 옥자(산타)·시온이(루돌프)와 겹치지 않는 코코만의 크리스마스 아키타입 — **올블랙 몸 = 크리스마스 밤하늘**, **빛나는 노란 눈 = 별빛**이라는 코코의 정체성을 그대로 살린다. 트리 꼭대기의 금색 별 장식(tree-topper)이 된 검은 고양이. 코코의 다크 야경 무드(지뢰계 선례)와도 결이 통한다.
+> **🔑 워크플로우**: 확정된 `coco_idle`(정체성 락) + **`_src/coco_xmas_ref.png`**(트리 토퍼 별/천사 의상 레퍼, 있으면)를 첨부해 "이 올블랙 고양이에게 이 별·천사 코디를 입혀 **별 빛나는 크리스마스 밤하늘(트리 꼭대기) 앞에서 찍은 한 장**으로". **올블랙·노란 눈은 의상이 바뀌어도 유지** — 검은 고양이가 어두운 밤하늘에 묻히지 않게 차콜 하이라이트·노란 눈·금색 별빛으로 떠 보이게.
+
+```
+[Attach: 1 = coco_idle.png (confirmed cat, identity lock), 2 = _src/coco_xmas_ref.png (tree-topper star / christmas angel costume reference, if available)]
+ONE baked PHOTO (cheki snapshot): a CHRISTMAS TREE-TOPPER STAR / starlight-angel costumed SOLID-BLACK cat perched at the top of a giant tree in a STARRY CHRISTMAS NIGHT SKY. Tall vertical portrait, aspect ratio 120:180 (2:3), image filled edge-to-edge.
+Keep image 1's CAT identity: the SAME SLENDER SOLID-BLACK cat with her EXACT look
+(entirely BLACK fur everywhere, NO white markings; small pink nose, big YELLOW / amber eyes that glow like little stars), same face.
+Costume — dress it as a cute TREE-TOPPER STAR / night-sky angel (age-safe):
+- a glowing GOLD five-point STAR halo / headpiece framing the head, small GOLD angel wings, a silver-and-gold TINSEL scarf,
+- a few golden star sparkles trailing off the black fur, both front paws gently together. Clearly the SAME all-black cat, just costumed; the black body reads like the night sky itself.
+Background (baked in): the TOP of a giant CHRISTMAS TREE against a deep STARRY NIGHT SKY — glowing baubles, ornaments and warm string lights along the pine branches just below her, a big soft GOLD STAR glow around her, scattered twinkling STARS and a faint milky-way haze above;
+  detailed along the TOP and SIDES, a softer bokeh haze in the CENTER, calm tree-top branches at the bottom.
+Composition: the FULL cat (whole body, NOT cropped) sits in the lower-center IN FRONT of the scenery, reading clearly against the blurrier center; even margins.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading; bokeh, stars & lights as clusters of flat stepped pixels. The black cat keeps charcoal midtones + highlights so it reads against the dark sky.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green or magenta anywhere.
+Color mood: starry christmas night — deep navy & midnight blue, glowing GOLD star light, silver tinsel, pine-green branches with red & gold baubles; the all-black cat reads via charcoal highlights and her glowing yellow eyes.
+```
+
+### 네거티브 (코코 크리스마스 체키)
+
+```
+no human, no person, no second character (no Bana in frame), no text, no watermark, no logo, no QR code,
+no readable signage, no real words, no brand name,
+no DAYLIGHT / pastel-pink scene (this is a STARRY NIGHT sky), no bright sunny background, no purple gothic neon street,
+no photo frame, no card border, no polaroid edge (frames are separate overlay layers — this pet cheki is a baked photo),
+no WHITE markings / no tuxedo bib / no white blaze on the cat (Coco is SOLID BLACK with yellow eyes), no green eyes,
+no Santa suit (that is Okja), no reindeer antlers (that is Sion),
+no flat black blob cat (keep charcoal highlights so the black cat reads), no cropped cat (the whole body must be inside the frame),
+no chroma green, no chroma magenta, no transparency, no empty/hollow area (this layer is FULLY OPAQUE),
+no busy/cluttered center blocking the cat, no flat repeating pattern wall (the background is a SCENE),
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render, no lens blur photo.
+```
+
+> ⚠️ **검수 포인트**: ① 올블랙 정체성(흰 얼룩 없음·노란 눈)이 **밤하늘 별 장식 안에서** 또렷한지(검은 고양이가 밤하늘에 묻히지 않게 차콜 하이라이트·노란 눈·금색 별빛으로 떠 보이는지) ② **`120×180`(2:3) 완전 불투명** ③ 고양이 **전신이 안 잘리고** 중앙에 읽히는지(발치 비움), 배경은 **평면 패턴이 아닌 트리 꼭대기·별 밤하늘 풍경**인지 ④ 마스터 팔레트 인덱싱 — ⚠️ **네이비·금·은(틴셀)** 커버가 충분한지 확인. 저장: `assets/sprites/photo_coco_xmas.png`.
+> 🃏 **프레임 짝**: 일반 = `frame_standard`, **나비 승급** 시 `frame_xmas`(눈·리스) — 금·네이비 밤하늘과 톤이 잘 맞는다.
+
+---
+
 ## 후처리 연결 (코코 — 받은 PNG → 규격 에셋)
 
 ```bash
@@ -151,6 +194,10 @@ tools/.venv/bin/python tools/dotify.py coco_pet_raw.png \
 # 코코 인트로 지뢰계 체키 (배경 포함 베이크 — 120×180 불투명, 누끼 X·크로마 X)
 tools/.venv/bin/python tools/dotify.py photo_coco_jirai_raw.png \
   --size 120x180 --out assets/sprites/photo_coco_jirai.png
+
+# 코코 크리스마스 체키 (트리 토퍼 별/밤하늘 천사 — 배경 포함 베이크, 120×180 불투명)
+tools/.venv/bin/python tools/dotify.py photo_coco_xmas_raw.png \
+  --size 120x180 --out assets/sprites/photo_coco_xmas.png
 
 # 코코 탭 미니 초상 (권장: coco_idle 얼굴 크롭본을 입력으로 — 초상 슬롯 중앙 정렬 자동)
 tools/.venv/bin/python tools/dotify.py portrait_coco_raw.png \

@@ -126,6 +126,49 @@ no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render
 
 ---
 
+## 수아 크리스마스 체키 (베이크 컷 1벌)
+
+> 수아의 **크리스마스(xmas) 데이 체키** — `Events.cheki_photo_path("sua","xmas")` = **`photo_sua_xmas.png`**. 펫 베이크 컷 모델이라 의상+배경을 한 장으로 다시 굽는다(지뢰계 선례와 동일). `data/events.gd`의 xmas 행에 `"sua": true` 플래그가 켜져 있어야 컬렉션북 칸이 뜬다(이번 작업에서 켬).
+> **🔑 규격(수아 지뢰계 체키와 동일)**: **카드 풀사이즈 `120×180`(2:3) 완전 불투명**(누끼 X·크로마 X). 강아지 **전신이 잘리지 않게** 화면 안에 두고, 발치(하단 중앙)는 비교적 비워 캐릭터가 읽히게, 풍경 디테일은 위·옆으로 민다.
+> **🔑 컨셉 = 캔디케인(Candy cane)**: 옥자(산타)·시온이(루돌프)와 겹치지 않는 수아만의 크리스마스 아키타입 — **길쭉한 닥스훈트 몸통 = 캔디케인 줄무늬**라는 수아의 정체성을 그대로 살린다. 빨강·흰 사선 줄무늬가 긴 몸을 감는 페퍼민트 강아지. 짝꿍 선아(진저브레드)와 달콤한 한 쌍.
+> **🔑 워크플로우**: 확정된 `sua_idle`(정체성 락) + **`_src/sua_xmas_ref.png`**(캔디케인 의상 레퍼, 있으면)를 첨부해 "이 베이지 닥스훈트에게 캔디케인 줄무늬 코디를 입혀 **이 페퍼민트 캔디 가게 앞에서 찍은 한 장**으로". **크림 베이지·긴 귀·검은 코는 의상이 바뀌어도 유지.**
+
+```
+[Attach: 1 = sua_idle.png (confirmed dog, identity lock), 2 = _src/sua_xmas_ref.png (candy-cane costume reference, if available)]
+ONE baked PHOTO (cheki snapshot): a CANDY-CANE costumed CREAM-BEIGE LONG-HAIRED DACHSHUND standing in front of a cheery PEPPERMINT CANDY SHOP. Tall vertical portrait, aspect ratio 120:180 (2:3), image filled edge-to-edge.
+Keep image 1's DOG identity: the SAME soft CREAM / BEIGE long-haired dachshund with her EXACT look
+(cream-beige long fur, long droopy ears, big dark eyes, small black nose), same face and long ears showing — her LONG body is perfect for candy-cane stripes.
+Costume — dress her as a cute CANDY CANE (age-safe, sweet):
+- a RED & WHITE diagonally STRIPED knit sweater / wrap running the length of her long body (candy-cane stripes), a peppermint-swirl charm,
+- a small GREEN HOLLY & red-berry collar, a RED BOW on each long ear. Clearly the SAME cream dachshund, just costumed; her long body reads as a candy cane.
+Background (baked in): a cheery PEPPERMINT CANDY SHOP — candy-cane pillars, red-and-white striped awnings, glass jars of sweets, a peppermint-swirl wall, twinkling cellophane sparkle and warm string lights;
+  detailed along the TOP and SIDES, a softer bokeh haze in the CENTER, a calm shop floor at the bottom.
+Composition: the FULL dog (whole body, NOT cropped) stands in the lower-center IN FRONT of the scenery, reading clearly against the blurrier center; even margins.
+Style: 8-bit pixel sprite / dot art, hard pixel edges, NO anti-aliasing, NO smooth gradients, flat shading; bokeh & lights as clusters of flat stepped pixels. The cream dachshund keeps soft highlights so the long fur reads.
+FULLY OPAQUE — solid fill everywhere, NO transparency, NO chroma green or magenta anywhere.
+Color mood: peppermint candy shop — candy RED & white stripes, mint-green accents, the cream-beige dachshund popping in the middle, warm shop light.
+```
+
+### 네거티브 (수아 크리스마스 체키)
+
+```
+no human, no person, no second character (no Mel in frame), no text, no watermark, no logo, no QR code,
+no readable signage, no real words, no brand name,
+no NIGHT neon street, no teal chinatown scene (this is a bright PEPPERMINT CANDY SHOP), no pastel-pink gloom,
+no photo frame, no card border, no polaroid edge (frames are separate overlay layers — this pet cheki is a baked photo),
+no curly poodle fluff (Sua is a smooth long-haired DACHSHUND), no caramel-brown coat (CREAM BEIGE), no cat,
+no Santa suit (that is Okja), no reindeer antlers (that is Sion),
+no exaggerated extra-long sausage body (keep SD chibi scale), no flat beige blob dog (keep soft highlights), no cropped dog (whole body inside the frame),
+no chroma green, no chroma magenta, no transparency, no empty/hollow area (this layer is FULLY OPAQUE),
+no busy/cluttered center blocking the dog, no flat repeating pattern wall (the background is a SCENE),
+no gradient, no soft anti-aliased edges, no realistic photo finish, no 3D render, no lens blur photo.
+```
+
+> ⚠️ **검수 포인트**: ① 크림 베이지·긴 귀 닥스훈트 정체성(곱슬 푸들로 빠지지 않게)이 **캔디케인 줄무늬 안에서** 또렷한지 ② **`120×180`(2:3) 완전 불투명** ③ 강아지 **전신이 안 잘리고** 중앙에 읽히는지(발치 비움), 배경은 **평면 패턴이 아닌 페퍼민트 캔디 가게 풍경**인지 ④ 마스터 팔레트 인덱싱 — ⚠️ **캔디 빨강·흰색·민트 그린·베이지** 커버가 충분한지 확인. 저장: `assets/sprites/photo_sua_xmas.png`.
+> 🃏 **프레임 짝**: 일반 = `frame_standard`, **나비 승급** 시 `frame_xmas`(눈·리스) — 캔디 빨강·민트와 톤이 잘 맞는다.
+
+---
+
 ## 후처리 연결 (수아 — 받은 PNG → 규격 에셋)
 
 ```bash
@@ -142,6 +185,10 @@ tools/.venv/bin/python tools/dotify.py sua_pet_raw.png \
 # 수아 인트로 지뢰계 체키 (배경 포함 베이크 — 120×180 불투명, 누끼 X·크로마 X)
 tools/.venv/bin/python tools/dotify.py photo_sua_jirai_raw.png \
   --size 120x180 --out assets/sprites/photo_sua_jirai.png
+
+# 수아 크리스마스 체키 (캔디케인 — 배경 포함 베이크, 120×180 불투명)
+tools/.venv/bin/python tools/dotify.py photo_sua_xmas_raw.png \
+  --size 120x180 --out assets/sprites/photo_sua_xmas.png
 
 # 수아 탭 미니 초상 (권장: sua_idle 얼굴 크롭본을 입력으로 — 초상 슬롯 중앙 정렬 자동)
 tools/.venv/bin/python tools/dotify.py portrait_sua_raw.png \
