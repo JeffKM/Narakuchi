@@ -21,6 +21,7 @@ func run_suite() -> void:
   _test_build_state()
   _test_first_cheki_nickname()
   _test_book_smoke()
+  _test_book_group_tabs()
   _test_miho_book_tab()
   _test_gyujong_pet_content()
   _test_t21_expansion()
@@ -340,32 +341,64 @@ func _test_book_smoke() -> void:
   b2.free()
 
 
+# ── 체키북 메인/펫 그룹 토글 (메인/펫 탭 분리 2026-06-10) ──
+## 그룹 토글이 ① 탭 줄을 그룹별 캐릭터로 교체(메인 4 / 펫 5) ② 즉시 대표 캐릭터로 전환(C1)
+## ③ 그룹별 마지막 본 캐릭터를 기억해 복귀(C1-b) ④ 평면 포커스 링에 그룹 칩을 포함(D1)하는지 방어.
+func _test_book_group_tabs() -> void:
+  wipe()
+  var book := CollectionBook.new()
+  add_child(book)  # 기본 = 메인 그룹 · 옥자
+
+  # ① 초기 = 메인 그룹: 탭 줄이 Characters.mains() 와 일치, active=옥자.
+  check(book._active_group == Characters.MAIN, "초기 그룹 = 메인")
+  check(book._tab_ids == Characters.mains(), "메인 탭 줄 = 레지스트리 mains()")
+  check(book._active_char == Characters.default_main(), "초기 active = 기본 메인(옥자)")
+
+  # ② 펫 그룹 전환 → 탭 줄이 pets() 로 교체 + 즉시 대표(기본 시온이)로 전환(C1).
+  book._on_group(Characters.PET)
+  check(book._active_group == Characters.PET, "펫 그룹 전환")
+  check(book._tab_ids == Characters.pets(), "펫 탭 줄 = 레지스트리 pets()")
+  check(book._active_char == Characters.default_pet(), "펫 전환 → 대표 펫(시온이) 즉시 활성(C1)")
+
+  # ③ 펫 그룹 안에서 코코로 이동 후 메인 갔다가 다시 펫 → 코코로 복귀(C1-b).
+  book._on_tab(book._tab_ids.find("coco"))
+  check(book._active_char == "coco", "펫 그룹 내 코코 선택")
+  book._on_group(Characters.MAIN)
+  check(book._active_char == Characters.default_main(), "메인 복귀 → 마지막 본 메인(옥자)")
+  book._on_group(Characters.PET)
+  check(book._active_char == "coco", "펫 재진입 → 마지막 본 펫(코코) 복귀(C1-b)")
+
+  # ④ 포커스 링에 그룹 칩 2개가 탭·칸과 함께 포함(D1).
+  book._rebuild_focus()
+  var group_focus := 0
+  for f in book._focus:
+    if String(f["kind"]) == "group":
+      group_focus += 1
+  check(group_focus == book._group_chips.size() and group_focus == 2,
+    "포커스 링에 그룹 칩 2개 포함(D1, got %d)" % group_focus)
+  book.free()
+
+
 # ── 미호 컬렉션북 탭 잠금 해제 (이슈 #5) ───────────────────
 ## 미호 탭이 실루엣 → 잠금 해제되어 실제 그리드(지뢰계)를 보여주고, 미보유 칸은 예고형 빈칸,
 ## 보유 시 owned 칸으로 렌더되는지. 멜은 #14 본배선으로 메인 섹션 정식 해제(옥자·시온이 회귀는 _test_book_smoke).
 func _test_miho_book_tab() -> void:
   wipe()
-  # TABS 계약: 미호·바나·코코·멜 잠금 해제(데모 전원 해제).
-  var locks := {}
-  for t in CollectionBook.TABS:
-    locks[String(t["id"])] = bool(t["locked"])
-  check(locks.get("miho", true) == false, "미호 탭 잠금 해제(locked=false)")
-  check(locks.get("bana", true) == false, "바나 탭 잠금 해제(locked=false, #10)")
-  check(locks.get("coco", true) == false, "코코 탭 잠금 해제(locked=false, #11)")
-  check(locks.get("suna", true) == false, "선아 탭 잠금 해제(locked=false, 펫 슬라이스)")
-  check(locks.get("sua", true) == false, "수아 탭 잠금 해제(locked=false, 선아 미러)")
-  check(locks.get("mel", true) == false,
-    "멜 탭 잠금 해제(locked=false, #14 본배선 — 메인 섹션)")
-
-  var miho_i := -1
-  for i in CollectionBook.TABS.size():
-    if String(CollectionBook.TABS[i]["id"]) == "miho":
-      miho_i = i
-  check(miho_i >= 0, "미호 탭 존재")
+  # 그룹 계약: 데모 전 캐릭터가 레지스트리 단일 출처에서 메인/펫 그룹으로 노출(잠금 폐기 → 메인/펫 탭 분리).
+  var mains := Characters.mains()
+  var pets := Characters.pets()
+  check(mains.has("miho"), "미호 = 메인 그룹")
+  check(mains.has("bana"), "바나 = 메인 그룹(#10)")
+  check(mains.has("mel"), "멜 = 메인 그룹(#14 본배선)")
+  check(pets.has("coco"), "코코 = 펫 그룹(#11)")
+  check(pets.has("suna"), "선아 = 펫 그룹(펫 슬라이스)")
+  check(pets.has("sua"), "수아 = 펫 그룹(선아 미러)")
 
   # 미보유 상태로 탭 전환 → 미호 참여 이벤트만(비대칭 그리드 정상), 한정 슬롯 없음.
   var book := CollectionBook.new()
-  add_child(book)  # 기본 active=옥자
+  add_child(book)  # 기본 active=옥자(메인 그룹)
+  var miho_i: int = book._tab_ids.find("miho")
+  check(miho_i >= 0, "미호 탭 존재(메인 그룹)")
   book._on_tab(miho_i)
   check(book._active_char == "miho", "미호 탭 전환 → active_char=miho")
   var miho_evs := Events.events_for("miho")
@@ -384,7 +417,7 @@ func _test_miho_book_tab() -> void:
   Cheki.grant("miho", "mine")
   var b2 := CollectionBook.new()
   add_child(b2)
-  b2._on_tab(miho_i)
+  b2._on_tab(b2._tab_ids.find("miho"))
   var owned := false
   for s in b2._slots:
     if s.event == "mine" and s.is_owned():
@@ -408,23 +441,17 @@ func _test_gyujong_pet_content() -> void:
   # 미정의 펫 키 → 시온이 폴백(빈 문자열 아님 = 안전).
   check(Dialogue.pet_line("zzz_none", "snack") != "", "미정의 펫 키 → 시온이 폴백(무손상)")
 
-  # ② 컬렉션북: 규종이 탭 잠금 해제 + 펫 섹션 + 펫 그리드(지뢰계).
-  var meta := {}
-  for t in CollectionBook.TABS:
-    meta[String(t["id"])] = t
-  check(meta.has("gyujong"), "규종이 탭 존재")
-  check(bool(meta["gyujong"]["locked"]) == false, "규종이 탭 잠금 해제(locked=false)")
-  check(String(meta["gyujong"]["section"]) == "pet", "규종이 = 펫 섹션")
-  check(String(meta["sion"]["section"]) == "pet" and String(meta["okja"]["section"]) == "main",
-    "섹션 그룹핑: 옥자=메인 / 시온이=펫")
+  # ② 컬렉션북: 규종이 = 펫 그룹(레지스트리) + 펫 탭으로 전환 가능 + 펫 그리드(지뢰계).
+  check(Characters.pets().has("gyujong"), "규종이 = 펫 그룹")
+  check(Characters.is_main("okja") and not Characters.is_main("sion"),
+    "그룹 분류: 옥자=메인 / 시온이=펫")
 
-  var gyu_i := -1
-  for i in CollectionBook.TABS.size():
-    if String(CollectionBook.TABS[i]["id"]) == "gyujong":
-      gyu_i = i
   wipe()
   var book := CollectionBook.new()
-  add_child(book)  # 기본 active=옥자
+  add_child(book)  # 기본 active=옥자(메인 그룹)
+  book._on_group(Characters.PET)  # 펫 그룹 전환 → 탭 줄이 펫으로 교체
+  var gyu_i: int = book._tab_ids.find("gyujong")
+  check(gyu_i >= 0, "규종이 탭 존재(펫 그룹 전환 후)")
   book._on_tab(gyu_i)
   check(book._active_char == "gyujong", "규종이 탭 전환 → active_char=gyujong")
   var gyu_evs := Events.events_for("gyujong")
@@ -436,7 +463,8 @@ func _test_gyujong_pet_content() -> void:
   Cheki.grant("gyujong", "mine")
   var b2 := CollectionBook.new()
   add_child(b2)
-  b2._on_tab(gyu_i)
+  b2._on_group(Characters.PET)
+  b2._on_tab(b2._tab_ids.find("gyujong"))
   var owned := false
   for s in b2._slots:
     if s.event == "mine" and s.is_owned():
@@ -472,27 +500,11 @@ func _test_t21_expansion() -> void:
   check(book._slots.size() == expected,
     "옥자 슬롯 = 이벤트 %d + 한정 1 = %d (got %d)" % [expected - 1, expected, book._slots.size()])
 
-  # 확장 슬라이드(잠긴 멤버 예고) — #14 본배선으로 데모엔 잠긴 탭이 없다.
-  # 잠긴 탭이 있으면 탭 경로로, 없으면(현 데모) 잠긴 탭 활성화는 무발생임을 확인하고 슬라이드는 단독으로 검증.
-  # (탭에 locked 항을 되살리면 자동으로 탭 경로로 복귀 — 미래 재잠금 대비)
-  var locked_i := -1
-  for i in CollectionBook.TABS.size():
-    if bool(CollectionBook.TABS[i]["locked"]):
-      locked_i = i
-      break
-  check(book._slide == null, "초기엔 슬라이드 없음")
-  if locked_i >= 0:
-    book._on_tab(locked_i)
-    check(book._slide != null, "잠긴 탭 활성화 → 확장 슬라이드 발화")
-    check(book._slide is ExpansionSlide, "슬라이드 타입 = ExpansionSlide")
-    # 슬라이드 떠 있으면 셸 입력이 슬라이드로 위임됨(CANCEL 닫기 경로) — 크래시 없이 호출되는지.
-    book.handle_shell_action(&"cancel")
-    check(true, "슬라이드 열린 채 CANCEL 위임 크래시 0")
-  else:
-    check(true, "데모 무잠금: 잠긴 탭 없음(전원 정식 해제, #14)")
+  # 잠긴 멤버 예고(ExpansionSlide)는 #14 본배선 + 메인/펫 탭 분리로 탭에서 분리됨(locked 경로 폐기).
+  # 클래스는 보존(미래 "다음 캐릭터 예고" 재배선 대비) — 단독 빌드/CANCEL 만 아래에서 검증.
   book.free()
 
-  # ExpansionSlide 단독 빌드 — 잠긴 탭 부재와 무관히 예고 오버레이가 크래시 없이 뜨고 CANCEL 닫히는지.
+  # ExpansionSlide 단독 빌드 — 탭 분리와 무관히 예고 오버레이가 크래시 없이 뜨고 CANCEL 닫히는지.
   var slide := ExpansionSlide.new()
   add_child(slide)
   slide.setup("멜", Palette.TEAL)
