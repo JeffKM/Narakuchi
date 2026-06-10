@@ -555,8 +555,9 @@ function selectSlot(id) {
   const ch = it.chroma ? ('#' + String(it.chroma).replace(/^#/, '')) : null;
   $('chroma_on').checked = !!ch;
   if (ch) { $('chroma').value = ch; $('chroma_hex').value = ch; }
-  // 라이브 스탠딩/펫 슬롯(preset okja·sioni)은 "자동 충전"을 자동 ON — 옥자 스케일 정합(떠있음·작게나옴 방지)
-  $('fill').checked = ['okja', 'sioni'].includes(it.preset);
+  // 라이브 스탠딩/펫 슬롯은 "자동 충전"을 자동 ON — 옥자 스케일 정합(떠있음·작게나옴 방지)
+  //   메인(preset okja·sioni) + 펫 size 슬롯(매니페스트 fill:true — preset 없는 시온이/규종이/코코)
+  $('fill').checked = ['okja', 'sioni'].includes(it.preset) || !!it.fill;
   // 초상 슬롯(center:true)은 "중앙 정렬"을 자동 ON — 좌우 잘림(여백 0) 방지
   $('center').checked = !!it.center;
   $('savePath').value = it.path;
