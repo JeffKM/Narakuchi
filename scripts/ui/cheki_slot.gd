@@ -24,8 +24,14 @@ const DIM_EMPTY := Color(0.66, 0.62, 0.68)
 const DIM_LOCKED := Color(0.42, 0.42, 0.52)
 
 const HOP := 3.0  # 포커스 시 떠오르는 픽셀
+const DRAG_THRESHOLD := 8.0  # 칸 위 드래그가 이 px를 넘으면 스크롤 제스처로 확정(탭과 갈림)
 
 signal pressed
+signal dragged(relative: Vector2)  # 칸 위를 끌 때 — 컬렉션북이 받아 그리드를 스크롤한다
+
+# 칸 위 드래그-투-스크롤 — 투명 탭 Button(STOP)이 입력을 가로채 ScrollContainer가 못 받으므로 직접 처리.
+var _drag_dist := 0.0       # 누름 후 이동 누적(px)
+var _drag_panning := false  # 끌기로 확정됨 → 탭(pressed) 차단
 
 var character: String
 var event: String
@@ -250,8 +256,34 @@ func _build_touch() -> void:
   btn.add_theme_stylebox_override("normal", empty)
   btn.add_theme_stylebox_override("hover", empty)
   btn.add_theme_stylebox_override("pressed", empty)
-  btn.pressed.connect(func() -> void: pressed.emit())
+  btn.pressed.connect(_on_touch_pressed)
+  btn.gui_input.connect(_on_touch_drag)  # 끌면 스크롤로 위임, 탭이면 pressed
   add_child(btn)
+
+
+## 탭 중계 — 끌어서 스크롤하는 중이면 무시(accept_event가 놓친 경로 보조 방어).
+func _on_touch_pressed() -> void:
+  if _drag_panning:
+    return
+  pressed.emit()
+
+
+## 칸 위 드래그 → dragged 시그널로 컬렉션북에 위임. gui_input 시그널은 Button 클릭 처리보다
+## 먼저 오므로, 끌기로 확정되면 accept_event()로 탭(pressed)을 먹는다.
+func _on_touch_drag(event: InputEvent) -> void:
+  if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+    if event.pressed:
+      _drag_dist = 0.0
+      _drag_panning = false  # 새 누름마다 초기화(_on_touch_pressed 가드의 단일 출처)
+    elif _drag_panning:
+      accept_event()         # 끌었다면 이 release를 먹어 탭 차단
+  elif event is InputEventMouseMotion:
+    var rel: Vector2 = event.relative
+    _drag_dist += absf(rel.y)
+    dragged.emit(rel)
+    if _drag_dist > DRAG_THRESHOLD:
+      _drag_panning = true
+      accept_event()         # 끄는 동안 버튼 호버/프레스 시각 처리도 차단
 
 
 # ── 포커스 모션 ───────────────────────────────────────────

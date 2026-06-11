@@ -48,6 +48,7 @@ const GRID_W := 248          # 120*2 + 8
 const GRID_H := 346
 const H_SEP := 8
 const V_SEP := 16
+const SCROLL_DEADZONE := 8    # 드래그-투-스크롤 임계(px): 슬롯(Button) 위에서도 끌면 스크롤(모바일 터치)
 # 진행도 핍.
 const PIP := Vector2(7, 10)
 const PIP_GAP := 9.0
@@ -323,6 +324,7 @@ func _build_grid_container() -> void:
   _scroll.position = Vector2(GRID_X, GRID_Y)
   _scroll.size = Vector2(GRID_W, GRID_H)
   _scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+  _scroll.scroll_deadzone = SCROLL_DEADZONE  # 슬롯 위에서도 드래그하면 세로 스크롤(모바일 터치 핵심)
   add_child(_scroll)
   _style_scrollbar()
 
@@ -497,6 +499,7 @@ func _populate(character: String) -> void:
     slot.setup(character, ev)
     _grid.add_child(slot)
     slot.pressed.connect(_on_slot_pressed.bind(slot))
+    slot.dragged.connect(_on_slot_dragged)  # 칸 위에서 끌면 그리드 세로 스크롤
     _slots.append(slot)
 
   # 옥자 그리드 끝 "한정" 슬롯 1칸 — 현장 한정 예고(컨셉/예정, 데모 해금 불가). (→ T21)
@@ -571,6 +574,11 @@ func _on_slot_pressed(slot: ChekiSlot) -> void:
     _focus_index = fi
     _apply_focus()
   _open_slot(slot)
+
+
+## 칸 위 드래그 → 그리드 세로 스크롤(슬롯 Button이 가로채 ScrollContainer가 못 받는 몫을 위임받음).
+func _on_slot_dragged(relative: Vector2) -> void:
+  _scroll.scroll_vertical -= int(round(relative.y))
 
 
 ## 칸 열기 — owned 면 모달, 한정 슬롯이면 예고 힌트, 그 외 미보유면 안내.

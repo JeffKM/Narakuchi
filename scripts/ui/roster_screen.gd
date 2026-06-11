@@ -20,6 +20,7 @@ const MODE_SWAP := "swap"
 const CARD := Vector2(96, 128)
 const CARD_GAP := 14
 const SCROLL_BAR_H := 6       # 가로 스크롤바 두께
+const SCROLL_DEADZONE := 8    # 드래그-투-스크롤 임계(px): 이 이상 끌면 스크롤, 미만은 카드 탭으로 갈림
 const ROW_H := 128 + 4 + SCROLL_BAR_H  # 카드 + 여백 + 바 (바가 카드 아래에 앉도록)
 const POR_PX := 24          # 포트레이트 원본(도트)
 const POR_VIEW := 72        # 카드 안 표시 크기(정수 ×3 → Nearest 또렷)
@@ -37,6 +38,11 @@ var _confirm: Button
 var _heart: HeartCursor
 var _focus_nodes: Array = []  # 셸 커서 순환 대상: [{kind, group, id, node}] (카드들 + 결정 버튼)
 var _cursor := 0
+
+# 카드 위 드래그-투-스크롤 — 카드(Button)가 입력을 가로채 ScrollContainer가 못 받으므로 직접 처리한다.
+var _drag_scroll: ScrollContainer = null  # 지금 끌고 있는 줄(누름 시작 시 결정)
+var _drag_dist := 0.0                      # 누름 후 이동 누적(px) — 임계 넘으면 스크롤 제스처로 확정
+var _drag_panning := false                 # 끌기로 확정됨 → release의 카드 클릭을 차단
 
 
 ## 진입 전 주입 — 모드 + 현재 활성 메인/펫(스왑은 그 값을 미리 고른 상태로 연다).
@@ -142,6 +148,8 @@ func _activate(i: int) -> void:
 
 ## 카드 선택 — 그룹별 단일 선택을 갱신하고 테두리 강조를 다시 그린다.
 func _select(group: String, id: String) -> void:
+  if _drag_panning:  # 끌어서 넘기는 중이면 선택 무시(accept_event가 놓친 경로 보조 방어)
+    return
   if group == Characters.MAIN:
     _sel_main = id
   else:
@@ -179,6 +187,7 @@ func _build_card_row(ids: Array, store: Dictionary, group: String, y: int) -> Sc
   scroll.size = Vector2(LCD.x, ROW_H)  # 카드 + 바 자리(바가 카드 아래에 앉음)
   scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO   # 넘칠 때만 가로 바
   scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+  scroll.scroll_deadzone = SCROLL_DEADZONE  # 카드(Button) 위에서도 드래그하면 스크롤(모바일 터치 핵심)
   add_child(scroll)
   UiTheme.style_h_scrollbar(scroll.get_h_scroll_bar(), SCROLL_BAR_H)  # LCD 톤 얇은 캡슐 바
 
@@ -197,9 +206,34 @@ func _build_card_row(ids: Array, store: Dictionary, group: String, y: int) -> Sc
     var id := String(ids[i])
     var card := _make_card(group, id)
     card.position = Vector2(pad + i * (CARD.x + CARD_GAP), 0)
+    card.gui_input.connect(_on_card_drag.bind(scroll))  # 카드 위에서 끌면 이 줄을 가로 스크롤
     inner.add_child(card)
     store[id] = card
   return scroll
+
+
+## 카드 위 드래그를 가로 스크롤로 — 카드는 Button(STOP)이라 ScrollContainer의 드래그 팬이 닿지 않는다.
+## gui_input 시그널은 Button 내부 클릭 처리보다 먼저 오므로, 끌기로 확정되면 accept_event()로 클릭을 먹는다.
+## 짧은 탭(임계 미만)은 그대로 흘려 카드 선택(_select)이 살아난다.
+func _on_card_drag(event: InputEvent, scroll: ScrollContainer) -> void:
+  if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+    if event.pressed:
+      _drag_scroll = scroll  # 이 줄을 끌 후보로
+      _drag_dist = 0.0
+      _drag_panning = false  # 새 누름마다 초기화(_select 가드의 단일 출처)
+    else:
+      if _drag_panning:
+        accept_event()       # 끌었다면 이 release를 먹어 카드 클릭(_select) 차단
+      _drag_scroll = null     # _drag_panning은 다음 누름까지 남겨 _select 가드를 보조
+  elif event is InputEventMouseMotion and _drag_scroll == scroll:
+    var dx: float = event.relative.x
+    if dx == 0.0:
+      return
+    _drag_dist += absf(dx)
+    scroll.scroll_horizontal -= int(round(dx))
+    if _drag_dist > SCROLL_DEADZONE:
+      _drag_panning = true
+      accept_event()          # 끄는 동안 버튼 호버/프레스 시각 처리도 차단
 
 
 ## 카드 = 포트레이트 + 이름을 담은 버튼(스타일박스로 패널처럼). 클릭=그 그룹 선택.
