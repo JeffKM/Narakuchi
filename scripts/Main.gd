@@ -11,8 +11,10 @@ extends Node2D
 
 var _lcd_root: Node2D
 var _cafe: Cafe
+var _shell: ShellFrame     # 코너 기어 활성/비활성 제어용
 var _splash: Splash       # 진입 스플래시(지옥문 열림 + 옥자 맞이). 진행 중이면 셸 입력을 여기로.
 var _onboarding: Onboarding  # 진행 중이면 셸 입력을 여기로 (없으면 카페로)
+var _settings: SettingsPanel  # 설정 패널(코너 기어). 떠 있으면 셸 입력을 최우선으로 여기로.
 
 
 func _ready() -> void:
@@ -23,16 +25,19 @@ func _ready() -> void:
   # 셸 바깥 여백 투명 — 웹/창 배경이 비치게
   get_window().transparent_bg = true
 
-  var shell := ShellFrame.new()
-  add_child(shell)
-  shell.button_pressed.connect(_on_shell_button)
-  _lcd_root = shell.lcd_root
+  _shell = ShellFrame.new()
+  add_child(_shell)
+  _shell.button_pressed.connect(_on_shell_button)
+  _shell.settings_requested.connect(_open_settings)
+  _lcd_root = _shell.lcd_root
 
   # LCD 안에 메인 교감 화면 (아직 세션 시작 안 함 — 스플래시 뒤에 깔아둠)
   _cafe = Cafe.new()
   _lcd_root.add_child(_cafe)
 
-  # 진입 스플래시 오버레이 — 끝나면 온보딩(첫 접속) 또는 카페 세션으로
+  # 진입 스플래시 오버레이 — 끝나면 온보딩(첫 접속) 또는 카페 세션으로.
+  # 스플래시 연출 중엔 코너 기어 비활성(진입 차단), 끝나면 활성.
+  _shell.set_settings_enabled(false)
   _start_splash()
 
   # 디버그 빌드에서만: 초기화/시드/리로드 단축키 + 화면 힌트 (release 데모엔 미노출)
@@ -51,6 +56,7 @@ func _start_splash() -> void:
 func _on_splash_done() -> void:
   _splash.queue_free()
   _splash = null
+  _shell.set_settings_enabled(true)  # 연출 끝 — 코너 기어 활성
   # 첫 접속이면 온보딩, 아니면 바로 세션 시작
   if bool(SaveManager.get_value("flags.onboarded", false)):
     _cafe.start()
@@ -85,11 +91,36 @@ func _make_debug_hint() -> Label:
   return lb
 
 
-## 셸 3버튼 → 활성 화면으로 중계 (스플래시 → 온보딩 → 카페 순).
+## 셸 3버튼 → 활성 화면으로 중계 (설정 패널 → 스플래시 → 온보딩 → 카페 순).
+## 설정 패널은 어느 화면 위든 덮는 모달이라 떠 있으면 최우선으로 가로챈다.
 func _on_shell_button(action: StringName) -> void:
-  if _splash != null:
+  if _settings != null:
+    _settings.handle_shell_action(action)
+  elif _splash != null:
     _splash.handle_shell_action(action)
   elif _onboarding != null:
     _onboarding.handle_shell_action(action)
   else:
     _cafe.handle_shell_action(action)
+
+
+## 코너 기어 → 설정 패널을 _lcd_root 최상단(모든 화면 위)에 띄운다.
+## 온보딩 중엔 초기화 행을 숨긴다(이미 새 게임이라 무의미). 이미 떠 있으면 무시.
+func _open_settings() -> void:
+  if _settings != null:
+    return
+  _settings = SettingsPanel.new()
+  _settings.setup(_onboarding == null)  # 온보딩 중이면 초기화 숨김
+  _settings.closed.connect(_on_settings_closed)
+  _settings.reset_requested.connect(_on_settings_reset)
+  _lcd_root.add_child(_settings)  # 맨 위(마지막 자식) → 모든 화면 덮음
+
+
+func _on_settings_closed() -> void:
+  _settings = null
+
+
+## 게임 초기화 — 세이브 삭제 후 씬 리로드(디버그 wipe 경로 재사용). onboarded=false → 스플래시·온보딩 복귀.
+func _on_settings_reset() -> void:
+  SaveManager.wipe()
+  get_tree().reload_current_scene()

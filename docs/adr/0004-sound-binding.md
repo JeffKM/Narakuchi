@@ -91,3 +91,14 @@
 - **테스트(`tests/test_content.gd`)**: `_test_sound_binding()` — `scripts/` 전 파일에서 `Sfx.event(&"…")` id 수집 → `sound.json` 키와 양방향 일치 + 바인딩 파일 존재 단언.
 - **2차 분리**: 콘텐츠 스튜디오 사운드 탭 + 셸 스피커 토글(1차 검증 후 착수).
 - **관련 문서**: [CLAUDE.md](../../CLAUDE.md)(수치 단일 출처 규칙) · [PRD.md] §10(사운드) · [ADR 0001](./0001-dot-art-spec.md)(셸 3버튼·도트 규격).
+
+## 개정 — 코너 스피커 토글 → 설정 패널 승격 (2026-06-11)
+
+§6의 **셸 코너 스피커 글리프(원탭 음소거)** 를 **설정 패널 진입 기어**로 승격해 교체한다. 우상단 진입점을 하나로 통일하고, 음소거에 **볼륨**과 **게임 초기화**를 한곳에 모은다(사용자 요청). 결정 번복이 아니라 같은 자리·같은 `flags.sfx_on` 위에 기능을 더한 확장이다.
+
+- **진입점**: 코너 글리프를 `ShellSpeaker`(스피커/X) → `SettingsButton`(도트 톱니, `scripts/ui/settings_button.gd`)로 교체. 같은 베젤 좌표(`ShellFrame.GEAR_POS/GEAR_SIZE`, 구 `SPEAKER_POS`). 누르면 `ShellFrame.settings_requested` → **Main** 이 `SettingsPanel`(`scripts/ui/settings_panel.gd`)을 `_lcd_root` 최상단에 띄운다(스플래시/온보딩/카페/북 무엇 위든 덮는 모달). 셸 3버튼은 Main 이 "패널 > 그 외 화면" 우선으로 위임.
+- **가용 범위**: 스플래시 연출 중엔 기어 비활성(`set_settings_enabled(false)`, 진입 차단), 끝나면 활성. 온보딩 중엔 패널은 열되 **초기화 행 숨김**(`SettingsPanel.setup(show_reset=false)` — 이미 새 게임이라 무의미).
+- **① 음소거**: 기존 `flags.sfx_on` 게이트 그대로(`Sfx._enabled`). 패널 음소거 행은 `ShellSpeaker` 글리프를 **재활용**(노드 보존). 볼륨과 독립 — 음소거 해제 시 직전 볼륨으로 복원.
+- **② 볼륨(신규)**: `flags.volume`(0.0~1.0 **선형**, 기본 1.0) 세이브 필드 추가. 6레벨(0~5) 세그먼트 바, `level/5`. `Sfx.apply_volume(linear)` 가 `linear_to_db` 로 환산해 **기본 Master 버스(인덱스 0)** 에 적용 — 부팅(`Sfx._ready`) 1회 + 변경 시. **폐기된 대안 "`add_bus` 기반 음량"의 웹 무음 함정과 무관**하다: Master 는 런타임 추가 버스가 아니라 기본 버스라 `set_bus_volume_db` 가 안전하고, Sfx 가 이미 Master 로 직접 출력하므로 단일 레버로 모든 소리를 덮는다(향후 BGM 도 자동 적용). 변경 시 `confirm` 프리뷰 블립으로 레벨을 귀로 확인(음소거면 자연히 무음). `_merge_defaults` 가 구세이브에 키를 자동 보강 → `SAVE_VERSION` 유지(마이그레이션 불필요).
+- **③ 게임 초기화(신규)**: 패널 내 **인라인 2단계 확인**(문구 + [취소][초기화], 기본 포커스 취소). 확정 시 `SettingsPanel.reset_requested` → Main 이 `SaveManager.wipe()` + `reload_current_scene()`(디버그 KEY_1 검증 경로 재사용, 웹 IndexedDB 정리). `onboarded=false` 로 스플래시·온보딩에 복귀.
+- **입력(평면 링 [음소거·볼륨·(초기화)·닫기])**: SELECT=순환 · OK=실행(음소거 토글 / 볼륨 한 칸↑ **wrap** / 초기화 확인 / 닫기) · CANCEL=닫기(확인 중이면 확인 취소). 터치가 주(토글 탭·볼륨 칸 직접 탭·드래그·백드롭 탭으로 닫기), 3버튼 보조.

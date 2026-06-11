@@ -27,6 +27,17 @@ func _ready() -> void:
     var p := AudioStreamPlayer.new()
     add_child(p)
     _players.append(p)
+  # 저장된 마스터 음량을 부팅 시 1회 적용(설정 패널 변경 시에도 apply_volume 으로 재적용).
+  apply_volume(float(SaveManager.get_value("flags.volume", 1.0)))
+
+
+## 마스터 음량 적용 — 선형 0.0~1.0 을 dB 로 환산해 기본 Master 버스(인덱스 0)에 건다.
+## Master 는 런타임 추가 버스가 아니라 web 무음 함정과 무관(→ ADR 0004). 0 이면 -80dB(사실상 무음).
+## 음소거(flags.sfx_on)와 독립 — 음소거 해제 시 이 음량으로 복원된다.
+func apply_volume(linear: float) -> void:
+  var v := clampf(linear, 0.0, 1.0)
+  var db := linear_to_db(v) if v > 0.0 else -80.0
+  AudioServer.set_bus_volume_db(0, db)
 
 
 ## 이벤트 발화. 바인딩이 없거나 파일이 아직 없으면 조용히 무시(no-op).

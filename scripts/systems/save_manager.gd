@@ -55,8 +55,10 @@ func default_save() -> Dictionary:
     #     다음 입장(Cafe.start)에 1회만 발화 — 이 값으로 재발화를 막는다. (guest/regular/comfy/close)
     #   active_main = 현재 교감 중인 메인 id (로스터 선택으로 교체). (T30/이슈 #2)
     #   active_pet  = 곁의 펫 id (로스터에서 메인과 자유 조합). 펫은 현재 시온이 1종.
+    #   sfx_on = 전역 음소거(설정 패널 토글 → Sfx._enabled 게이트). 볼륨과 독립.
+    #   volume = 마스터 음량 0.0~1.0 선형(설정 패널 6단계 → step/5). Sfx 가 Master 버스 dB 로 적용.
     "flags": {
-      "announced_stage": "guest", "sfx_on": true,
+      "announced_stage": "guest", "sfx_on": true, "volume": 1.0,
       "active_main": Characters.default_main(), "active_pet": Characters.default_pet(),
     },
     "last_saved_unix": 0,    # 마지막 저장 시각 (epoch sec) — 기분 경과시간 계산용

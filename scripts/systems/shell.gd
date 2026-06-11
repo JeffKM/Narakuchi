@@ -9,6 +9,7 @@ extends Node2D
 ##   action: &"select" · &"ok" · &"cancel"
 
 signal button_pressed(action: StringName)
+signal settings_requested  # 코너 설정 기어 탭 → Main 이 설정 패널을 연다 (→ ADR 0004)
 
 const SHELL_TEX := "res://assets/sprites/shell_frame.png"
 
@@ -30,9 +31,11 @@ const BTN_COLS := {
   &"cancel": 436,
 }
 
-# 코너 스피커 토글(SFX on/off) — LCD 위 우상단 베젤 빈 어깨(계측 근사). (→ ADR 0004)
-const SPEAKER_POS := Vector2(426, 56)
-const SPEAKER_SIZE := Vector2(48, 42)
+# 코너 설정 기어 — LCD 우상단 안쪽. 음소거·볼륨·초기화 패널 진입.
+# 좌상단 로스터(교체) 진입 버튼(cafe.gd: LCD 로컬 (3,3)·28×28)과 동일 높이의 반대 모서리(대칭).
+# LCD 좌표 (333-3-28, 3) 를 LCD_OFFSET 더해 캔버스(베젤)로 환산. (→ ADR 0004 개정)
+const GEAR_SIZE := Vector2(28, 28)
+const GEAR_POS := LCD_OFFSET + Vector2(LCD_SIZE.x - 3 - GEAR_SIZE.x, 3)
 
 # 물리 키 → 액션 매핑 (한 액션에 여러 키)
 const KEYMAP := {
@@ -46,6 +49,7 @@ var lcd_root: Node2D
 
 var _lcd_viewport: SubViewport  # LCD 콘텐츠 렌더 타깃 (구멍 333×480 으로 클리핑)
 var _flashes := {}  # action -> Panel (눌림 피드백)
+var _gear: SettingsButton       # 코너 설정 기어 (스플래시 중 비활성)
 
 
 func _ready() -> void:
@@ -83,8 +87,8 @@ func _ready() -> void:
   for action in BTN_COLS:
     _make_button(action, BTN_COLS[action])
 
-  # ── 5) 코너 스피커 토글 (SFX on/off → flags.sfx_on, 세이브) ── (→ ADR 0004)
-  _make_speaker_toggle()
+  # ── 5) 코너 설정 기어 (음소거·볼륨·초기화 패널 진입) ── (→ ADR 0004)
+  _make_settings_button()
 
 
 ## 셸 내부 버튼 좌표에 투명 Button + 눌림 Panel 을 만든다.
@@ -116,21 +120,19 @@ func _make_button(action: StringName, center_x: int) -> void:
   _flashes[action] = p
 
 
-## 코너 스피커 토글 — 세이브 flags.sfx_on 을 켜고/끈다. 켤 때만 확인음(끄면 무음).
-func _make_speaker_toggle() -> void:
-  var sp := ShellSpeaker.new()
-  sp.position = SHELL_POS + SPEAKER_POS
-  sp.size = SPEAKER_SIZE
-  sp.setup(bool(SaveManager.get_value("flags.sfx_on", true)))
-  sp.sfx_toggled.connect(_on_sfx_toggled)
-  add_child(sp)
+## 코너 설정 기어 — 누르면 settings_requested 방출(Main 이 패널을 연다).
+func _make_settings_button() -> void:
+  _gear = SettingsButton.new()
+  _gear.position = SHELL_POS + GEAR_POS
+  _gear.size = GEAR_SIZE
+  _gear.pressed_gear.connect(func() -> void: settings_requested.emit())
+  add_child(_gear)
 
 
-func _on_sfx_toggled(on: bool) -> void:
-  SaveManager.set_value("flags.sfx_on", on)
-  SaveManager.save_game()
-  if on:
-    Sfx.event(&"confirm")  # 켠 직후 한 번 — 들리는지 즉시 확인
+## 코너 기어 활성/비활성 — 스플래시 연출 중엔 Main 이 꺼서 진입을 막는다.
+func set_settings_enabled(on: bool) -> void:
+  if _gear != null:
+    _gear.set_enabled(on)
 
 
 ## 키보드 입력 → 액션 (터치는 Button.pressed 가 직접 _trigger 호출)
