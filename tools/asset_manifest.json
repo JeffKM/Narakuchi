@@ -149,6 +149,18 @@
           "fill": true
         },
         {
+          "id": "sioni_sleep",
+          "label": "시온이 자는 중 — 부트 로더 1단계 (96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_sleep.png",
+          "fill": true
+        },
+        {
           "id": "sioni_snack",
           "label": "시온이 반응 — 간식 (96px)",
           "size": [
