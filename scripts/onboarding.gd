@@ -12,7 +12,7 @@ signal finished
 
 const LCD_W := 333
 const LCD_H := 480
-const NICK_MAX := 8
+const NICK_MAX := 6  # 6자 초과 닉은 티커 한 줄을 넘겨 잘림 — 대사는 6자 닉 기준으로 설계됨
 const NICK_DEFAULT := "손님"
 
 # 가운데 초대장 카드 규격 (글자를 배경에서 떼어내 가독성 + 겹침 해소)

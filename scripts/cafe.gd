@@ -543,7 +543,7 @@ func _enter_sion_mode() -> void:
   _hud.set_focus(_active_pet)  # 게이지를 활성 펫으로 (이슈 #6)
   _focus_stage(SION_FOCUS_LOCAL, ZOOM_SION, SION_FOCUS_SCREEN)  # 펫으로 2배 푸시 줌 (T27)
   _react_sion(&"play")
-  _ticker.show_line("%s가 다가왔어요. (옥자를 누르면 돌아가요)" % Characters.display_name(_active_pet))
+  _ticker.show_line("%s가 왔어요. 옥자를 누르면 돌아가요." % Characters.display_name(_active_pet))
 
 
 ## 옥자 교감 모드 복귀 — 액션 바·HUD 원복.
