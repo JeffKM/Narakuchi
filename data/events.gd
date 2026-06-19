@@ -14,9 +14,9 @@ const GYUJONG := "gyujong"
 const LIST := {
   "mine":   {"name": "지뢰계", "slug": "jirai",  "okja": true,  "sion": true,  "miho": true,  "gyujong": true, "bana": true, "coco": true, "mel": true, "suna": true, "sua": true, "theme": "메탈하트·리본"},
   "kinder": {"name": "유치원", "slug": "kinder", "okja": true,  "sion": false, "miho": true, "bana": true, "mel": true, "theme": "크레용·무지개"},
-  "hiphop": {"name": "힙합",   "slug": "hiphop", "okja": true,  "sion": false, "theme": "그래피티·체인"},
-  "butler": {"name": "집사",   "slug": "butler", "okja": true,  "sion": false, "theme": "은쟁반·장미"},
-  "xmas":   {"name": "크리스마스", "slug": "xmas", "okja": true, "sion": true, "gyujong": true, "coco": true, "suna": true, "sua": true, "theme": "눈·리스"},
+  "hiphop": {"name": "힙합",   "slug": "hiphop", "okja": true,  "sion": false, "miho": true, "bana": true, "mel": true, "theme": "그래피티·체인"},
+  "butler": {"name": "집사",   "slug": "butler", "okja": true,  "sion": false, "miho": true, "bana": true, "mel": true, "theme": "은쟁반·장미"},
+  "xmas":   {"name": "크리스마스", "slug": "xmas", "okja": true, "sion": true, "miho": true, "gyujong": true, "bana": true, "coco": true, "mel": true, "suna": true, "sua": true, "theme": "눈·리스"},
 }
 
 # 체키 카드 아트(의상 누끼 + 사진 배경 + 테마 프레임)가 준비된 이벤트.
@@ -65,7 +65,7 @@ static func cheki_art_ready(event: String) -> bool:
 
 
 ## 이 캐릭터가 보유 가능한 이벤트 id 목록(LIST 정의 순서). 컬렉션북(T16) 칸 나열용.
-## (옥자 → 전체 5종, 시온이·규종이·코코·선아·수아 → mine·xmas)
+## (옥자·미호·바나·멜 → 전체 5종, 시온이·규종이·코코·선아·수아 → mine·xmas)
 static func events_for(character: String) -> Array:
   var out: Array = []
   for ev in LIST:

@@ -234,6 +234,59 @@ Color mood: warm bright nursery — cream walls, pastel rainbow (red-orange-yell
 
 ---
 
+## 바나 이벤트 의상 3종 확장 (힙합·집사·크리스마스) — 사진 직접 투입용 린 프롬프트
+
+> **린(lean) 프롬프트** — 의상·헤어·포즈는 **당신이 첨부하는 레퍼 사진(image 2)** 에서 그대로 따온다. 아래 프롬프트는 **스타일(도트 셰이딩)·사이즈(규격)·바나 정체성 마커**만 고정하고 **코디 묘사는 비운다**(지뢰계·유치원처럼 의상을 텍스트로 박지 않음 — 옥자의 "4종 확장"을 바나 결로 복제하되 사진에 맡김).
+> **🔑 공통 규칙**: ① 모두 **체키 카드용 정적 아트** — idle 앵커 일치 불필요, 포즈·머리색 자유. ② 캔버스 **128×288**(preset okja), 머리 위 비우고 발끝까지. ③ 마스터 팔레트 인덱싱. ④ 짝 **프레임은 이벤트 공통**(`frame_hiphop`/`frame_butler`/`frame_xmas` → [공통 파일](./gemini-prompts-common.md)), **배경은 멤버별**(`bg_cheki_bana_{slug}`).
+> **🔑 바나 정체성(의상 바뀌어도 유지)**: **창백한 피부 · 루비/와인레드 눈 · 작고 귀여운 송곳니**. 큰 박쥐 날개·괴물 송곳니로 과장 금지(작게).
+> **⚠️ 크리스마스만 크로마 예외**: 산타·홀리에 초록이 섞이므로 **크로마 그린 대신 마젠타 `#ff00ff`** 로 받는다(→ 공통 핵심 원칙 #2).
+
+### ① 힙합 (`bana_hiphop`)
+
+```
+[Attach: 1 = bana_idle.png (identity + SD PROPORTION anchor — copy its build), 2 = the HIP-HOP / streetwear outfit reference photo you provide]
+Keep image 1's IDENTITY: same VAMPIRE markers — PALE skin, RUBY-red eyes, tiny cute FANGS — kept even in the new outfit; same SD chibi proportions (head:body ≈ 1:3~1:4).
+RESTYLE her into the HIP-HOP-day coordinate SHOWN IN IMAGE 2 — FOLLOW image 2 for the outfit, hairstyle, accessories and pose (I provide the reference; do NOT invent a different outfit).
+Style: 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients; rich 2-3 tone dot shading (highlight/midtone/shadow) per color, NOT flat single-tone fills. Match the Okja sprite's shading depth.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom, tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+> 네거티브(공통 + 추가): `no missing fangs, no missing pale skin, no fox/cat ears, no witch hat, no huge spread bat wings, no different face, no realistic body proportions, no long legs, no cropped feet, no over-sexualized outfit (age-safe).`
+> 배경 `bg_cheki_bana_hiphop`: [공통 파일](./gemini-prompts-common.md)의 **"힙합" 배경 톤**(그래피티 골목·도시 야경, `120×180` 완전 불투명, 누끼 X)을 그대로 쓰되 바나 스팟만 살짝 변주(퍼플 네온 강조 가능). 저장: `assets/sprites/bana_hiphop.png` · `assets/sprites/bg_cheki_bana_hiphop.png`.
+
+### ② 집사 (`bana_butler`)
+
+```
+[Attach: 1 = bana_idle.png (identity + SD PROPORTION anchor — copy its build), 2 = the BUTLER / suit outfit reference photo you provide]
+Keep image 1's IDENTITY: same VAMPIRE markers — PALE skin, RUBY-red eyes, tiny cute FANGS — kept even in the new outfit; same SD chibi proportions (head:body ≈ 1:3~1:4).
+RESTYLE her into the BUTLER-day coordinate SHOWN IN IMAGE 2 — FOLLOW image 2 for the outfit, hairstyle, accessories and pose (I provide the reference; do NOT invent a different outfit).
+Style: 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients; rich 2-3 tone dot shading (highlight/midtone/shadow) per color, NOT flat single-tone fills. Match the Okja sprite's shading depth.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom, tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma green (#00ff00), no scenery, no props, no shadow on background.
+```
+
+> 네거티브(공통 + 추가): `no missing fangs, no missing pale skin, no fox/cat ears, no huge bat wings, no different face, no cropped feet, no over-mature / over-sexualized outfit (age-safe).`
+> 배경 `bg_cheki_bana_butler`: [공통 파일](./gemini-prompts-common.md)의 **"집사" 배경 톤**(앤티크 저택 홀, `120×180` 완전 불투명)을 바나 스팟으로 변주. 저장: `assets/sprites/bana_butler.png` · `assets/sprites/bg_cheki_bana_butler.png`.
+
+### ③ 크리스마스 (`bana_xmas`)
+
+> ⚠️ **크로마 = 마젠타 `#ff00ff`**(의상에 초록 홀리/케이프가 들어갈 수 있어 그린 키와 충돌 방지).
+
+```
+[Attach: 1 = bana_idle.png (identity + SD PROPORTION anchor — copy its build), 2 = the cute Santa / Christmas outfit reference photo you provide]
+Keep image 1's IDENTITY: same VAMPIRE markers — PALE skin, RUBY-red eyes, tiny cute FANGS — kept even in the new outfit; same SD chibi proportions (head:body ≈ 1:3~1:4).
+RESTYLE her into the CHRISTMAS / Santa-day coordinate SHOWN IN IMAGE 2 — FOLLOW image 2 for the outfit, hairstyle, accessories and pose (I provide the reference; do NOT invent a different outfit).
+Style: 8-bit pixel sprite / dot art, hard CHUNKY pixel edges, NO anti-aliasing, NO gradients; rich 2-3 tone dot shading (highlight/midtone/shadow) per color, NOT flat single-tone fills. Match the Okja sprite's shading depth. Cozy Christmas mood, age-safe.
+Framing: FULL body centered (head to shoes all visible), big head near top, feet near bottom, tall vertical 4:9 portrait, even margins.
+Background: FLAT SOLID chroma MAGENTA (#ff00ff), no scenery, no props, no shadow on background.
+```
+
+> 네거티브(공통 + 추가): `no chroma green anywhere (use MAGENTA bg — holly/cape may be green), no missing fangs, no missing pale skin, no huge bat wings, no different face, no cropped feet.`
+> 배경 `bg_cheki_bana_xmas`: [공통 파일](./gemini-prompts-common.md)의 **"크리스마스" 배경 톤**(눈 내리는 밤거리, `120×180` 완전 불투명)을 바나 스팟으로 변주. **배경은 완전 불투명이라 크로마 불필요** — `--size 120x180`으로 뽑는다. 저장: `assets/sprites/bana_xmas.png` · `assets/sprites/bg_cheki_bana_xmas.png`.
+
+---
+
 ## 후처리 연결 (바나 — 받은 PNG → 규격 에셋)
 
 > 바나 스탠딩은 옥자·미호와 같은 캔버스(`preset okja` = 128×288)를 쓴다. 캐릭터 레지스트리(`data/characters.gd`)가 `bana_*` 경로를 읽는다(코드 배선은 아트 확정 후).
@@ -258,6 +311,21 @@ tools/.venv/bin/python tools/dotify.py bana_kinder_raw.png \
 # 바나 전용 유치원 체키 배경 (120×180 완전 불투명 — 누끼 X, 크로마 X)
 tools/.venv/bin/python tools/dotify.py bg_cheki_bana_kinder_raw.png \
   --size 120x180 --out assets/sprites/bg_cheki_bana_kinder.png
+
+# ── 이벤트 의상 3종 확장 (힙합·집사·크리스마스 — 정적 아트, 송곳니·창백한 피부 유지) ──
+tools/.venv/bin/python tools/dotify.py bana_hiphop_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/bana_hiphop.png
+tools/.venv/bin/python tools/dotify.py bg_cheki_bana_hiphop_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_bana_hiphop.png
+tools/.venv/bin/python tools/dotify.py bana_butler_raw.png \
+  --preset okja --chroma 00ff00 --out assets/sprites/bana_butler.png
+tools/.venv/bin/python tools/dotify.py bg_cheki_bana_butler_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_bana_butler.png
+# ⚠️ 크리스마스 의상만 크로마 마젠타(ff00ff) — 초록 홀리/케이프 대비
+tools/.venv/bin/python tools/dotify.py bana_xmas_raw.png \
+  --preset okja --chroma ff00ff --out assets/sprites/bana_xmas.png
+tools/.venv/bin/python tools/dotify.py bg_cheki_bana_xmas_raw.png \
+  --size 120x180 --out assets/sprites/bg_cheki_bana_xmas.png
 
 # 바나 탭 미니 초상 (권장: bana_idle 얼굴 크롭본을 입력으로)
 tools/.venv/bin/python tools/dotify.py portrait_bana_raw.png \

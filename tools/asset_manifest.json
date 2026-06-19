@@ -596,6 +596,54 @@
           ],
           "transparent": false,
           "path": "assets/sprites/bg_cheki_miho_kinder.png"
+        },
+        {
+          "id": "miho_hiphop",
+          "label": "미호 힙합 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/miho_hiphop.png"
+        },
+        {
+          "id": "bg_cheki_miho_hiphop",
+          "label": "체키 사진 배경 — 힙합 (미호)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_miho_hiphop.png"
+        },
+        {
+          "id": "miho_butler",
+          "label": "미호 집사 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/miho_butler.png"
+        },
+        {
+          "id": "bg_cheki_miho_butler",
+          "label": "체키 사진 배경 — 집사 (미호)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_miho_butler.png"
+        },
+        {
+          "id": "miho_xmas",
+          "label": "미호 크리스마스 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/miho_xmas.png"
+        },
+        {
+          "id": "bg_cheki_miho_xmas",
+          "label": "체키 사진 배경 — 크리스마스 (미호)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_miho_xmas.png"
         }
       ]
     },
@@ -768,6 +816,54 @@
           ],
           "transparent": false,
           "path": "assets/sprites/bg_cheki_bana_kinder.png"
+        },
+        {
+          "id": "bana_hiphop",
+          "label": "바나 힙합 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/bana_hiphop.png"
+        },
+        {
+          "id": "bg_cheki_bana_hiphop",
+          "label": "체키 사진 배경 — 힙합 (바나)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_bana_hiphop.png"
+        },
+        {
+          "id": "bana_butler",
+          "label": "바나 집사 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/bana_butler.png"
+        },
+        {
+          "id": "bg_cheki_bana_butler",
+          "label": "체키 사진 배경 — 집사 (바나)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_bana_butler.png"
+        },
+        {
+          "id": "bana_xmas",
+          "label": "바나 크리스마스 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/bana_xmas.png"
+        },
+        {
+          "id": "bg_cheki_bana_xmas",
+          "label": "체키 사진 배경 — 크리스마스 (바나)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_bana_xmas.png"
         }
       ]
     },
@@ -940,6 +1036,54 @@
           ],
           "transparent": false,
           "path": "assets/sprites/bg_cheki_mel_kinder.png"
+        },
+        {
+          "id": "mel_hiphop",
+          "label": "멜 힙합 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/mel_hiphop.png"
+        },
+        {
+          "id": "bg_cheki_mel_hiphop",
+          "label": "체키 사진 배경 — 힙합 (멜)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_mel_hiphop.png"
+        },
+        {
+          "id": "mel_butler",
+          "label": "멜 집사 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/mel_butler.png"
+        },
+        {
+          "id": "bg_cheki_mel_butler",
+          "label": "체키 사진 배경 — 집사 (멜)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_mel_butler.png"
+        },
+        {
+          "id": "mel_xmas",
+          "label": "멜 크리스마스 체키 의상",
+          "preset": "okja",
+          "path": "assets/sprites/mel_xmas.png"
+        },
+        {
+          "id": "bg_cheki_mel_xmas",
+          "label": "체키 사진 배경 — 크리스마스 (멜)",
+          "size": [
+            120,
+            180
+          ],
+          "transparent": false,
+          "path": "assets/sprites/bg_cheki_mel_xmas.png"
         }
       ]
     },
