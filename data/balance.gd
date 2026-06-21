@@ -50,7 +50,7 @@ const REL_COMFY := 600           # 편해진 사이: 반말 전환(존댓말 해
 const REL_CLOSE := 2000          # 마음 연 사이: 속내·애칭·특별 대화 (3차 상승, ~6주)
 
 # ── 나비 / 출석 / 코인 / 기분 ───────────────────
-const BUTTERFLY_SHARDS_NEEDED := 3   # 나비 승급에 필요한 조각 (같은 의상 중복 1 = 조각 +1)
+const BUTTERFLY_SHARDS_NEEDED := 2   # 나비 승급에 필요한 조각 (같은 의상 중복 1 = 조각 +1) → 총 3번 획득 시 승급(1번째 일반 + 2·3번째 조각)
 const ATTENDANCE_MILESTONE_3 := 3    # 연속출석 3일 마일스톤
 const ATTENDANCE_MILESTONE_7 := 7    # 연속출석 7일 마일스톤 (+ 나비 조각)
 const ATTENDANCE_REWARD_SHARDS_3 := 1  # 3일 마일스톤 보상 = 나비 조각 1

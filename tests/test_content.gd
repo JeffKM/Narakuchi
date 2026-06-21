@@ -45,9 +45,10 @@ func _test_cheki_shards() -> void:
   check(not bool(r2["was_new"]), "중복은 was_new 아님")
   check(int(r2["shards"]) == 1, "중복 1회 → 조각 1 (got %d)" % int(r2["shards"]))
 
-  # add_shards 로 2개 더 → 3 도달 → 나비 승급
-  var r3 := Cheki.add_shards(Events.OKJA, "mine", 2)
-  check(bool(r3["upgraded"]), "조각 3 도달 → 승급")
+  # add_shards 로 임계까지 채우면 → 나비 승급 (임계값은 Balance 단일 출처 추종)
+  var more := Balance.BUTTERFLY_SHARDS_NEEDED - int(r2["shards"])
+  var r3 := Cheki.add_shards(Events.OKJA, "mine", more)
+  check(bool(r3["upgraded"]), "조각 임계(%d) 도달 → 승급" % Balance.BUTTERFLY_SHARDS_NEEDED)
   check(r3["grade"] == Cheki.GRADE_BUTTERFLY, "승급 후 등급 = 나비")
   check(int(r3["shards"]) == 0, "승급 시 조각 리셋 0 (got %d)" % int(r3["shards"]))
   check(Cheki.grade(Events.OKJA, "mine") == Cheki.GRADE_BUTTERFLY, "저장된 등급 = 나비")
@@ -69,14 +70,14 @@ func _test_milestone_pick() -> void:
   var none := Cheki.grant_milestone_shards(1)
   check(none.is_empty(), "보유 일반 칸 없으면 마일스톤 보상 스킵")
 
-  # 두 일반 칸: okja:mine(조각2), sion:mine(조각0). 승급에 가까운 mine(조각2) 우선.
+  # 두 일반 칸: okja:mine(승급 직전 = 임계-1 조각), sion:mine(조각0). 조각 최다 okja 우선.
   Cheki.grant(Events.OKJA, "mine")
-  Cheki.add_shards(Events.OKJA, "mine", 2)        # okja:mine 조각 2
+  Cheki.add_shards(Events.OKJA, "mine", Balance.BUTTERFLY_SHARDS_NEEDED - 1)  # okja:mine 승급 직전
   Cheki.grant(Events.SION, "mine")                # sion:mine 조각 0
   var got := Cheki.grant_milestone_shards(1)
   check(not got.is_empty(), "보상 칸 선택됨")
   check(String(got["character"]) == Events.OKJA, "조각 최다 칸(okja) 우선 선택")
-  check(bool(got["upgraded"]), "조각 2+1 → 3 → 승급")
+  check(bool(got["upgraded"]), "조각 최다 칸 +1 → 임계 도달 → 승급")
 
 
 # ── 마일스톤 보상 미호 파리티 (이슈 #5) ────────────────────
@@ -85,11 +86,11 @@ func _test_milestone_pick() -> void:
 func _test_milestone_miho() -> void:
   wipe()
   Cheki.grant("miho", "mine")           # miho:mine 일반(조각 0)
-  Cheki.add_shards("miho", "mine", 2)   # 조각 2 → 승급 직전
+  Cheki.add_shards("miho", "mine", Balance.BUTTERFLY_SHARDS_NEEDED - 1)  # 조각 승급 직전
   var got := Cheki.grant_milestone_shards(1)
   check(not got.is_empty(), "미호만 보유해도 마일스톤 보상 후보 있음")
   check(String(got["character"]) == "miho", "미호 보유 일반 칸이 마일스톤 후보(파리티)")
-  check(bool(got["upgraded"]), "미호 조각 2+1 → 3 → 승급")
+  check(bool(got["upgraded"]), "미호 조각 +1 → 임계 도달 → 승급")
 
 
 # ── 대화 토막 (T11) ───────────────────────────────────────

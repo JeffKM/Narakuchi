@@ -9,7 +9,7 @@ extends RefCounted
 ##
 ## 등급 규칙(ADR 0002): 일반 = 표준 프레임, 나비 = 테마 프레임. 아트는 등급 무관 동일.
 ## 승급 규칙(ADR 0003): "중복 → 나비 승급". 같은 칸을 다시 받으면 조각 +1,
-##   BUTTERFLY_SHARDS_NEEDED(=3) 모이면 나비로 변태(탄날개 → 나비 부화).
+##   BUTTERFLY_SHARDS_NEEDED(=2, 총 3번 획득) 모이면 나비로 변태(탄날개 → 나비 부화).
 ## 수치는 전부 Balance(data/balance.gd)에서만.
 
 const GRADE_NONE := "none"          # 미보유
