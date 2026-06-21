@@ -663,17 +663,27 @@ func _grant_cheki_now(character: String) -> void:
   add_child(_reveal)  # 맨 위(마지막 자식) → HUD·액션바 덮음
 
 
-## 펫 육성 단계 상승 (D1 데모 진화) — 라이브 스프라이트를 새 단계로 하드 스왑 + 폴짝 + 한 줄 안내.
-## D0의 set_prefix 경로(아기/유년/성체 텍스처 교체)를 그대로 탄다. 발밑 피벗 고정이라 아기는 작게·성체는 캐논 크기로.
-## 화이트 플래시·반짝임(D3)·HUD 성장 미터(D4)는 후속 슬라이스. 곁의 펫이 아닐 땐 무시(스왑 중 등).
+## 펫 육성 단계 상승 (D1 데모 진화 + D3 연출) — 화이트 플래시 절정에 라이브 스프라이트를 하드 스왑.
+## D0의 set_prefix 경로(아기/유년/성체·체형 텍스처 교체)를 진화 연출(PetEvolveFx)이 삼켜 reveal 한다.
+## 발밑 피벗 고정이라 아기는 작게·성체는 캐논 크기로 솟는다. HUD 성장 미터(D4)는 후속. 곁의 펫이 아닐 땐 무시.
 func _on_pet_grew(character: String, stage: String) -> void:
   if character != _active_pet:
     return
   var body := meters.pet_body(character)  # 성체면 확정 체형(thin/normal/fat), 그 전엔 ""
-  _sioni.set_prefix(Characters.pet_stage_prefix(character, stage, body))
-  _sioni.hop()
+  var prefix := Characters.pet_stage_prefix(character, stage, body)
   _dbg_pet_stage = 0  # 디버그 키 9 순환 인덱스와 실제 성장 상태가 어긋나지 않게 리셋
-  # 성체는 체형 분기(D2)를 안내에 드러낸다 — 화이트 플래시·reveal 연출은 D3.
+
+  # 진화 연출(D3): 흰 플래시가 펫을 덮는 절정에 텍스처 스왑 → 새 모습 공개 + 골든 햇살 + 반짝임.
+  var fx := PetEvolveFx.new()
+  fx.setup(stage == "adult")  # 성체 = 체형 분기 reveal (크게)
+  fx.position = _sioni.position
+  _stage.add_child(fx)
+  Sfx.event(&"stage_up_reveal")  # 진화 사운드(관계 단계연출 SFX 재활용 — 추가 에셋 0)
+  fx.play(func() -> void:
+    _sioni.set_prefix(prefix)
+    _sioni.hop())
+
+  # 안내 티커 — 성체는 체형 분기(D2)를 드러낸다.
   if stage == "adult":
     var bname: String = {"thin": "마름", "fat": "통통", "normal": "보통"}.get(body, "보통")
     _ticker.show_line("%s가 다 자랐어요! (%s)" % [Characters.display_name(character), bname])
