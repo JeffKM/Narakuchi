@@ -81,15 +81,19 @@ static func sprite_prefix(id: String) -> String:
   return String(get_def(id).get("sprite", id))
 
 
-## 성장 단계 문자열("baby"|"child"|"adult") → 라이브 스프라이트 접두어. (데모 진화 슬라이스 D1)
-## 아기·유년만 접미사를 붙이고, 성체(보통/캐논)는 접두어 그대로 = 기존 시온이 그림 재사용(D0).
-## 체형 분기(thin/fat) 접미사는 D2(누적 간식 vs 놀기)에서 성체 도달 순간 확정한다.
-static func pet_stage_prefix(id: String, stage: String) -> String:
+## 성장 단계 문자열("baby"|"child"|"adult") + 성체 체형(body) → 라이브 스프라이트 접두어. (D1/D2)
+## 아기·유년만 단계 접미사를 붙이고, 성체는 체형 분기: 마름(_thin)·통통(_fat)만 신규 아트,
+## 보통(normal)·미확정("")은 접두어 그대로 = 기존 시온이 캐논 재사용(D0). body 는 성체에서만 의미.
+static func pet_stage_prefix(id: String, stage: String, body := "") -> String:
   var base := sprite_prefix(id)
   match stage:
     "baby": return base + "_baby"
     "child": return base + "_child"
-  return base  # adult(보통=캐논) — 접두어 그대로
+  # adult — 체형 분기(D2): 양끝만 접미사, 보통/미확정은 캐논 그대로.
+  match body:
+    "thin": return base + "_thin"
+    "fat": return base + "_fat"
+  return base
 
 
 static func intro_event(id: String) -> String:

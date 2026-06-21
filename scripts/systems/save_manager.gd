@@ -72,6 +72,9 @@ func default_save() -> Dictionary:
     else:
       # 펫: 육성 누적 돌봄 횟수(D1 데모 진화). 단계는 Balance.pet_growth_stage 파생, 역행 0(🔴 — ADR 0005).
       c["growth"] = 0
+      # 체형 분기(D2): lean=간식(+) vs 놀기(−) 누적, body=성체 확정 체형(thin/normal/fat, 미확정="").
+      c["lean"] = 0
+      c["body"] = ""
     d[id] = c
   return d
 

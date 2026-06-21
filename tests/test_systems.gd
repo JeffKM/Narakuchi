@@ -39,6 +39,8 @@ func run_suite() -> void:
   _test_gyujong_pet()
   # I 펫 육성 엔진 (D1 데모 진화) — 횟수 기반 성장 단계 + 스프라이트 접두어 + 펫 격리
   _test_pet_growth()
+  # J 체형 3분기 (D2) — 누적 간식 vs 놀기 → 성체 순간 확정·영구 (마름/보통/통통)
+  _test_pet_body_type()
 
 
 # 새 미터를 만들어 프레임 안에서 1회 begin_session 한다(테스트 후 free).
@@ -532,6 +534,76 @@ func _test_pet_growth() -> void:
   check(int(SaveManager.get_value("sion.growth", -1)) == 0, "체키 grant 는 growth 불변(수집이지 육성 아님)")
   m2.free()
   m.free()
+
+
+## J. 체형 3분기 (D2) — 누적 간식 vs 놀기 치우침이 성체 도달 순간 체형을 확정한다(쓰담 중립).
+##   판정·접두어는 Balance/Characters 단일 출처, 확정 후 영구(🔴 불가침), 펫끼리 격리.
+func _test_pet_body_type() -> void:
+  var per := Balance.PET_GROWTH_PER_STAGE
+
+  # 체형 판정(Balance) — lean>0=통통, lean<0=마름, 0=보통. (간식 +, 놀기 −, 쓰담 0)
+  check(Balance.pet_body_type(3) == "fat", "lean>0(간식 우세) → 통통")
+  check(Balance.pet_body_type(-3) == "thin", "lean<0(놀기 우세) → 마름")
+  check(Balance.pet_body_type(0) == "normal", "lean 0(비등) → 보통")
+
+  # 스프라이트 접두어(Characters) — 성체 체형 분기. 양끝만 접미사, 보통/미확정=캐논.
+  check(Characters.pet_stage_prefix("sion", "adult", "thin") == "sioni_thin", "성체 마름 접두어")
+  check(Characters.pet_stage_prefix("sion", "adult", "fat") == "sioni_fat", "성체 통통 접두어")
+  check(Characters.pet_stage_prefix("sion", "adult", "normal") == "sioni", "성체 보통 = 캐논")
+  check(Characters.pet_stage_prefix("sion", "adult", "") == "sioni", "성체 미확정 = 캐논(폴백)")
+  check(Characters.pet_stage_prefix("sion", "baby", "fat") == "sioni_baby", "아기는 체형 무관(_baby 고정)")
+
+  # 세이브 스키마: 펫 블록에 lean=0·body=""(미확정), 메인 블록엔 없음.
+  wipe()
+  var d := SaveManager.default_save()
+  check(d["sion"].get("lean", -99) == 0 and d["sion"].get("body", "x") == "",
+    "default_save 펫 블록에 lean=0·body=''")
+  check(not d["okja"].has("body"), "메인 블록엔 body 없음(체형축은 펫만)")
+
+  # 간식 우세로 성체까지 — 성체 도달 순간 통통 확정. (간식 1.5배 비율로 놀기보다 우세)
+  wipe()
+  var m := Meters.new()
+  for i in range(2 * per):
+    m.grow_pet("sion", "snack" if i % 3 != 0 else "play")  # 간식 2 : 놀기 1
+  check(m.pet_stage("sion") == "adult", "돌봄 2*per → 성체")
+  check(m.pet_body("sion") == "fat", "간식 우세 → 성체에서 통통 확정")
+  check(int(SaveManager.get_value("sion.lean", 0)) > 0, "lean 누적 = 간식 우세(>0)")
+  m.free()
+
+  # 놀기 우세 → 마름 확정.
+  wipe()
+  var m2 := Meters.new()
+  for i in range(2 * per):
+    m2.grow_pet("sion", "play" if i % 3 != 0 else "snack")  # 놀기 2 : 간식 1
+  check(m2.pet_body("sion") == "thin", "놀기 우세 → 성체에서 마름 확정")
+  m2.free()
+
+  # 비등(간식=놀기) → 보통. 쓰담만 했어도 보통(lean 0).
+  wipe()
+  var m3 := Meters.new()
+  for i in range(2 * per):
+    m3.grow_pet("sion", "snack" if i % 2 == 0 else "play")  # 간식 8 : 놀기 8
+  check(m3.pet_body("sion") == "normal", "간식=놀기 비등 → 보통(=캐논)")
+  m3.free()
+
+  # 확정 후 영구(🔴): 성체 도달(통통)한 뒤 놀기를 퍼부어도 body 불변.
+  wipe()
+  var m4 := Meters.new()
+  for _i in range(2 * per):
+    m4.grow_pet("sion", "snack")  # 통통으로 성체
+  check(m4.pet_body("sion") == "fat", "전부 간식 → 통통 성체")
+  for _i in range(5 * per):
+    m4.grow_pet("sion", "play")   # 성체 후 놀기 폭격
+  check(m4.pet_body("sion") == "fat", "성체 후 놀기를 퍼부어도 체형 불변(확정·영구 🔴)")
+  m4.free()
+
+  # 펫 격리: 시온이 체형이 규종이로 안 샘.
+  wipe()
+  var m5 := Meters.new()
+  for _i in range(2 * per):
+    m5.grow_pet("sion", "snack")
+  check(m5.pet_body("gyujong") == "", "시온이 체형이 규종이로 안 샘(격리)")
+  m5.free()
 
 
 func _days_to_stage(target: String, high: bool) -> int:
