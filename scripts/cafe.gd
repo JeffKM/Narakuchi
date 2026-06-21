@@ -188,7 +188,7 @@ func _build() -> void:
   _add_shadow(Vector2(SIONI_FEET.x, SIONI_FEET.y - SIONI_PAD_BOTTOM), 58, 12)  # 96px 발바닥폭 ~58
   _sioni = SioniScript.new()
   # 곁의 펫 표정 접두어 — 저장된 성장 단계를 반영(아기/유년/성체). 재방문 시 자란 모습 그대로(D1).
-  _sioni.sprite_prefix = Characters.pet_stage_prefix(_active_pet, _pet_stage())  # 트리 진입 전 지정(이슈 #6 / D1)
+  _sioni.sprite_prefix = Characters.pet_stage_prefix(_active_pet, _pet_stage(), _pet_body())  # 트리 진입 전 지정(이슈 #6 / D1·D2)
   _sioni.position = SIONI_FEET
   _stage.add_child(_sioni)
 
@@ -361,7 +361,7 @@ func _on_sion_action(id: String, can: bool) -> void:
   # 데모 진화(D1): 돌봄(간식/놀기/쓰담)은 성장 카운트를 올린다(체키 제외 — 수집이지 육성 아님).
   # 단계가 오르면 meters.pet_grew → _on_pet_grew 가 스프라이트 스왑 + 안내(위 티커를 덮어 메시지 담당).
   if Balance.DEMO and id != "cheki":
-    meters.grow_pet(_active_pet)
+    meters.grow_pet(_active_pet, id)  # id=snack/play/pet → 체형 치우침(D2)도 함께 누적
   # 데모: '체키' 버튼이면 펫 체키를 직접 지급(게이지 무관) — 리빌/완료 안내가 위 티커를 덮어 메시지 담당.
   if Balance.DEMO and id == "cheki":
     _grant_cheki_now(_active_pet)
@@ -663,22 +663,44 @@ func _grant_cheki_now(character: String) -> void:
   add_child(_reveal)  # 맨 위(마지막 자식) → HUD·액션바 덮음
 
 
-## 펫 육성 단계 상승 (D1 데모 진화) — 라이브 스프라이트를 새 단계로 하드 스왑 + 폴짝 + 한 줄 안내.
-## D0의 set_prefix 경로(아기/유년/성체 텍스처 교체)를 그대로 탄다. 발밑 피벗 고정이라 아기는 작게·성체는 캐논 크기로.
-## 화이트 플래시·반짝임(D3)·HUD 성장 미터(D4)는 후속 슬라이스. 곁의 펫이 아닐 땐 무시(스왑 중 등).
+## 펫 육성 단계 상승 (D1 데모 진화 + D3 연출) — 화이트 플래시 절정에 라이브 스프라이트를 하드 스왑.
+## D0의 set_prefix 경로(아기/유년/성체·체형 텍스처 교체)를 진화 연출(PetEvolveFx)이 삼켜 reveal 한다.
+## 발밑 피벗 고정이라 아기는 작게·성체는 캐논 크기로 솟는다. HUD 성장 미터(D4)는 후속. 곁의 펫이 아닐 땐 무시.
 func _on_pet_grew(character: String, stage: String) -> void:
   if character != _active_pet:
     return
-  _sioni.set_prefix(Characters.pet_stage_prefix(character, stage))
-  _sioni.hop()
+  var body := meters.pet_body(character)  # 성체면 확정 체형(thin/normal/fat), 그 전엔 ""
+  var prefix := Characters.pet_stage_prefix(character, stage, body)
   _dbg_pet_stage = 0  # 디버그 키 9 순환 인덱스와 실제 성장 상태가 어긋나지 않게 리셋
-  var label: String = {"baby": "아기", "child": "유년", "adult": "성체"}.get(stage, stage)
-  _ticker.show_line("%s가 자랐어요! (%s)" % [Characters.display_name(character), label])
+
+  # 진화 연출(D3): 흰 플래시가 펫을 덮는 절정에 텍스처 스왑 → 새 모습 공개 + 골든 햇살 + 반짝임.
+  var fx := PetEvolveFx.new()
+  fx.setup(stage == "adult")  # 성체 = 체형 분기 reveal (크게)
+  fx.position = _sioni.position
+  _stage.add_child(fx)
+  Sfx.event(&"stage_up_reveal")  # 진화 사운드(관계 단계연출 SFX 재활용 — 추가 에셋 0)
+  fx.play(func() -> void:
+    _sioni.set_prefix(prefix)
+    _sioni.hop())
+
+  # 안내 티커 — 성체는 체형 분기(D2)를 드러낸다.
+  if stage == "adult":
+    var bname: String = {"thin": "마름", "fat": "통통", "normal": "보통"}.get(body, "보통")
+    _ticker.show_line("%s가 다 자랐어요! (%s)" % [Characters.display_name(character), bname])
+  else:
+    var label: String = {"baby": "아기", "child": "유년"}.get(stage, stage)
+    _ticker.show_line("%s가 자랐어요! (%s)" % [Characters.display_name(character), label])
 
 
 ## 곁의 펫의 현재 성장 단계("baby"|"child"|"adult") — 저장된 누적 돌봄에서 파생. (Balance 단일 출처, D1)
 func _pet_stage() -> String:
   return Balance.pet_growth_stage(int(SaveManager.get_value("%s.growth" % _active_pet, 0)))
+
+
+## 곁의 펫의 확정 체형("thin"|"normal"|"fat") — 성체 전엔 "". 스프라이트 분기(D2)용.
+## SaveManager 직접 읽기 — _build 가 meters 초기화 전에 호출하므로(_pet_stage 와 동일 결).
+func _pet_body() -> String:
+  return String(SaveManager.get_value("%s.body" % _active_pet, ""))
 
 
 func _on_reveal_closed() -> void:
@@ -788,8 +810,8 @@ func swap_active(main_id: String, pet_id: String, announce := true) -> void:
 
   _okja.set_character(main_id)  # 라이브 스탠딩 텍스처만 교체(트리/트윈 보존)
   if pet_changed:
-    # 새 펫의 저장된 성장 단계를 반영해 라이브 스프라이트 교체(트리/트윈 보존) — 이슈 #6 / D1
-    _sioni.set_prefix(Characters.pet_stage_prefix(pet_id, _pet_stage()))
+    # 새 펫의 저장된 성장 단계·체형을 반영해 라이브 스프라이트 교체(트리/트윈 보존) — 이슈 #6 / D1·D2
+    _sioni.set_prefix(Characters.pet_stage_prefix(pet_id, _pet_stage(), meters.pet_body(pet_id)))
   _update_roster_portrait()
   _hud.set_focus(main_id)       # 게이지·기분 표시를 새 메인으로
   _hud.refresh()

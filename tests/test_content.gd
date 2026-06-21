@@ -28,6 +28,7 @@ func run_suite() -> void:
   _test_hud_attendance()
   _test_sound_binding()
   await _test_share_smoke()
+  await _test_pet_evolve_fx()
 
 
 # ── 체키 조각/승급 (T14 기반) ─────────────────────────────
@@ -553,6 +554,23 @@ func _test_share_smoke() -> void:
   else:
     print("    · (헤드리스 렌더 없음 — 공유 PNG 저장은 실기기/로컬 GUI 에서 확인)")
   card.free()
+
+
+# ── 펫 진화 연출 스모크 (D3 — 화이트 플래시 + 반짝임) ──────────
+## 연출(PetEvolveFx)이 플래시 절정에 텍스처 스왑 콜백을 실제로 호출하는지(연출이 스왑을 삼키지 않음)
+## + 종료 후 자동 정리(queue_free)되는지. 흰 광휘·반짝이의 시각 품질은 실기기 몫(헤드리스 렌더 없음).
+func _test_pet_evolve_fx() -> void:
+  var fx := PetEvolveFx.new()
+  fx.setup(true)  # 성체 = 체형 분기 reveal (가장 긴 경로)
+  add_child(fx)
+  var swapped := [false]
+  fx.play(func() -> void: swapped[0] = true)
+  # 플래시 팽창(0.18s) → 절정 콜백까지 충분히 프레임을 흘린다.
+  await get_tree().create_timer(0.4).timeout
+  check(swapped[0] == true, "진화 연출이 플래시 절정에 스왑 콜백 호출(연출이 스왑을 삼키지 않음)")
+  # 흰 빛 사그라듦 + 반짝이 여운(0.34+0.5s) 뒤 자동 정리.
+  await get_tree().create_timer(1.0).timeout
+  check(not is_instance_valid(fx), "진화 연출 종료 후 자동 정리(queue_free)")
 
 
 ## HUD 출석 라인이 빌드되고 streak 별로 올바른 문구를 만드는지(빌드 크래시 0 + 텍스트 분기).

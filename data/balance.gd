@@ -57,6 +57,10 @@ const REL_CLOSE := 2000          # 마음 연 사이: 속내·애칭·특별 대
 const PET_GROWTH_STAGES := ["baby", "child", "adult"]  # 생애 단계 순서
 const PET_GROWTH_PER_STAGE := 8   # 한 단계 오르는 데 필요한 돌봄(간식+놀기+쓰담) 횟수 — 성체까지 16회(한 세션 완주)
 
+# 체형 3분기(D2) — 성체 도달 순간 누적 치우침(lean)으로 확정·영구.
+# lean = 간식(+1) vs 놀기(−1) 누적, 쓰담은 중립(0). 비등(0)=보통=캐논 재사용, 양끝만 신규 아트.
+const PET_BODY_TYPES := ["thin", "normal", "fat"]  # 마름 / 보통 / 통통
+
 # ── 나비 / 출석 / 코인 / 기분 ───────────────────
 const BUTTERFLY_SHARDS_NEEDED := 2   # 나비 승급에 필요한 조각 (같은 의상 중복 1 = 조각 +1) → 총 3번 획득 시 승급(1번째 일반 + 2·3번째 조각)
 const ATTENDANCE_MILESTONE_3 := 3    # 연속출석 3일 마일스톤
@@ -112,6 +116,16 @@ static func pet_growth_stage(care_count: int) -> String:
 ## 마지막 성장 단계(성체)에 도달했나 — 더는 자라지 않는 상태. (체형 분기 확정 시점 = D2)
 static func is_pet_grown(care_count: int) -> bool:
   return pet_growth_stage_index(care_count) >= PET_GROWTH_STAGES.size() - 1
+
+
+## 누적 치우침(lean) → 성체 체형 문자열("thin"|"normal"|"fat"). (체형 분기 판정 단일 출처, D2)
+## 간식 우세(lean>0)=통통, 놀기 우세(lean<0)=마름, 비등(0)=보통(=캐논). 쓰담은 lean 에 무관여(중립).
+static func pet_body_type(lean: int) -> String:
+  if lean > 0:
+    return "fat"
+  if lean < 0:
+    return "thin"
+  return "normal"
 
 
 # ── 호감도 수치 게이트웨이 (data/balance.json "affinity") ──

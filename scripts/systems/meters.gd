@@ -200,15 +200,27 @@ func consume_gauge_sion() -> void:
 
 # ── 펫 육성 (데모 진화 슬라이스 D1 — 성장축, 게이지와 직교) ──
 ## 돌봄(간식/놀기/쓰담) 1회로 성장 카운트를 +1 한다. 체키 버튼은 제외(수집이지 육성 아님 — ADR 0005).
+## kind("snack"/"play"/"pet") 로 체형 치우침(lean)을 누적한다 — 간식 +1, 놀기 −1, 쓰담·그외 중립(0)(D2).
+## 성체 도달 순간 lean 으로 체형(body)을 확정·영구(🔴 불가침 — 이미 정해졌으면 보존).
 ## 단계가 오르면 pet_grew(character, stage) 통지. 누적이라 역행 없음(🔴 불가침).
 ## 데모 모드 게이트는 호출부(Cafe)가 책임진다 — 정식 육성 엔진은 T41. 반환: 이번에 단계가 올랐나.
-func grow_pet(character: String) -> bool:
+func grow_pet(character: String, kind := "") -> bool:
   var before := pet_stage(character)
+  # 체형 치우침 누적(D2) — 간식 vs 놀기. 쓰담·그외는 중립.
+  var lean := int(SaveManager.get_value("%s.lean" % character, 0))
+  if kind == "snack":
+    lean += 1
+  elif kind == "play":
+    lean -= 1
+  SaveManager.set_value("%s.lean" % character, lean)
   var count := int(SaveManager.get_value("%s.growth" % character, 0)) + 1
   SaveManager.set_value("%s.growth" % character, count)
+  var after := Balance.pet_growth_stage(count)
+  # 성체 도달 순간 체형 확정 — 한 번 정해지면 영구(이후 돌봄으로 lean 이 움직여도 body 불변).
+  if after == "adult" and String(SaveManager.get_value("%s.body" % character, "")) == "":
+    SaveManager.set_value("%s.body" % character, Balance.pet_body_type(lean))
   SaveManager.save_game()
   changed.emit()
-  var after := Balance.pet_growth_stage(count)
   if after != before:
     pet_grew.emit(character, after)
     return true
@@ -218,6 +230,11 @@ func grow_pet(character: String) -> bool:
 ## 펫의 현재 성장 단계 문자열("baby"|"child"|"adult"). (Balance 단일 출처 — 누적 돌봄에서 파생)
 func pet_stage(character: String) -> String:
   return Balance.pet_growth_stage(int(SaveManager.get_value("%s.growth" % character, 0)))
+
+
+## 펫의 확정 체형("thin"|"normal"|"fat") — 성체 전엔 "". 스프라이트 분기(D2)의 단일 출처.
+func pet_body(character: String) -> String:
+  return String(SaveManager.get_value("%s.body" % character, ""))
 
 
 ## active_main 터치 호감도(무료, 세션 상한). 상한 도달 시 0 반환. (기분 회복은 없음 — 터치는 가벼운 교감)
