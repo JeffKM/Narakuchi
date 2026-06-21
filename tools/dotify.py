@@ -87,18 +87,26 @@ def crop_to_content(im, chroma=None, chroma_tol=48, alpha_thr=128):
   return im.crop((int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1))
 
 
-def fill_canvas(im, target_w, target_h, head_margin=0.04):
+def fill_canvas(im, target_w, target_h, head_margin=0.04, fill_scale=1.0, foot_margin=0):
   """캐릭터를 캔버스에 충전: 높이 우선으로 키워 머리 위 약간 여백·발은 바닥에 정렬.
   단 폭이 캔버스를 넘으면 폭 기준으로 제한(팔·꼬리 잘림 방지) — 이땐 높이가 덜 찬다.
-  옥자 idle(충전 ~96%·바닥여백 0)과 같은 스케일로 모든 캐릭터·표정을 정합시킨다."""
+  옥자 idle(충전 ~96%·바닥여백 0)과 같은 스케일로 모든 캐릭터·표정을 정합시킨다.
+
+  fill_scale<1.0 = '부분 충전' — 콘텐츠를 캔버스의 fill_scale 비율만큼만 키우고 **여전히 발은
+  바닥에 정렬**한다(머리 위 여백이 커짐). 펫 생애단계(아기<유년<성체)처럼 같은 96×96 캔버스 안에서
+  단계별로 작게/크게 굽고 발밑 피벗으로 솟아오르게 하는 데 쓴다(→ art-spec-pet-growth).
+
+  foot_margin>0 = 발밑에 비울 픽셀 수 — 발을 캔버스 맨 아래가 아니라 그만큼 '위'에 정렬한다.
+  디오라마 받침/그림자가 캔버스 바닥보다 위에 있는 펫(시온이: 발 y≈85, 발여백 ~11px)을
+  같은 발 높이로 정합시키는 데 쓴다(캐논과 그림자 정렬). 머리여백·충전비율 계산엔 영향 없음."""
   src_w, src_h = im.size
-  scale = (target_h * (1 - head_margin)) / src_h  # 높이 우선
+  scale = (target_h * (1 - head_margin) * fill_scale) / src_h  # 높이 우선 × 단계 비율
   if src_w * scale > target_w:                     # 폭 초과 → 폭 기준 제한
     scale = target_w / src_w
   new_w, new_h = max(1, round(src_w * scale)), max(1, round(src_h * scale))
   resized = im.resize((new_w, new_h), Image.BOX)
   canvas = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
-  canvas.paste(resized, ((target_w - new_w) // 2, target_h - new_h))  # 가로 중앙·하단 정렬
+  canvas.paste(resized, ((target_w - new_w) // 2, target_h - new_h - foot_margin))  # 가로 중앙·하단(발여백)
   return canvas
 
 
@@ -125,13 +133,15 @@ def index_to_palette(rgb, pal):
 
 def dotify_image(im, target_w, target_h, transparent, lcd, alpha_thr=128,
                  chroma=None, chroma_tol=48, apply_palette=True, palette=None, fill=False,
-                 center=False):
+                 center=False, fill_scale=1.0, foot_margin=0):
   """핵심 파이프라인(메모리 이미지): (충전/중앙정렬) → 축소 → (크로마키 제거) → 알파 이진화 → 팔레트 인덱싱 → LCD 투명.
 
   CLI(dotify)와 GUI(dot_studio)가 공유하는 단일 처리 함수. 규격 로직은 여기 한 곳에서만 산다.
   apply_palette=False는 팔레트 인덱싱 전 원본 색을 유지(미리보기 비교용).
   palette=(N,3) 배열을 주면 파일 대신 그 팔레트로 인덱싱(스튜디오 라이브 편집용).
   fill=True면 캐릭터를 캔버스에 꽉 충전(콘텐츠 크롭→높이 충전·하단정렬). 배경(bg/cheki)은 False.
+  fill_scale<1.0(fill 과 함께)이면 '부분 충전' — 단계별로 작게 굽되 발은 바닥에(펫 생애단계용).
+  foot_margin>0(fill 과 함께)이면 발밑 여백 px — 발을 그만큼 위에 정렬(디오라마 받침 펫=캐논 정합).
   center=True면 콘텐츠 크롭→사방 균등 여백 양축 중앙(초상 흉상용 — 좌우 잘림 방지). fill 보다 우선.
   """
   im = im.convert("RGBA")
@@ -140,7 +150,7 @@ def dotify_image(im, target_w, target_h, transparent, lcd, alpha_thr=128,
     im = center_fit_canvas(im, target_w, target_h)
   elif fill:
     im = crop_to_content(im, chroma=chroma, chroma_tol=chroma_tol, alpha_thr=alpha_thr)
-    im = fill_canvas(im, target_w, target_h)
+    im = fill_canvas(im, target_w, target_h, fill_scale=fill_scale, foot_margin=foot_margin)
   else:
     im = fit_resize(im, target_w, target_h)
   arr = np.array(im)
@@ -170,15 +180,17 @@ def dotify_image(im, target_w, target_h, transparent, lcd, alpha_thr=128,
 
 
 def dotify(src_path, target_w, target_h, transparent, lcd, alpha_thr=128,
-           chroma=None, chroma_tol=48, fill=False, center=False):
+           chroma=None, chroma_tol=48, fill=False, center=False, fill_scale=1.0, foot_margin=0):
   """파일 경로 → 규격 도트 이미지(CLI용 얇은 래퍼)."""
   return dotify_image(Image.open(src_path), target_w, target_h, transparent, lcd,
                       alpha_thr=alpha_thr, chroma=chroma, chroma_tol=chroma_tol,
-                      fill=fill, center=center)
+                      fill=fill, center=center, fill_scale=fill_scale, foot_margin=foot_margin)
 
 
-def audit(img, target_w, target_h, pal, lcd, check_fill=False):
-  """규격 검수 리포트. (통과여부, 라인들) 반환. check_fill=True면 충전·정렬도 검사(캐릭터)."""
+def audit(img, target_w, target_h, pal, lcd, check_fill=False, fill_scale=1.0, foot_margin=0):
+  """규격 검수 리포트. (통과여부, 라인들) 반환. check_fill=True면 충전·정렬도 검사(캐릭터).
+  fill_scale<1.0(부분 충전·펫 생애단계)이면 높이충전 기대치를 그 비율만큼 낮춰 검사한다.
+  foot_margin>0(디오라마 받침 펫)이면 발이 그 여백 위치에 오는지로 바닥정렬을 검사한다."""
   arr = np.array(img)
   w, h = img.size
   alpha = arr[:, :, 3]
@@ -207,8 +219,9 @@ def audit(img, target_w, target_h, pal, lcd, check_fill=False):
     if bbox:
       fillpct = (bbox[3] - bbox[1]) / h * 100
       foot = h - bbox[3]
-      chk(fillpct >= 90, f"높이충전 {fillpct:.0f}% (≥90, 옥자 idle≈96%)")
-      chk(foot <= 4, f"바닥여백 {foot}px (≤4, 발이 바닥에)")
+      want = 90 * fill_scale  # 부분 충전 단계는 기대 충전율을 비율만큼 낮춤
+      chk(fillpct >= want, f"높이충전 {fillpct:.0f}% (≥{want:.0f}{', 부분충전' if fill_scale < 1.0 else ', 옥자 idle≈96%'})")
+      chk(abs(foot - foot_margin) <= 4, f"바닥여백 {foot}px (목표 {foot_margin}±4, 발이 받침에)")
     else:
       chk(False, "콘텐츠 없음(빈 이미지)")
   if lcd:
@@ -235,6 +248,10 @@ def main():
   ap.add_argument("--center", dest="center", action="store_true", default=None,
                   help="콘텐츠 크롭 후 사방 균등 여백 중앙 정렬(초상 흉상 — 좌우 잘림 방지). portrait 프리셋은 기본 on")
   ap.add_argument("--no-center", dest="center", action="store_false", help="중앙 정렬 끄기")
+  ap.add_argument("--fill-scale", type=float, default=1.0,
+                  help="부분 충전 비율(0~1, fill 과 함께). 펫 생애단계처럼 단계별로 작게 굽되 발은 바닥에(예: 아기 0.52)")
+  ap.add_argument("--foot-margin", type=int, default=0,
+                  help="발밑 여백 px(fill 과 함께). 발을 캔버스 바닥보다 위에 정렬(디오라마 받침 펫=캐논 정합, 예: 시온이 10)")
   args = ap.parse_args()
 
   chroma = None
@@ -257,14 +274,16 @@ def main():
   fill = fill_default if args.fill is None else args.fill        # --fill/--no-fill로 명시 시 우선
   center = center_default if args.center is None else args.center  # --center/--no-center로 명시 시 우선
   img = dotify(args.src, tw, th, transparent or chroma is not None, lcd, chroma=chroma,
-               chroma_tol=args.chroma_tol, fill=fill, center=center)
+               chroma_tol=args.chroma_tol, fill=fill, center=center,
+               fill_scale=args.fill_scale, foot_margin=args.foot_margin)
   img.save(args.out)
 
   if args.preview > 0:
     pv = os.path.splitext(args.out)[0] + f"_x{args.preview}.png"
     img.resize((tw * args.preview, th * args.preview), Image.NEAREST).save(pv)
 
-  ok, lines = audit(img, tw, th, load_palette(), lcd, check_fill=fill)
+  ok, lines = audit(img, tw, th, load_palette(), lcd, check_fill=fill,
+                    fill_scale=args.fill_scale, foot_margin=args.foot_margin)
   print(f"\n=== 도트화: {os.path.basename(args.src)} → {args.out} ===")
   mode_note = "  (자동 충전 on)" if fill else ("  (중앙 정렬 on)" if center else "")
   print(f"프리셋: {args.preset or args.size}{mode_note}")

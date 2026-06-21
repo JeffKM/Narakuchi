@@ -11,6 +11,7 @@ extends Node
 ##   6 = 시온이 "오늘의 체키" 즉시 획득(게이지 풀 → 획득 리빌) — 시온이 카드 확인용
 ##   7 = 개발 프리셋: 단골 등극 직전(regular_edge) · 온보딩 스킵 → 단골 인사 비트 시연
 ##   8 = active_main 토글(옥자 ↔ 미호) + 리로드 — 로스터 선택(#3) 전 미호 라이브 확인용 (T30)
+##   9 = 펫 생애단계 순환(캐논→아기→유년→마름→통통) — D0 시온이 16컷 게임 내 크기/비율 확인용 (D1 전)
 ##
 ## (숫자열 키 — 노트북 Fn 조합 불필요. F5/Ctrl+R 같은 웹 새로고침과도 충돌 없음.)
 ## 셸(shell.gd)은 자기 KEYMAP(TAB/방향/스페이스/ESC 등)만 가로채므로 1~8 은 여기로 온다.
@@ -24,6 +25,7 @@ const KEYS := {
   KEY_6: "cheki_sion",
   KEY_7: "dev_preset_regular",
   KEY_8: "swap_main",
+  KEY_9: "cycle_pet_stage",
 }
 
 
@@ -50,6 +52,8 @@ func _unhandled_input(event: InputEvent) -> void:
       _grant_cheki(Events.SION)
     "swap_main":
       _swap_active_main()
+    "cycle_pet_stage":
+      _cycle_pet_stage()
 
 
 ## 현재 씬을 다시 로드한다. SaveManager 는 autoload 라 유지되고, Main._ready 가 갱신된 세이브를 다시 읽는다.
@@ -89,3 +93,11 @@ func _swap_active_main() -> void:
     SaveManager.set_value("flags.active_main", nxt)
     SaveManager.save_game()
     _reload()
+
+
+## 곁의 펫 생애단계 스프라이트를 순환(캐논→아기→유년→마름→통통) — D0 시온이 16컷 확인용.
+## 카페가 떠 있을 때만 동작(라이브 텍스처 스왑). D1 진화 엔진 전까지의 디버그 전용 통로.
+func _cycle_pet_stage() -> void:
+  var cafe := get_tree().get_first_node_in_group(&"cafe")
+  if cafe and cafe.has_method("debug_cycle_pet_stage"):
+    cafe.debug_cycle_pet_stage()

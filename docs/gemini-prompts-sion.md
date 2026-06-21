@@ -86,6 +86,70 @@ no gradient, no soft anti-aliased edges, no 3D render.
 
 ---
 
+## 시온이 생애단계 (펫 육성 — D0 · 16컷)
+
+> 설계 단일 출처: **[ADR 0005](./adr/0005-pet-raising-growth-axis.md)**(펫 육성 = 분기형 진화) · 아트 스펙: **[art-spec-pet-growth.md](./art-spec-pet-growth.md)** · 도트 규격: **[ADR 0001](./adr/0001-dot-art-spec.md)**.
+> 같은 **아기** → (간식/놀기 밸런스) → **성체 3분기**(마른/보통/뚱뚱). 중간 **유년**은 단일(분기 미노출).
+> **신규 = 16컷**: 아기4 + 유년4 + 마른4 + 통통4. **보통(=캐논)은 기존 `sioni_*` 4컷 재사용 → 0**(이미 통통-귀여운 배포 그림을 대표로 승격, 양 끝 *더 마름*·*더 통통*만 신규).
+> **🔑 정체성 락**: 모든 단계가 위 베이스와 **같은 흰 얼룩 고양이** — 바탕 흰색, **검은 가르마 두건**(가운데 흰 줄로 갈린 대칭 검은 캡 + 꼬리/몸 검정), **작은 핑크 코에 갈색 점 하나**(갈색은 코에만). 차이는 **체형/체급뿐**(얼굴·무늬·색 공유). 확정된 `sioni_idle.png`를 첨부해 단계마다 일관시킨다.
+> **규격**: `96×96`(매니페스트 size 96 + `fill:true` · 구 preset `sioni`는 48px 레거시 — 생애단계는 96px), **NEAREST·마스터 팔레트·발밑(하단 중앙) 피벗**. 아기는 캔버스 안에서 *작게*(여백 큼), 자랄수록 더 채운다. 크로마 그린 `#00ff00` 배경.
+
+### 단계별 체형 수식어 (베이스에 한 줄 — 같은 고양이, 체급만 변경)
+
+| 단계 | 파일 접두어 | 추가 문구(체형) |
+|---|---|---|
+| 아기 (baby) | `sioni_baby_*` | `Life stage: a TINY KITTEN — small, soft and extra-round (a little "꼬물이" puffball), short stubby legs, oversized round head & eyes, baby proportions. Occupies the LOWER-CENTER of the canvas leaving generous empty margin around (it is small).` |
+| 유년 (child) | `sioni_child_*` | `Life stage: a YOUNG cat (adolescent) — bigger than the kitten but not yet a full adult, slightly slimmer middle form, lanky-cute, growing into the body. Fills more of the canvas than the baby, still some margin.` |
+| 성체 마른 (thin) | `sioni_thin_*` | `Life stage: a SLENDER ADULT — noticeably LEANER and SLIMMER than the canon cat, sleek and athletic silhouette, slim waist and longer legs, still clearly the SAME white cat. Fills the canvas like an adult.` |
+| 성체 통통 (fat) | `sioni_fat_*` | `Life stage: a VERY ROUND, EXTRA-CHUBBY ADULT — even FATTER and rounder than the canon cat, a big plump ball-shaped body, the legs nearly hidden under the round belly, maximally pudgy & cozy. Same white cat. Fills the canvas like a large adult.` |
+| 성체 보통 (normal=**캐논**) | — | **신규 생성 없음** — 기존 `sioni_idle/snack/play/pet.png` 재사용(코드에서 `stage=normal` → 접두어 없는 레거시 파일로 alias). |
+
+### 반응 4종 — 위 [반응 4종 표](#반응-4종--베이스에-한-줄만-추가-얼굴자세만-변경)와 동일 (얼굴·자세만 변경)
+
+각 단계 × 반응 4종 = 16컷. 포즈 문구는 베이스 반응 표를 그대로 재사용한다:
+
+- `*_idle` → `Pose: sitting calmly, tail curled around the feet, content.`
+- `*_snack` → `Pose: looking UP happily at a treat, mouth open, eager.`
+- `*_play` → `Pose: playful pounce, front paws up, ears perked.`
+- `*_pet` → `Pose: eyes closed, blissful, head tilted as if being petted.`
+
+> **조립법**: `[베이스 시온이 프롬프트]` + `[단계별 체형 수식어 한 줄]` + `[반응 포즈 한 줄]`. **팁**: 단계마다 그 단계의 `idle` 1장을 먼저 확정(정체성+체형 락)한 뒤, 그 결과를 레퍼런스로 첨부해 나머지 3종(snack/play/pet)을 뽑으면 체형·얼룩이 흔들리지 않는다.
+
+### 네거티브 (생애단계 — 베이스 네거티브에 더함)
+
+```
+no costume / no clothes (life-stage sprites are the PLAIN base cat — costumes are cheki-only),
+keep it the SAME white cat with the BLACK center-parted head cap + tiny brown nose mark (markings must NOT change between stages — ONLY the body size/build changes),
+for baby: no adult proportions, no slim athletic build; for thin: no fat round body (it must be LEANER than canon);
+for fat: no slim/normal build (it must be ROUNDER/FATTER than canon),
+no full-canvas baby (the kitten is SMALL with margin), no fox, no human,
+no text, no watermark, no scenery, no chroma green on the cat, no gradient, no soft anti-aliased edges, no 3D render.
+```
+
+### 후처리 (생애단계 16컷 — 받은 PNG → 96×96 누끼 · 단계별 크기)
+
+> **🔑 크기 위계는 픽셀에 굽는다(런타임 scale 아님)** — 같은 96×96 캔버스 안에서 단계별 `--fill-scale`로 **콘텐츠를 작게/크게 채우고 발은 바닥에 정렬**한다(발밑 피벗 = 솟아오르는 성장감). 렌더는 `sioni.gd` scale 1.0 그대로(프로젝트 관례: 물리 크기는 PNG에, 코드는 native). D1 진화 엔진은 prefix만 스왑하면 즉시 크기가 바뀐다.
+> **단계별 비율**(콘텐츠 높이 ÷ 96): **아기 50% · 유년 68% · 성체(마름·통통) 82%(=캐논과 동일 "지금 크기")**. `--fill-scale` 값 = 목표비율 ÷ 0.96(머리여백).
+> **🔑 발밑 여백 `--foot-margin 10`(필수)** — 시온이는 디오라마 받침에 앉아 **발이 캔버스 바닥이 아니라 row 86(발여백 10px)**에 온다(캐논 `sioni_idle` 과 동일, `cafe.gd SIONI_PAD_BOTTOM=11`·그림자 정합). 이걸 빼면 단계들이 캐논보다 10px 아래로 내려가 **그림자와 어긋난다**. **도트 스튜디오**에선 A16 슬롯 선택 시 "부분 충전"·"발밑 여백" 슬라이더가 자동 세팅된다(별도 입력 불필요).
+
+```bash
+# 단계별 fill_scale (아기 작게 → 성체 캐논 크기) + 발밑 여백 10(캐논 발 높이 정합).
+declare -A FS=( [baby]=0.52 [child]=0.70 [thin]=0.86 [fat]=0.86 )
+for st in baby child thin fat; do
+  for r in idle snack play pet; do
+    tools/.venv/bin/python tools/dotify.py sioni_${st}_${r}_raw.png \
+      --size 96x96 --chroma 00ff00 --fill --fill-scale ${FS[$st]} --foot-margin 10 \
+      --out assets/sprites/sioni_${st}_${r}.png
+  done
+done
+# 보통(normal=캐논)은 기존 sioni_idle/snack/play/pet.png 재사용 → 생성 없음(이미 ~82%·발여백 10)
+```
+
+> ⚠️ raw 가 아니라 **이미 구운 96×96 누끼(투명 PNG)에서 다시 크기·발높이만 조절**할 땐 `--chroma` 대신 `--transparent` 를 쓴다(`--size 96x96 --transparent --fill --fill-scale … --foot-margin 10`). 크로마를 빼면 투명 영역이 불투명 처리돼 "100% 충전"으로 잘못 측정된다.
+> **산출/검수(art-spec §5)**: `assets/sprites/`에 16컷 → 임포트(`godot --headless --import`) 후 `tools/audit_sweep.py`(팔레트·96×96·알파 — 부분충전은 충전율 기대치를 비율만큼 낮춰 통과)·`tools/verify_cheki_art.gd`(펫 순회) → 디오라마 ×1/×2 또렷. **도트 스튜디오** 체크리스트 그룹 **A16**에 `96×96 · 충전 N%`로 슬롯이 떠 진행률로 추적된다.
+
+---
+
 ## 시온이 체키 의상 (쿠로미풍 · 루돌프) → 체키 카드용 정적 아트
 
 > 시온이도 **수집 캐릭터** — 지뢰계·크리스마스 데이 체키가 있다(→ PRD §9.1). 옥자 이벤트 의상과 같은 원리로 **체키(정적 수집물)에만** 들어가고, 교감화면 라이브 시온이는 기본 흰 고양이 고정.
