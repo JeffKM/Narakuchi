@@ -495,6 +495,13 @@ func _test_pet_growth() -> void:
   check(not Balance.is_pet_grown(per) and Balance.is_pet_grown(2 * per),
     "is_pet_grown = 성체 도달 여부")
 
+  # 단계 내 진척(D4 HUD 성장 미터) — 단계 경계에서 0, 직전엔 per-1, 성체는 가득(per/per).
+  check(Balance.pet_stage_progress(0) == [0, per], "아기 시작 = 0/%d" % per)
+  check(Balance.pet_stage_progress(per - 1) == [per - 1, per], "아기 끝 = %d/%d" % [per - 1, per])
+  check(Balance.pet_stage_progress(per) == [0, per], "유년 시작 = 단계 경계서 비움(0/%d)" % per)
+  check(Balance.pet_stage_progress(2 * per) == [per, per], "성체 = 가득(%d/%d, 포화)" % [per, per])
+  check(Balance.pet_stage_progress(2 * per + 99) == [per, per], "성체 이후도 가득 유지")
+
   # 스프라이트 접두어(Characters) — 아기/유년만 접미사, 성체=캐논(접두어 그대로). 시온이='sioni'.
   check(Characters.pet_stage_prefix("sion", "baby") == "sioni_baby", "시온이 아기 접두어")
   check(Characters.pet_stage_prefix("sion", "child") == "sioni_child", "시온이 유년 접두어")
