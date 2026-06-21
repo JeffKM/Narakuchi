@@ -15,6 +15,8 @@ signal changed
 signal gauge_full(character: String)
 signal stage_changed(stage: String)
 signal stamina_empty
+# 펫 육성 단계가 올랐다(데모 진화 슬라이스 D1) — 진화 연출(D3)·스프라이트 스왑은 Cafe 가 처리.
+signal pet_grew(character: String, stage: String)
 
 # 기분 단계 (벌 없는 설계: 시무룩까지만, 아프거나 떠나지 않음 → PRD §4.4)
 const MOOD_HAPPY := "happy"
@@ -194,6 +196,28 @@ func consume_gauge_pet(character: String) -> void:
 ## 시온이 게이지 비우기 — 백호환 래퍼.
 func consume_gauge_sion() -> void:
   consume_gauge_pet(Events.SION)
+
+
+# ── 펫 육성 (데모 진화 슬라이스 D1 — 성장축, 게이지와 직교) ──
+## 돌봄(간식/놀기/쓰담) 1회로 성장 카운트를 +1 한다. 체키 버튼은 제외(수집이지 육성 아님 — ADR 0005).
+## 단계가 오르면 pet_grew(character, stage) 통지. 누적이라 역행 없음(🔴 불가침).
+## 데모 모드 게이트는 호출부(Cafe)가 책임진다 — 정식 육성 엔진은 T41. 반환: 이번에 단계가 올랐나.
+func grow_pet(character: String) -> bool:
+  var before := pet_stage(character)
+  var count := int(SaveManager.get_value("%s.growth" % character, 0)) + 1
+  SaveManager.set_value("%s.growth" % character, count)
+  SaveManager.save_game()
+  changed.emit()
+  var after := Balance.pet_growth_stage(count)
+  if after != before:
+    pet_grew.emit(character, after)
+    return true
+  return false
+
+
+## 펫의 현재 성장 단계 문자열("baby"|"child"|"adult"). (Balance 단일 출처 — 누적 돌봄에서 파생)
+func pet_stage(character: String) -> String:
+  return Balance.pet_growth_stage(int(SaveManager.get_value("%s.growth" % character, 0)))
 
 
 ## active_main 터치 호감도(무료, 세션 상한). 상한 도달 시 0 반환. (기분 회복은 없음 — 터치는 가벼운 교감)
