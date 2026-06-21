@@ -1399,7 +1399,7 @@
           "path": "assets/sprites/sioni_thin_idle.png",
           "fill": true,
           "fill_scale": 0.86,
-          "foot_margin": 10
+          "foot_margin": 7
         },
         {
           "id": "sioni_thin_snack",
@@ -1413,7 +1413,7 @@
           "path": "assets/sprites/sioni_thin_snack.png",
           "fill": true,
           "fill_scale": 0.86,
-          "foot_margin": 10
+          "foot_margin": 7
         },
         {
           "id": "sioni_thin_play",
@@ -1427,7 +1427,7 @@
           "path": "assets/sprites/sioni_thin_play.png",
           "fill": true,
           "fill_scale": 0.86,
-          "foot_margin": 10
+          "foot_margin": 7
         },
         {
           "id": "sioni_thin_pet",
@@ -1441,7 +1441,7 @@
           "path": "assets/sprites/sioni_thin_pet.png",
           "fill": true,
           "fill_scale": 0.86,
-          "foot_margin": 10
+          "foot_margin": 7
         },
         {
           "id": "sioni_fat_idle",
