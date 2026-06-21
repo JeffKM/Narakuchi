@@ -118,6 +118,14 @@ static func is_pet_grown(care_count: int) -> bool:
   return pet_growth_stage_index(care_count) >= PET_GROWTH_STAGES.size() - 1
 
 
+## 현재 성장 단계 안에서의 진척 — [지금까지, 다음 단계까지 필요]. (D4 HUD 성장 미터 단일 출처)
+## 성체(포화)는 [PER, PER]로 "가득"을 표현 — 더 안 자라므로 게이지를 비우지 않는다.
+static func pet_stage_progress(care_count: int) -> Array:
+  if is_pet_grown(care_count):
+    return [PET_GROWTH_PER_STAGE, PET_GROWTH_PER_STAGE]
+  return [care_count % PET_GROWTH_PER_STAGE, PET_GROWTH_PER_STAGE]
+
+
 ## 누적 치우침(lean) → 성체 체형 문자열("thin"|"normal"|"fat"). (체형 분기 판정 단일 출처, D2)
 ## 간식 우세(lean>0)=통통, 놀기 우세(lean<0)=마름, 비등(0)=보통(=캐논). 쓰담은 lean 에 무관여(중립).
 static func pet_body_type(lean: int) -> String:

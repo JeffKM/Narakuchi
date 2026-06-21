@@ -18,6 +18,19 @@ const MOOD_LABEL := {
   Meters.MOOD_SULKY: "시무룩",
 }
 
+# 펫 성장 단계 한글 라벨 (D4 — 게이지를 성장 미터로 용도 변경). 단계 문자열은 Balance 단일 출처.
+const STAGE_LABEL := {
+  "baby": "아기",
+  "child": "유년",
+  "adult": "성체",
+}
+# 성체 확정 체형 라벨 (D2 분기 노출).
+const BODY_LABEL := {
+  "thin": "마름",
+  "normal": "보통",
+  "fat": "통통",
+}
+
 var _gauge_fill: ColorRect
 var _gauge_text: Label
 var _info: Label  # 기분 · 기력 · 코인 한 줄
@@ -83,16 +96,30 @@ func refresh() -> void:
   _refresh_attendance()
 
   if not Characters.is_main(_focus):
-    # 펫(시온이·규종이…): 게이지만(펫이라 기분·관계 단계 없음). 풀은 Characters 단일 출처.
-    var pf := Characters.gauge_full(_focus)
-    var pg := int(SaveManager.get_value("%s.gauge" % _focus, 0))
-    var pr := clampf(float(pg) / float(pf), 0.0, 1.0)
-    _gauge_fill.size.x = round(GAUGE_W * pr)
-    _gauge_text.text = "%s 호감도 %d/%d" % [Characters.display_name(_focus), pg, pf]
+    # 펫(시온이·규종이…): 게이지를 "성장 미터"로 용도 변경(D4) — 호감도가 아니라 진화 진척.
+    # 메인 호감도(gauge)와 직교한 누적 돌봄(growth)에서 파생. 단계 내 진척 = 다음 진화까지.
+    var care := int(SaveManager.get_value("%s.growth" % _focus, 0))
+    var prog := Balance.pet_stage_progress(care)
+    var cur := int(prog[0])
+    var need := int(prog[1])
+    _gauge_fill.color = Palette.ACCENT_GREEN  # 성장 = 초록(호감도 레드와 의미 구분)
+    _gauge_fill.size.x = round(GAUGE_W * clampf(float(cur) / float(need), 0.0, 1.0))
+    var nm := Characters.display_name(_focus)
+    # 단계·체형은 SaveManager 값에서 Balance(static)로 직접 파생(HUD는 표시만 — 미터 변경은 Meters).
+    var stage := String(STAGE_LABEL.get(Balance.pet_growth_stage(care), "성장"))
+    if Balance.is_pet_grown(care):
+      # 성체 = 다 자람. 확정 체형(D2)을 함께 노출(미확정/보통은 생략).
+      var body_key := String(SaveManager.get_value("%s.body" % _focus, ""))
+      var body := String(BODY_LABEL.get(body_key, ""))
+      var tail := " (%s)" % body if body != "" and body != "보통" else ""
+      _gauge_text.text = "%s 다 자람%s" % [nm, tail]
+    else:
+      _gauge_text.text = "%s %s %d/%d" % [nm, stage, cur, need]
     _info.text = "기력 %d/%d   코인 %d" % [stamina, Balance.STAMINA_MAX, coins]
     return
 
   # 메인(옥자·미호…): 게이지 + 기분. _focus = active_main id. (T30)
+  _gauge_fill.color = Palette.BLOOD  # 호감도 = 나라카 시그니처 레드(펫 성장 미터에서 복귀)
   var full := Characters.gauge_full(_focus)
   var gauge := int(SaveManager.get_value("%s.gauge" % _focus, 0))
   var ratio := clampf(float(gauge) / float(full), 0.0, 1.0)
