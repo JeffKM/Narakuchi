@@ -69,6 +69,9 @@ func default_save() -> Dictionary:
     var c := {"affinity_total": 0, "gauge": 0}
     if Characters.has_mood(id):
       c["mood"] = "happy"  # happy | normal | sulky
+    else:
+      # 펫: 육성 누적 돌봄 횟수(D1 데모 진화). 단계는 Balance.pet_growth_stage 파생, 역행 0(🔴 — ADR 0005).
+      c["growth"] = 0
     d[id] = c
   return d
 

@@ -64,7 +64,7 @@
 - [x] **T11** 대화 팝업(짧은 2지선다) + 선물 선호표 + **관계 단계(존댓말→반말) 전환 컷인** — `대화`/`선물` → `scripts/ui/choice_popup.gd`(2~3지선다, 옥자 질문→반응 한 줄, 셸 SELECT/OK/CANCEL·터치 하이브리드, **선택 시점에만 스태미나 소모·호감도 적용**=취소 시 무변경). 토막·선호표 데이터 `data/dialogue.gd`(`TALK`/`GIFTS` + `pick_talk`/`gift_choices`/`gift_prompt`, tier→`Balance.AFF_*` 매핑은 `cafe.gd`). 단계 guest→regular 도달 시 **반말 해금 컷인** `scripts/ui/stage_cutin.gd`(옥자 3줄 시퀀스 + "반말 해금" 골드 배지 + 폴짝) — 떠 있는 오버레이(리빌·팝업·책)가 다 닫힌 뒤 발화하도록 `_maybe_cutin` 예약. 데모 시드 `DEMO_SEED_AFFINITY` 560→595(첫 교감 한 번으로 컷인 발화).
 - [x] **T12** 체키 데이터 모델(`scripts/systems/cheki.gd`): 슬롯 = `캐릭터 × 이벤트`, 레코드 `{common, butterfly, shards, nickname, acquired_at}`(SaveManager SSOT) · `grade()`/`owned()` · **`pick_today()`**(아트 준비된 이벤트 중 미보유 우선 → 일반만 보유 우선 → 나비) · **`grant()`**(미보유→신규 일반, 중복→나비 조각+승급 판정). 이벤트 id↔에셋 slug 매핑(`Events.event_slug`, mine↔jirai) + 합성 레이어 경로 헬퍼(`cheki_costume/bg/frame_path`). (→ ADR 0002·0003)
 - [x] **T13** **체키 획득: 호감도 게이지 가득 → 오늘의 체키 자동 획득**(`cafe._on_gauge_full`): `Cheki.grant` → `meters.consume_gauge_okja()`(재발화 방지) → 옥자 폴짝 + **리빌 오버레이**(`scripts/ui/cheki_reveal.gd`). 미보유 우선 일반 / 중복→나비 승급. 셸 OK/탭 하이브리드.
-- [x] **T14** 나비 해금(연속출석 마일스톤 보상: 3일/7일 → 나비 조각) — `meters.begin_session`이 일자 갱신 후 `_update_attendance`가 돌려준 streak로 `_check_milestone`(정확히 3일/7일에만 발화) → `Cheki.grant_milestone_shards(amount)`(`ATTENDANCE_REWARD_SHARDS_3=1`/`_7=2`)가 **보유한 일반 칸 중 승급에 가장 가까운(조각 최다) 칸**에 적립(승급 판정 포함) → `meters.pending_milestone`에 적재. `Cafe.start()`가 이를 소비해 **보상 리빌**(`ChekiReveal` 재사용 + `setup(reward, headline)` 상단 골드 배너 "N일 연속 출석!", 승급이면 나비 카드) 표시. `Cheki.add_shards`/`_result_of` 헬퍼 신설. ※ 출석 맞이 연출은 T06c에서 완료.
+- [x] **T14** 나비 해금(연속출석 마일스톤 보상: 3일/7일 → 나비 조각) — `meters.begin_session`이 일자 갱신 후 `_update_attendance`가 돌려준 streak로 `_check_milestone`(정확히 3일/7일에만 발화) → `Cheki.grant_milestone_shards(amount)`(`ATTENDANCE_REWARD_SHARDS_3=1`/`_7=2`)가 **보유한 일반 칸 중 승급에 가장 가까운(조각 최다) 칸**에 적립(승급 판정 포함) → `meters.pending_milestone`에 적재. `Cafe.start()`가 이를 소비해 **보상 리빌**(`ChekiReveal` 재사용 + `setup(reward, headline)` 상단 골드 배너 "N일 연속 출석!", 승급이면 나비 카드) 표시. `Cheki.add_shards`/`_result_of` 헬퍼 신설. ※ 출석 맞이 연출은 T06c에서 완료. ※ **2026-06-21 밸런스 튠**(PR #25): `BUTTERFLY_SHARDS_NEEDED` 3→2(총 3번 획득 시 승급 = 1번째 일반 + 2·3번째 조각)로 중복 보상 체감 단축. 코드는 Balance 상수 참조라 무수정, 테스트 픽스처를 `BUTTERFLY_SHARDS_NEEDED` 추종으로 일반화(임계 재튜닝 안전).
 - ✅ **A2** 옥자 지뢰계 의상(★히어로) + 체키 카드 양면 세트(표지 파치먼트·날개/나비 엠블럼·나라카 워드마크 + 사진 배경 `bg_cheki_jirai` + 표준/지뢰계 프레임) — 규격·누끼 검수 통과, 임포트·렌더 확인
 
 ## Phase 3 — 시온이 교감 모드 & 컬렉션북 (Day 3~4)
@@ -206,8 +206,8 @@
 
 **⏩ 데모 진화 슬라이스 (선반영 — T40/T43/T44보다 먼저, 2026-06-21 grill → ADR 0005 "데모 진화 슬라이스")**
 > 리텐션 검증 *전에* 진화의 *감정 임팩트 + 공유성*만 배포 데모에 얹는다. **아트(D0)가 코드(D1~D4) 선행.**
-- [ ] **D0**(아트·선행) 시온이 생애단계 16컷 — 아기4 + 유년4 + 더마름4 + 더통통4. 보통(=캐논)은 기존 `sioni_*` 재사용 → 0. 96×96·NEAREST·마스터 팔레트·발밑 피벗(ADR 0001).
-- [ ] **D1** 진화 엔진(데모 모드) — 성장 미터 = 간식·놀기·쓰담 3버튼(체키 제외), 아기→유년→성체 **횟수 기반·한 세션 완주(A)**. 압박·하루 제한 없음. 임계·단계수 = `data/balance`.
+- [x] **D0**(아트·선행) 시온이 생애단계 16컷 — **완료(PR #24)**: 아기4·유년4·마름4·통통4(보통=캐논 `sioni_*` 재사용 → 0). **크기 위계를 픽셀에 베이크**(런타임 scale 아님 — 프로젝트 관례): `dotify --fill-scale`로 콘텐츠 높이 **아기 50% < 유년 68% < 성체 82%(=캐논)** + `--foot-margin 10`로 발 y86 = 캐논·그림자 정합. dotify/dot_studio에 두 파라미터 일반화(기본값 1.0/0 = 무변화 → 기존 에셋 무영향) + 매니페스트 **A16 그룹**. **디버그 키 9** = 펫 생애단계 순환(캐논→아기→유년→마름→통통, `cafe.debug_cycle_pet_stage` set_prefix 스왑)로 D1 전 게임 내 확인. 검수: `audit_sweep` 16컷·헤드리스 임포트 무에러·발 y86 정합. 문서: ADR 0005·art-spec-pet-growth·gemini-prompts-sion. 96×96·NEAREST·마스터 팔레트·발밑 피벗(ADR 0001).
+- [x] **D1** 진화 엔진(데모 모드) — **완료**: 성장축을 게이지(체키)와 **직교**로 신설. 펫별 누적 돌봄 횟수(`{pet}.growth`)에서 단계 파생(아기→유년→성체) — **횟수 기반·한 세션 완주(A)**, 압박·하루 제한 없음(속도축 T40은 데모에서 끔). ① **`data/balance.gd`**: `PET_GROWTH_STAGES`(아기/유년/성체)·`PET_GROWTH_PER_STAGE`(8회/단계 → 성체 16회) + `pet_growth_stage(_index)`/`is_pet_grown` 단일 출처. ② **`Meters`**: `grow_pet(pet)`(돌봄 +1·단계 경계서만 `pet_grew(pet,stage)` 통지·역행 0 🔴)·`pet_stage(pet)`. ③ **`Characters.pet_stage_prefix`**: 단계→스프라이트 접두어(아기/유년만 접미사, 성체=캐논 그대로 — D0 16컷 활용). ④ **`SaveManager`**: 펫 블록에 `growth=0`(메인 제외·`_merge_defaults`로 구세이브 무손상). ⑤ **`cafe`**: 간식·놀기·쓰담(체키 제외)이 데모에서 `grow_pet` → `_on_pet_grew` 가 D0의 `set_prefix` 경로로 하드 스왑 + 폴짝 + 안내 티커. `_build`·`swap_active`도 저장된 단계 반영(재방문/펫 교체 시 자란 모습 유지). 화이트 플래시·반짝임은 D3, HUD 성장 미터는 D4. **검수**: 헤드리스 427통과(시스템 140 — 단계판정·접두어·세이브·격리·체키 무관여 신규 24 / 콘텐츠 270 / 컷인 17), 회귀 0.
 - [ ] **D2** 체형 3분기 — 누적 *간식 vs 놀기* 치우침 → 성체 순간 확정(비등=보통=캐논, 쓰담 중립). 캐논=기존 시온이 재사용, 마름·통통 양끝 신규.
 - [ ] **D3** 진화 연출 — 단계 도달 시 화이트 플래시 + 하드 스왑 + 반짝임(추가 아트 0). 성체=분기 reveal.
 - [ ] **D4** HUD — 펫 게이지를 "성장 미터"로 용도 변경(메인 옥자 호감도 무손상). 저장=기존 `SaveManager` 그대로.
@@ -222,7 +222,7 @@
 - [ ] **T45**(최후) 특수형 분기 — 전 펫 아기→성체 완성 후, *나비 승급*식 덧입히기 치장으로.
 
 **🎨 아트 트랙 (슬라이스마다 선행)**
-- [ ] 펫 1마리당 생애단계 스프라이트(아기 + 체형 분기 성체 N) + 진화 연출 컷 — 첫 펫 시온이부터. **데모 선행분 = 위 D0**(시온이 16컷). 진화 연출은 추가 아트 0(`burst_rays`·`sparkle` 재사용).
+- [~] 펫 1마리당 생애단계 스프라이트(아기 + 체형 분기 성체 N) + 진화 연출 컷 — 첫 펫 시온이부터. **데모 선행분 = 위 D0**(시온이 16컷) **✅ 완료(PR #24)**. 진화 연출은 추가 아트 0(`burst_rays`·`sparkle` 재사용). 다른 펫(규종이·코코·선아·수아) 생애단계는 이 스펙 미러(이후 슬라이스).
 
 ---
 

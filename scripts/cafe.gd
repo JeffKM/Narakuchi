@@ -187,7 +187,8 @@ func _build() -> void:
   #     접지 그림자(바닥 고정) → 시온이 → 옥자보다 앞. bob 떠도 그림자가 바닥에 잡아준다.
   _add_shadow(Vector2(SIONI_FEET.x, SIONI_FEET.y - SIONI_PAD_BOTTOM), 58, 12)  # 96px 발바닥폭 ~58
   _sioni = SioniScript.new()
-  _sioni.sprite_prefix = Characters.sprite_prefix(_active_pet)  # 곁의 펫 표정 접두어(시온이='sioni') — 트리 진입 전 지정(이슈 #6)
+  # 곁의 펫 표정 접두어 — 저장된 성장 단계를 반영(아기/유년/성체). 재방문 시 자란 모습 그대로(D1).
+  _sioni.sprite_prefix = Characters.pet_stage_prefix(_active_pet, _pet_stage())  # 트리 진입 전 지정(이슈 #6 / D1)
   _sioni.position = SIONI_FEET
   _stage.add_child(_sioni)
 
@@ -232,6 +233,7 @@ func _build() -> void:
   meters.changed.connect(_hud.refresh)
   meters.gauge_full.connect(_on_gauge_full)
   meters.stage_changed.connect(_on_stage_changed)
+  meters.pet_grew.connect(_on_pet_grew)  # 펫 육성 단계 상승 → 라이브 스프라이트 스왑 (D1 데모 진화)
   add_child(meters)
 
   _hud.refresh()
@@ -356,6 +358,10 @@ func _on_sion_action(id: String, can: bool) -> void:
   # 버튼별 감정 반응(항상) + 버튼별 티커 풀(활성 펫 전용 풀)
   _react_sion(StringName(def.get("emotion", "play")))
   _ticker.show_line(Dialogue.pet_line(_pet_dialogue_key(), String(def.get("ticker", id))))
+  # 데모 진화(D1): 돌봄(간식/놀기/쓰담)은 성장 카운트를 올린다(체키 제외 — 수집이지 육성 아님).
+  # 단계가 오르면 meters.pet_grew → _on_pet_grew 가 스프라이트 스왑 + 안내(위 티커를 덮어 메시지 담당).
+  if Balance.DEMO and id != "cheki":
+    meters.grow_pet(_active_pet)
   # 데모: '체키' 버튼이면 펫 체키를 직접 지급(게이지 무관) — 리빌/완료 안내가 위 티커를 덮어 메시지 담당.
   if Balance.DEMO and id == "cheki":
     _grant_cheki_now(_active_pet)
@@ -657,6 +663,24 @@ func _grant_cheki_now(character: String) -> void:
   add_child(_reveal)  # 맨 위(마지막 자식) → HUD·액션바 덮음
 
 
+## 펫 육성 단계 상승 (D1 데모 진화) — 라이브 스프라이트를 새 단계로 하드 스왑 + 폴짝 + 한 줄 안내.
+## D0의 set_prefix 경로(아기/유년/성체 텍스처 교체)를 그대로 탄다. 발밑 피벗 고정이라 아기는 작게·성체는 캐논 크기로.
+## 화이트 플래시·반짝임(D3)·HUD 성장 미터(D4)는 후속 슬라이스. 곁의 펫이 아닐 땐 무시(스왑 중 등).
+func _on_pet_grew(character: String, stage: String) -> void:
+  if character != _active_pet:
+    return
+  _sioni.set_prefix(Characters.pet_stage_prefix(character, stage))
+  _sioni.hop()
+  _dbg_pet_stage = 0  # 디버그 키 9 순환 인덱스와 실제 성장 상태가 어긋나지 않게 리셋
+  var label: String = {"baby": "아기", "child": "유년", "adult": "성체"}.get(stage, stage)
+  _ticker.show_line("%s가 자랐어요! (%s)" % [Characters.display_name(character), label])
+
+
+## 곁의 펫의 현재 성장 단계("baby"|"child"|"adult") — 저장된 누적 돌봄에서 파생. (Balance 단일 출처, D1)
+func _pet_stage() -> String:
+  return Balance.pet_growth_stage(int(SaveManager.get_value("%s.growth" % _active_pet, 0)))
+
+
 func _on_reveal_closed() -> void:
   _reveal = null
   _hud.refresh()
@@ -764,7 +788,8 @@ func swap_active(main_id: String, pet_id: String, announce := true) -> void:
 
   _okja.set_character(main_id)  # 라이브 스탠딩 텍스처만 교체(트리/트윈 보존)
   if pet_changed:
-    _sioni.set_prefix(Characters.sprite_prefix(pet_id))   # 곁의 펫 라이브 스프라이트 교체(트리/트윈 보존) — 이슈 #6
+    # 새 펫의 저장된 성장 단계를 반영해 라이브 스프라이트 교체(트리/트윈 보존) — 이슈 #6 / D1
+    _sioni.set_prefix(Characters.pet_stage_prefix(pet_id, _pet_stage()))
   _update_roster_portrait()
   _hud.set_focus(main_id)       # 게이지·기분 표시를 새 메인으로
   _hud.refresh()

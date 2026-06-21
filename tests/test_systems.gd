@@ -37,6 +37,8 @@ func run_suite() -> void:
   await _test_roster_selection()
   # H 규종이 펫 슬라이스 (이슈 #6) — 제네릭 펫 미터/체키 경로(시온이 미러)
   _test_gyujong_pet()
+  # I 펫 육성 엔진 (D1 데모 진화) — 횟수 기반 성장 단계 + 스프라이트 접두어 + 펫 격리
+  _test_pet_growth()
 
 
 # 새 미터를 만들어 프레임 안에서 1회 begin_session 한다(테스트 후 free).
@@ -475,6 +477,61 @@ func _test_gyujong_pet() -> void:
   var res := Cheki.grant("gyujong", "mine")
   check(String(res.get("character", "")) == "gyujong" and Cheki.owned("gyujong", "mine"),
     "규종이 지뢰계 체키 grant → 보유")
+
+
+## I. 펫 육성 엔진 (D1 데모 진화) — 누적 돌봄 횟수가 성장 단계를 올린다(체키 제외).
+##   단계 판정·스프라이트 접두어는 Balance/Characters 단일 출처, 펫끼리 격리, 누적이라 역행 0.
+func _test_pet_growth() -> void:
+  var per := Balance.PET_GROWTH_PER_STAGE
+
+  # 단계 판정(Balance) — 0=아기, per=유년, 2*per=성체, 그 이상 포화.
+  check(Balance.pet_growth_stage(0) == "baby", "돌봄 0 → 아기")
+  check(Balance.pet_growth_stage(per - 1) == "baby", "돌봄 %d → 아직 아기" % (per - 1))
+  check(Balance.pet_growth_stage(per) == "child", "돌봄 %d → 유년" % per)
+  check(Balance.pet_growth_stage(2 * per) == "adult", "돌봄 %d → 성체" % (2 * per))
+  check(Balance.pet_growth_stage(2 * per + 99) == "adult", "성체에서 포화(더 안 자람)")
+  check(not Balance.is_pet_grown(per) and Balance.is_pet_grown(2 * per),
+    "is_pet_grown = 성체 도달 여부")
+
+  # 스프라이트 접두어(Characters) — 아기/유년만 접미사, 성체=캐논(접두어 그대로). 시온이='sioni'.
+  check(Characters.pet_stage_prefix("sion", "baby") == "sioni_baby", "시온이 아기 접두어")
+  check(Characters.pet_stage_prefix("sion", "child") == "sioni_child", "시온이 유년 접두어")
+  check(Characters.pet_stage_prefix("sion", "adult") == "sioni", "시온이 성체 = 캐논 접두어")
+
+  # 세이브 스키마: 펫 블록에 growth(=0), 메인 블록엔 없음.
+  wipe()
+  var d := SaveManager.default_save()
+  check(d["sion"].get("growth", -1) == 0, "default_save 펫 블록에 growth=0")
+  check(not d["okja"].has("growth"), "메인 블록엔 growth 없음(성장축은 펫만)")
+
+  # grow_pet: per 회마다 단계 상승 + pet_grew 통지, 중간엔 통지 없음.
+  wipe()
+  var m := Meters.new()
+  var grew: Array = []
+  m.pet_grew.connect(func(c: String, s: String) -> void: grew.append([c, s]))
+  for i in range(per - 1):
+    check(m.grow_pet("sion") == false, "돌봄 %d회: 아직 아기(단계 유지)" % (i + 1))
+  check(m.grow_pet("sion") == true, "돌봄 %d회: 유년 승급" % per)
+  check(int(SaveManager.get_value("sion.growth", -1)) == per, "growth 누적 = %d" % per)
+  check(m.pet_stage("sion") == "child", "grow 후 pet_stage = 유년")
+  # 성체까지 마저 — per 회 더(2*per 도달).
+  for _i in range(per):
+    m.grow_pet("sion")
+  check(m.pet_stage("sion") == "adult", "돌봄 %d회 누적 → 성체" % (2 * per))
+  check(grew.size() == 2 and grew[0] == ["sion", "child"] and grew[1] == ["sion", "adult"],
+    "pet_grew 는 단계 경계에서만(유년·성체 2회)")
+
+  # 펫 격리: 시온이 성장이 규종이로 새지 않음.
+  check(int(SaveManager.get_value("gyujong.growth", -1)) == 0, "시온이 성장이 규종이로 안 샘")
+
+  # 체키는 육성 아님 — 데모에서 체키 버튼은 grow_pet 을 호출하지 않는다(배선 계약은 cafe.gd).
+  # 엔진 단위로는 grow_pet 만 성장에 관여함을 위 단언으로 보장(체키 grant 는 growth 무변).
+  wipe()
+  var m2 := Meters.new()
+  Cheki.grant("sion", "mine")
+  check(int(SaveManager.get_value("sion.growth", -1)) == 0, "체키 grant 는 growth 불변(수집이지 육성 아님)")
+  m2.free()
+  m.free()
 
 
 func _days_to_stage(target: String, high: bool) -> int:
