@@ -1272,6 +1272,236 @@
       ]
     },
     {
+      "id": "A16",
+      "title": "A16 · 시온이 생애단계 (펫 육성 D0 · 16컷)",
+      "items": [
+        {
+          "id": "sioni_baby_idle",
+          "label": "시온이 아기 — idle (꼬물이·작고 동글, 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_baby_idle.png",
+          "fill": true,
+          "fill_scale": 0.52,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_baby_snack",
+          "label": "시온이 아기 — 간식 (꼬물이·작고 동글, 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_baby_snack.png",
+          "fill": true,
+          "fill_scale": 0.52,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_baby_play",
+          "label": "시온이 아기 — 놀기 (꼬물이·작고 동글, 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_baby_play.png",
+          "fill": true,
+          "fill_scale": 0.52,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_baby_pet",
+          "label": "시온이 아기 — 쓰담 (꼬물이·작고 동글, 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_baby_pet.png",
+          "fill": true,
+          "fill_scale": 0.52,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_child_idle",
+          "label": "시온이 유년 — idle (분기 전 중간형, 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_child_idle.png",
+          "fill": true,
+          "fill_scale": 0.7,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_child_snack",
+          "label": "시온이 유년 — 간식 (분기 전 중간형, 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_child_snack.png",
+          "fill": true,
+          "fill_scale": 0.7,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_child_play",
+          "label": "시온이 유년 — 놀기 (분기 전 중간형, 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_child_play.png",
+          "fill": true,
+          "fill_scale": 0.7,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_child_pet",
+          "label": "시온이 유년 — 쓰담 (분기 전 중간형, 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_child_pet.png",
+          "fill": true,
+          "fill_scale": 0.7,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_thin_idle",
+          "label": "시온이 마름 — idle (더 마른 성체(신규), 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_thin_idle.png",
+          "fill": true,
+          "fill_scale": 0.86,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_thin_snack",
+          "label": "시온이 마름 — 간식 (더 마른 성체(신규), 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_thin_snack.png",
+          "fill": true,
+          "fill_scale": 0.86,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_thin_play",
+          "label": "시온이 마름 — 놀기 (더 마른 성체(신규), 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_thin_play.png",
+          "fill": true,
+          "fill_scale": 0.86,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_thin_pet",
+          "label": "시온이 마름 — 쓰담 (더 마른 성체(신규), 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_thin_pet.png",
+          "fill": true,
+          "fill_scale": 0.86,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_fat_idle",
+          "label": "시온이 통통 — idle (더 통통한 성체(신규), 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_fat_idle.png",
+          "fill": true,
+          "fill_scale": 0.86,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_fat_snack",
+          "label": "시온이 통통 — 간식 (더 통통한 성체(신규), 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_fat_snack.png",
+          "fill": true,
+          "fill_scale": 0.86,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_fat_play",
+          "label": "시온이 통통 — 놀기 (더 통통한 성체(신규), 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_fat_play.png",
+          "fill": true,
+          "fill_scale": 0.86,
+          "foot_margin": 10
+        },
+        {
+          "id": "sioni_fat_pet",
+          "label": "시온이 통통 — 쓰담 (더 통통한 성체(신규), 96px)",
+          "size": [
+            96,
+            96
+          ],
+          "transparent": true,
+          "chroma": "00ff00",
+          "path": "assets/sprites/sioni_fat_pet.png",
+          "fill": true,
+          "fill_scale": 0.86,
+          "foot_margin": 10
+        }
+      ]
+    },
+    {
       "id": "S",
       "title": "셸 / UI / 공유",
       "items": [

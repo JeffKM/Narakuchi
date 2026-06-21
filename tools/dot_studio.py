@@ -164,6 +164,10 @@ def assets_status():
       else:
         w, h = it["size"]
         it["spec"] = f"{w}×{h}"
+        if it.get("fill_scale", 1.0) != 1.0:
+          it["spec"] += f" · 충전 {int(it['fill_scale'] * 100)}%"  # 펫 생애단계(부분 충전)
+        if it.get("foot_margin", 0):
+          it["spec"] += f" · 발밑 {it['foot_margin']}px"  # 디오라마 받침 정합
       full = os.path.join(ROOT, it["path"])
       it["exists"] = os.path.exists(full)
       it["thumb"] = thumb_data_url(full) if it["exists"] else None
@@ -200,14 +204,19 @@ def process(params):
   fill_default = bool(preset and preset != "custom" and preset in dotify.FILL_PRESETS)
   fill = bool(params.get("fill", fill_default))
   center = bool(params.get("center"))
+  # 부분 충전 비율(펫 생애단계 — 아기<유년<성체). fill 일 때만 의미 있음. 기본 1.0(꽉 충전).
+  fill_scale = float(params.get("fill_scale", 1.0) or 1.0)
+  # 발밑 여백 px(디오라마 받침 펫=캐논 그림자 정합). fill 일 때만 의미. 기본 0(발이 바닥).
+  foot_margin = int(params.get("foot_margin", 0) or 0)
 
   out = dotify.dotify_image(
     im, tw, th, transparent or chroma is not None, lcd,
     alpha_thr=alpha_thr, chroma=chroma, chroma_tol=chroma_tol,
     apply_palette=apply_palette, palette=pal,
-    fill=fill, center=center,
+    fill=fill, center=center, fill_scale=fill_scale, foot_margin=foot_margin,
   )
-  ok, lines = dotify.audit(out, tw, th, pal if pal is not None else dotify.load_palette(), lcd, check_fill=fill)
+  ok, lines = dotify.audit(out, tw, th, pal if pal is not None else dotify.load_palette(), lcd,
+                           check_fill=fill, fill_scale=fill_scale, foot_margin=foot_margin)
   return {
     "result": image_to_data_url(out),
     "dims": [tw, th],
@@ -466,6 +475,12 @@ PAGE = r"""<!DOCTYPE html>
         <input type="checkbox" id="apply_palette" checked> 32색 팔레트 적용</label>
       <label class="chk" style="margin-top:8px">
         <input type="checkbox" id="fill"> 자동 충전 (라이브 — 콘텐츠 크롭 후 높이충전·하단정렬, 옥자 스케일 정합)</label>
+      <label id="fillScaleRow" class="hidden" style="margin-top:8px">부분 충전 <span class="val" id="fsv">1.00</span>
+        <input type="range" id="fill_scale" min="0.3" max="1" step="0.01" value="1">
+        <small style="display:block;color:var(--muted);opacity:.7;font-size:10px">펫 생애단계 — 아기 작게·성체 크게(발은 바닥 고정)</small></label>
+      <label id="footMarginRow" class="hidden" style="margin-top:8px">발밑 여백 <span class="val" id="fmv">0px</span>
+        <input type="range" id="foot_margin" min="0" max="24" step="1" value="0">
+        <small style="display:block;color:var(--muted);opacity:.7;font-size:10px">발을 캔버스 바닥보다 위에(디오라마 받침 펫=캐논 그림자 정합, 시온이 10)</small></label>
       <label class="chk" style="margin-top:8px">
         <input type="checkbox" id="center"> 중앙 정렬 (초상 — 콘텐츠 크롭 후 사방 균등 여백)</label>
       <label style="margin-top:10px">미리보기 배율 <span class="val" id="scalev">3×</span>
@@ -558,6 +573,10 @@ function selectSlot(id) {
   // 라이브 스탠딩/펫 슬롯은 "자동 충전"을 자동 ON — 옥자 스케일 정합(떠있음·작게나옴 방지)
   //   메인(preset okja·sioni) + 펫 size 슬롯(매니페스트 fill:true — preset 없는 시온이/규종이/코코)
   $('fill').checked = ['okja', 'sioni'].includes(it.preset) || !!it.fill;
+  // 펫 생애단계 슬롯은 fill_scale(부분 충전 비율)을 자동 세팅 — 아기 작게·성체 크게(없으면 1.0=꽉)
+  $('fill_scale').value = it.fill_scale || 1;
+  // 디오라마 받침 펫(시온이)은 발밑 여백을 자동 세팅 — 캐논과 같은 발 높이로(없으면 0=바닥)
+  $('foot_margin').value = it.foot_margin || 0;
   // 초상 슬롯(center:true)은 "중앙 정렬"을 자동 ON — 좌우 잘림(여백 0) 방지
   $('center').checked = !!it.center;
   $('savePath').value = it.path;
@@ -625,6 +644,11 @@ function syncUI() {
   $('ctolv').textContent = $('chroma_tol').value;
   $('athrv').textContent = $('alpha_thr').value;
   $('scalev').textContent = $('scale').value + '×';
+  // 부분 충전·발밑 여백 슬라이더는 '자동 충전'이 켜졌을 때만 노출(둘 다 fill 위에서만 의미)
+  $('fillScaleRow').classList.toggle('hidden', !$('fill').checked);
+  $('footMarginRow').classList.toggle('hidden', !$('fill').checked);
+  $('fsv').textContent = (+$('fill_scale').value).toFixed(2);
+  $('fmv').textContent = $('foot_margin').value + 'px';
   $('outImg').style.width = '';
 }
 // 색상 ↔ hex 텍스트 동기화
@@ -632,7 +656,7 @@ $('chroma').oninput = () => { $('chroma_hex').value = $('chroma').value; render(
 $('chroma_hex').oninput = () => { if (/^#?[0-9a-fA-F]{6}$/.test($('chroma_hex').value)) {
   $('chroma').value = $('chroma_hex').value.startsWith('#') ? $('chroma_hex').value : '#'+$('chroma_hex').value; render(); } };
 
-['preset','width','height','transparent','chroma_on','chroma_tol','alpha_thr','apply_palette','fill','center','scale']
+['preset','width','height','transparent','chroma_on','chroma_tol','alpha_thr','apply_palette','fill','center','fill_scale','foot_margin','scale']
   .forEach(id => $(id).addEventListener('input', () => { syncUI(); render(); }));
 
 function params() {
@@ -643,7 +667,9 @@ function params() {
     chroma_on: $('chroma_on').checked, chroma: $('chroma_hex').value,
     chroma_tol: +$('chroma_tol').value, alpha_thr: +$('alpha_thr').value,
     apply_palette: $('apply_palette').checked,
-    fill: $('fill').checked, center: $('center').checked, palette: palette,
+    fill: $('fill').checked, center: $('center').checked,
+    fill_scale: +$('fill_scale').value, foot_margin: +$('foot_margin').value,
+    palette: palette,
   };
 }
 
