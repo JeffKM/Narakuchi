@@ -23,7 +23,7 @@ const REGISTRY := {
   "miho": {"name": "미호",   "kind": MAIN, "dialogue": "miho", "buttons": "miho", "sprite": "miho", "intro_event": "mine",
     "accent": Palette.CANDLE,      "tag": "백·노랑 구미호"},
   "sion": {"name": "시온이", "kind": PET,  "dialogue": "sion", "buttons": "sion", "sprite": "sioni", "intro_event": "mine",
-    "accent": Palette.ACCENT_PINK, "tag": "곁의 흰 고양이"},
+    "accent": Palette.ACCENT_PINK, "tag": "곁의 흰 고양이", "growth_art": true},
   "gyujong": {"name": "규종이", "kind": PET, "dialogue": "gyujong", "buttons": "gyujong", "sprite": "gyujong", "intro_event": "mine",
     "accent": Palette.ACCENT_PINK, "tag": "미호의 까만 고양이"},
   "bana": {"name": "바나",   "kind": MAIN, "dialogue": "bana", "buttons": "bana", "sprite": "bana", "intro_event": "mine",
@@ -81,11 +81,19 @@ static func sprite_prefix(id: String) -> String:
   return String(get_def(id).get("sprite", id))
 
 
+## 성장 단계·체형 분기 아트가 갖춰진 펫인가 — 그 외 펫은 항상 캐논 스프라이트(기존 그대로). 현재 시온이만.
+static func has_growth_art(id: String) -> bool:
+  return bool(get_def(id).get("growth_art", false))
+
+
 ## 성장 단계 문자열("baby"|"child"|"adult") + 성체 체형(body) → 라이브 스프라이트 접두어. (D1/D2)
 ## 아기·유년만 단계 접미사를 붙이고, 성체는 체형 분기: 마름(_thin)·통통(_fat)만 신규 아트,
 ## 보통(normal)·미확정("")은 접두어 그대로 = 기존 시온이 캐논 재사용(D0). body 는 성체에서만 의미.
+## 단, 성장·체형 아트가 완비된 펫(growth_art)만 분기하고, 그 외 펫은 항상 캐논(기존 그대로 — 깨진 경로 방지).
 static func pet_stage_prefix(id: String, stage: String, body := "") -> String:
   var base := sprite_prefix(id)
+  if not has_growth_art(id):
+    return base
   match stage:
     "baby": return base + "_baby"
     "child": return base + "_child"
